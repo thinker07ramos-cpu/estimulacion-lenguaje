@@ -1,0 +1,12 @@
+{
+  "background_color": "#f8f9fa",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Voz Visual-Estimulación y Comunicación CAA",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "VozVisual",
+  "start_url": "/Estimulacion del lenguaje",
+  "theme_color": "#2563eb",
+  "description": "\"Aplicación de estimulación del lenguaje, comunicación aumentativa y alternativa (CAA) orientada a facilitar procesos de aprendizaje e intervención neuropsicológica.\""
+}
