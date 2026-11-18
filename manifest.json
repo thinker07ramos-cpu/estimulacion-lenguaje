@@ -1,12 +1,27 @@
+JSON
 {
-  "background_color": "#f8f9fa",
-  "dir": "ltr",
-  "display": "standalone",
   "name": "Voz Visual-Estimulación y Comunicación CAA",
-  "orientation": "any",
-  "scope": "/",
   "short_name": "VozVisual",
-  "start_url": "/Estimulacion del lenguaje",
+  "description": "Aplicación de estimulación del lenguaje, comunicación aumentativa y alternativa (CAA) orientada a facilitar procesos de aprendizaje e intervención neuropsicológica.",
+  "start_url": "/estimulacion-lenguaje/",
+  "scope": "/estimulacion-lenguaje/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f8f9fa",
   "theme_color": "#2563eb",
-  "description": "\"Aplicación de estimulación del lenguaje, comunicación aumentativa y alternativa (CAA) orientada a facilitar procesos de aprendizaje e intervención neuropsicológica.\""
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/estimulacion-lenguaje/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/estimulacion-lenguaje/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
 }
