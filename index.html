@@ -1815,5 +1815,14 @@
     function resetStats() { getCurrentPatient().stats = { totalClicks: 0, categories: {} }; updateStatsUI(); }
     function changeLanguage() { appLang = document.getElementById('appLanguage').value; }
   </script>
+  <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/estimulacion-lenguaje/pwabuilder-sw.js')
+            .then(reg => console.log('Service Worker registrado con éxito:', reg))
+            .catch(err => console.log('Error al registrar el Service Worker:', err));
+        });
+      }
+    </script>
 </body>
 </html>
