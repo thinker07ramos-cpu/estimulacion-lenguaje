@@ -1815,12 +1815,11 @@
     function changeLanguage() { appLang = document.getElementById('appLanguage').value; }
   </script>
 <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/estimulacion-lenguaje/pwabuilder-sw.js');
-    });
-  }
-</script>
-</body>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/estimulacion-lenguaje/pwabuilder-sw.js');
+        });
+      }
+    </script>
 </body>
 </html>
