@@ -1,690 +1,1120 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#4A90E2">
-  <meta name="description" content="Plataforma clínica y educativa especializada en Comunicación Aumentativa y Alternativa (CAA), estimulación del lenguaje y seguimiento de rutinas.">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VozVisual - Estimulación y Comunicación CAA</title>
-
-  <!-- Favicon SVG válido (elimina el 404 de favicon.ico) -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='16' fill='%232563EB'/><rect x='16' y='26' width='5' height='12' rx='2.5' fill='%23FFF'/><rect x='25' y='18' width='5' height='28' rx='2.5' fill='%23FFF'/><rect x='34' y='22' width='5' height='20' rx='2.5' fill='%23FFF'/><rect x='43' y='28' width='5' height='8' rx='2.5' fill='%23FFF'/></svg>">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='16' fill='%232563EB'/><rect x='16' y='26' width='5' height='12' rx='2.5' fill='%23FFF'/><rect x='25' y='18' width='5' height='28' rx='2.5' fill='%23FFF'/><rect x='34' y='22' width='5' height='20' rx='2.5' fill='%23FFF'/><rect x='43' y='28' width='5' height='8' rx='2.5' fill='%23FFF'/></svg>">
-
-  <!-- Web App Manifest (ruta relativa para subcarpeta en GitHub Pages) -->
-  <link rel="manifest" href="./manifest.json">
-
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#3b82f6" />
   <style>
     :root {
-      --bg-color: #F4F7F6;
-      --card-bg: #FFFFFF;
-      --nav-bg: #E0E8EE;
-      --tabs-bg: #EBEFF2;
-      --strip-bg: #EEF3F7;
-      --option-bg: #F8FAFC;
-      --primary: #4A90E2;
-      --secondary: #50B89C;
-      --accent: #F5A623;
-      --text-main: #2C3E50;
-      --text-muted: #666666;
-      --border-soft: #DCE4EC;
-      --danger: #E74C3C;
-      --btn-muted-bg: #CBD5E0;
-      --completed-bg: #E8F8F5;
+      --bg-grad: linear-gradient(135deg, #3b82f6 0%, #34d399 100%);
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --border: #e2e8f0;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+      --radius: 16px;
     }
 
-    /* TEMA MODO OSCURO */
     body.theme-dark {
-      --bg-color: #121820;
-      --card-bg: #1E2733;
-      --nav-bg: #18202A;
-      --tabs-bg: #1A232E;
-      --strip-bg: #151C24;
-      --option-bg: #25303F;
-      --primary: #5BA4F5;
-      --secondary: #48C9B0;
-      --accent: #F5A623;
-      --text-main: #ECF0F1;
-      --text-muted: #AAB7B8;
-      --border-soft: #34495E;
-      --danger: #E74C3C;
-      --btn-muted-bg: #2C3E50;
-      --completed-bg: #1B3B35;
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --border: #334155;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
     }
 
-    /* TEMA ALTO CONTRASTE (ACCESIBILIDAD) */
-    body.theme-high-contrast {
-      --bg-color: #000000;
-      --card-bg: #000000;
-      --nav-bg: #000000;
-      --tabs-bg: #000000;
-      --strip-bg: #000000;
-      --option-bg: #000000;
-      --primary: #FFFF00;
-      --secondary: #00FFFF;
-      --accent: #FF00FF;
-      --text-main: #FFFFFF;
-      --text-muted: #FFFF00;
-      --border-soft: #FFFFFF;
-      --danger: #FF3333;
-      --btn-muted-bg: #222222;
-      --completed-bg: #003333;
+    body.theme-contrast {
+      --bg-grad: #000000;
+      --bg-main: #000000;
+      --bg-card: #000000;
+      --text-main: #ffff00;
+      --text-muted: #ffffff;
+      --primary: #ffff00;
+      --primary-hover: #fde047;
+      --accent: #00ff00;
+      --accent-hover: #4ade80;
+      --border: #ffff00;
+      --shadow: none;
     }
 
-    * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-    body { margin: 0; background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; transition: background-color 0.2s, color 0.2s; }
-
-    /* Ajustes específicos para Alto Contraste */
-    body.theme-high-contrast .btn-speak,
-    body.theme-high-contrast .btn-start-app,
-    body.theme-high-contrast .btn-submit,
-    body.theme-high-contrast .mod-btn.active,
-    body.theme-high-contrast .tab-btn.active,
-    body.theme-high-contrast .age-tab.active {
+    body.theme-contrast button,
+    body.theme-contrast .btn-primary,
+    body.theme-contrast .btn-accent {
       color: #000000 !important;
-      border: 2px solid #FFFFFF;
-    }
-    body.theme-high-contrast .dropdown-select {
-      color: #000000 !important;
-      border: 2px solid #FFFFFF;
-    }
-    body.theme-high-contrast .picto-card,
-    body.theme-high-contrast .stats-card,
-    body.theme-high-contrast .dashboard-card,
-    body.theme-high-contrast .agenda-step-card,
-    body.theme-high-contrast .fono-card,
-    body.theme-high-contrast .fono-option,
-    body.theme-high-contrast .mini-card,
-    body.theme-high-contrast .sentence-strip,
-    body.theme-high-contrast .nav-header {
-      border-width: 3px;
-      border-color: #FFFFFF;
+      font-weight: 800;
+      border: 2px solid #ffffff;
     }
 
-    /* Pantalla de Bienvenida / Carátula */
-    #welcomeScreen {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: linear-gradient(135deg, #4A90E2 0%, #50B89C 100%);
-      display: flex; justify-content: center; align-items: center; z-index: 999999;
-      color: white; text-align: center; padding: 20px;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
-    body.theme-high-contrast #welcomeScreen {
-      background: #000000;
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      transition: background-color 0.25s, color 0.25s;
     }
+
+    .hidden { display: none !important; }
+
+    /* PANTALLA DE BIENVENIDA */
+    #welcome-screen {
+      min-height: 100vh;
+      background: var(--bg-grad);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
     .welcome-card {
-      background: var(--card-bg); color: var(--text-main); padding: 40px 30px; border-radius: 25px;
-      max-width: 500px; width: 100%; box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-      border: 2px solid var(--border-soft);
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 24px;
+      padding: 44px 36px;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
     }
-    .welcome-visuals { display: flex; justify-content: center; gap: 15px; font-size: 50px; margin-bottom: 20px; }
-    
-    .btn-start-app {
-      background: var(--secondary); color: white; border: none; padding: 18px 30px; font-size: 18px;
-      font-weight: bold; border-radius: 30px; cursor: pointer; width: 100%; box-shadow: 0 4px 10px rgba(80,184,156,0.4);
-      margin-top: 20px; transition: transform 0.1s, background-color 0.2s; min-height: 56px;
-    }
-    .btn-start-app:active { transform: scale(0.96); }
 
-    /* Modal de Configuración y Roles */
-    #profileModal {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0, 0, 0, 0.85);
-      display: none; justify-content: center; align-items: center; z-index: 99998; padding: 15px;
+    .welcome-icons {
+      font-size: 3.2rem;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
     }
-    .profile-card-modal {
-      background: var(--card-bg); color: var(--text-main); padding: 30px; border-radius: 20px; text-align: center; max-width: 520px; width: 100%;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto;
-      border: 2px solid var(--border-soft);
-    }
-    .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-    .role-btn {
-      padding: 14px 10px; border: 2px solid var(--border-soft); background: var(--option-bg); color: var(--text-main); border-radius: 14px;
-      font-size: 14px; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 60px;
-    }
-    .role-btn.active { border-color: var(--primary); background: var(--strip-bg); color: var(--primary); }
-    .patient-list { display: flex; flex-direction: column; gap: 10px; margin: 12px 0; max-height: 180px; overflow-y: auto; }
-    .patient-row {
-      padding: 12px 15px; border: 2px solid var(--border-soft); background: var(--option-bg); border-radius: 12px;
-      font-size: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; min-height: 54px;
-    }
-    .patient-info { display: flex; align-items: center; gap: 10px; text-align: left; }
 
-    /* Barra Superior Comunicador */
+    .welcome-card h1 {
+      font-size: 2.3rem;
+      color: var(--primary);
+      margin-bottom: 12px;
+      font-weight: 800;
+    }
+
+    .welcome-card p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      line-height: 1.55;
+      margin-bottom: 28px;
+    }
+
+    .btn-start {
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 16px 32px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-radius: 999px;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.15s, background 0.2s;
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+    }
+
+    .btn-start:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+
+    /* BARRA DE NAVEGACIÓN */
+    header.navbar {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-btn, select.nav-select {
+      background: var(--bg-main);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .nav-btn:hover, .nav-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    main.container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 18px 60px;
+    }
+
+    .section-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 1.45rem;
+      margin-bottom: 8px;
+      color: var(--primary);
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    /* GRID DE MÓDULOS INICIO */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 18px;
+      margin-top: 16px;
+    }
+
+    .module-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow);
+    }
+
+    .module-card h3 {
+      font-size: 1.18rem;
+      margin-bottom: 8px;
+    }
+
+    .module-card p {
+      color: var(--text-muted);
+      font-size: 0.94rem;
+      line-height: 1.45;
+      margin-bottom: 18px;
+    }
+
+    /* BOTONES GENERALES */
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: #ffffff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* COMUNICADOR CAA */
     .sentence-bar {
-      background: var(--card-bg); border-bottom: 3px solid var(--primary); padding: 12px 20px;
-      display: none; align-items: center; justify-content: space-between; min-height: 105px; gap: 15px;
-    }
-    .sentence-strip {
-      display: flex; gap: 12px; flex-grow: 1; overflow-x: auto; align-items: center; min-height: 75px;
-      background: var(--strip-bg); border-radius: 14px; padding: 8px 14px; -webkit-overflow-scrolling: touch;
-      border: 1px solid var(--border-soft);
-    }
-    .mini-card { background: var(--card-bg); color: var(--text-main); border: 2px solid var(--primary); border-radius: 12px; padding: 6px 12px; display: flex; flex-direction: column; align-items: center; min-width: 75px; flex-shrink: 0; }
-    .mini-card span, .mini-card img { font-size: 26px; width: 28px; height: 28px; object-fit: cover; border-radius: 4px; }
-    .mini-card .lbl { font-size: 12px; font-weight: bold; margin-top: 2px; }
-
-    .action-btn { border: none; border-radius: 14px; padding: 14px 20px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; min-height: 50px; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .btn-speak { background-color: var(--secondary); }
-    .btn-clear { background-color: var(--danger); }
-
-    /* Navegación y Menú Superior */
-    .nav-header { display: flex; justify-content: space-between; align-items: center; background: var(--nav-bg); padding: 10px 15px; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid var(--border-soft); }
-    .nav-modules { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    .mod-btn { padding: 10px 14px; border: 1px solid var(--border-soft); background: var(--btn-muted-bg); color: var(--text-main); border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px; min-height: 42px; }
-    .mod-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-    
-    .dropdown-container { position: relative; display: inline-block; }
-    .dropdown-select { padding: 10px 14px; border: none; background: var(--accent); color: white; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px; min-height: 42px; }
-
-    .nav-right-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .btn-theme-toggle { background: var(--card-bg); color: var(--text-main); border: 2px solid var(--primary); padding: 8px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; min-height: 40px; display: flex; align-items: center; gap: 5px; }
-    .profile-badge { background: var(--card-bg); padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; color: var(--primary); border: 1px solid var(--border-soft); cursor: pointer; min-height: 40px; display: flex; align-items: center; }
-    .btn-logout { background: var(--danger); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); min-height: 40px; }
-    .btn-logout:hover { opacity: 0.9; }
-
-    .tabs { display: flex; justify-content: center; gap: 10px; padding: 12px; background: var(--tabs-bg); flex-wrap: wrap; border-bottom: 1px solid var(--border-soft); }
-    .tab-btn { padding: 8px 14px; border: 2px solid var(--primary); background: var(--card-bg); color: var(--primary); border-radius: 22px; font-size: 13px; font-weight: bold; cursor: pointer; min-height: 40px; }
-    .tab-btn.active { background: var(--primary); color: white; }
-
-    .view-section { display: none; flex-grow: 1; overflow-y: auto; padding: 20px; -webkit-overflow-scrolling: touch; }
-    .view-section.active { display: flex; flex-direction: column; }
-
-    /* Cuadrículas táctiles optimizadas para tablets */
-    .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 18px; padding-bottom: 20px; }
-    .picto-card {
-      background: var(--card-bg); color: var(--text-main); border: 3px solid var(--border-soft); border-radius: 20px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 18px; cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08); position: relative; min-height: 150px;
-      transition: transform 0.1s ease, border-color 0.2s ease;
-    }
-    .picto-card:active { transform: scale(0.96); }
-    .picto-emoji { font-size: 60px; width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
-    .picto-img { width: 65px; height: 65px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; }
-    .picto-word { font-size: 17px; font-weight: 700; text-transform: uppercase; text-align: center; }
-
-    .delete-badge {
-      background: var(--danger); color: white;
-      border: none; border-radius: 50%; width: 34px; height: 34px; font-size: 13px;
-      font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2); flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--bg-main);
+      border: 2px solid var(--primary);
+      border-radius: 14px;
+      padding: 12px 16px;
+      min-height: 76px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
     }
 
-    .cat-pronombre { border-bottom: 8px solid #F1C40F; }
-    .cat-verbo     { border-bottom: 8px solid #2ECC71; }
-    .cat-sustantivo{ border-bottom: 8px solid #E67E22; }
-    .cat-emocion   { border-bottom: 8px solid #3498DB; }
-    .cat-tiempo    { border-bottom: 8px solid #9B59B6; }
-    .cat-cognicion { border-bottom: 8px solid #1ABC9C; }
-    .cat-conectores{ border-bottom: 8px solid #E74C3C; }
-    .cat-custom    { border-bottom: 8px solid #95A5A6; }
-
-    /* Estilos Agenda Visual */
-    .agenda-timeline { display: flex; flex-direction: column; gap: 14px; max-width: 680px; margin: 0 auto; width: 100%; }
-    .agenda-step-card {
-      background: var(--card-bg); color: var(--text-main); border: 3px solid var(--border-soft); border-radius: 18px; padding: 15px 18px;
-      display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 8px rgba(0,0,0,0.06);
-      gap: 12px; min-height: 80px;
+    .sentence-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      flex: 1;
     }
-    .agenda-step-card.completed { background: var(--completed-bg); border-color: var(--secondary); opacity: 0.9; }
-    .agenda-step-left { display: flex; align-items: center; gap: 18px; flex-grow: 1; }
-    .agenda-visual-box { font-size: 40px; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; background: var(--option-bg); border-radius: 14px; overflow: hidden; flex-shrink: 0; border: 1px solid var(--border-soft); }
-    .agenda-visual-box img { width: 100%; height: 100%; object-fit: cover; }
-    .agenda-title { font-size: 19px; font-weight: bold; text-transform: uppercase; }
 
-    .web-search-results { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px; max-height: 160px; overflow-y: auto; background: var(--option-bg); padding: 10px; border-radius: 10px; border: 1px solid var(--border-soft); }
-    .search-result-item { background: var(--card-bg); border: 2px solid var(--border-soft); border-radius: 10px; padding: 8px; text-align: center; cursor: pointer; font-size: 28px; min-height: 50px; display: flex; align-items: center; justify-content: center; }
+    .sentence-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-    .fono-wrapper { max-width: 680px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 20px; }
-    .fono-card { background: var(--card-bg); color: var(--text-main); padding: 30px; border-radius: 22px; box-shadow: 0 6px 16px rgba(0,0,0,0.08); text-align: center; margin-bottom: 15px; border: 1px solid var(--border-soft); }
-    .options-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 18px; }
-    .fono-option { background: var(--option-bg); color: var(--text-main); border: 3px solid var(--border-soft); border-radius: 16px; padding: 18px; font-size: 19px; font-weight: bold; cursor: pointer; min-height: 65px; transition: transform 0.1s; }
-    .fono-option:active { transform: scale(0.97); }
+    .cat-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
 
-    .age-bar { display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
-    .age-tab { padding: 10px 18px; border-radius: 18px; border: 2px solid var(--secondary); background: var(--card-bg); color: var(--secondary); font-weight: bold; cursor: pointer; min-height: 44px; }
-    .age-tab.active { background: var(--secondary); color: white; }
+    .picto-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
+      gap: 12px;
+    }
 
-    .stats-card { background: var(--card-bg); color: var(--text-main); border-radius: 16px; padding: 22px; margin-bottom: 15px; box-shadow: 0 3px 8px rgba(0,0,0,0.08); text-align: left; border: 1px solid var(--border-soft); }
-    .form-group { margin-bottom: 15px; text-align: left; }
-    .form-group label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 15px; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 2px solid var(--border-soft); background: var(--option-bg); color: var(--text-main); border-radius: 10px; font-size: 16px; min-height: 48px; }
-    .btn-submit { background: var(--secondary); color: white; border: none; padding: 14px 20px; font-size: 17px; font-weight: bold; border-radius: 10px; cursor: pointer; width: 100%; min-height: 52px; }
+    .picto-btn {
+      background: var(--bg-main);
+      color: var(--text-main);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.12s, border-color 0.15s;
+    }
 
-    /* Tarjetas del Dashboard de Inicio */
-    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-top: 18px; }
-    .dashboard-card { background: var(--card-bg); color: var(--text-main); border: 2px solid var(--border-soft); border-radius: 18px; padding: 22px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; }
-    .dashboard-card h4 { margin-top: 0; color: var(--primary); display: flex; align-items: center; gap: 8px; font-size: 18px; }
-    .dashboard-card p { color: var(--text-muted); }
+    .picto-btn:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+    }
+
+    .picto-emoji {
+      font-size: 2.3rem;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .picto-label {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    /* FORMULARIOS E INPUTS */
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    input[type="text"], input[type="time"], select {
+      background: var(--bg-main);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+    }
+
+    /* AGENDA VISUAL */
+    .agenda-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .agenda-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-main);
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      border-radius: 12px;
+      gap: 10px;
+    }
+
+    .agenda-item.done {
+      opacity: 0.6;
+      text-decoration: line-through;
+    }
+
+    /* EJERCICIOS FONOLOGÍA Y SEMÁNTICA */
+    .quiz-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .feedback-box {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+
+    /* MÉTRICAS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .stat-box {
+      background: var(--bg-main);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    /* MODAL PERFIL */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 200;
+    }
+
+    .modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      max-width: 440px;
+      width: 100%;
+    }
+
+    @media print {
+      header.navbar, .no-print { display: none !important; }
+      body { background: #ffffff; color: #000000; }
+    }
   </style>
-  <!-- Librería jsPDF para exportar reportes clínicos en PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-  <!-- CARÁTULA / PANTALLA DE BIENVENIDA -->
-  <div id="welcomeScreen">
+  <!-- 1. PANTALLA DE BIENVENIDA -->
+  <section id="welcome-screen">
     <div class="welcome-card">
-      <div class="welcome-visuals">
+      <div class="welcome-icons">
         <span>🧒🏽</span><span>💬</span><span>👧🏼</span>
       </div>
-      <h1 style="color: var(--primary); margin-bottom: 10px;">VozVisual</h1>
-      <p style="color: var(--text-muted); font-size: 15px; line-height: 1.5; margin-bottom: 20px;">
-        Plataforma clínica y educativa especializada en Comunicación Aumentativa y Alternativa (CAA), estimulación del lenguaje y seguimiento de rutinas para niños y jóvenes.
-      </p>
-      <button id="startBtn" class="btn-start-app" type="button">🚀 INICIAR APLICACIÓN</button>
+      <h1>VozVisual</h1>
+      <p>Plataforma clínica y educativa especializada en Comunicación Aumentativa y Alternativa (CAA), estimulación del lenguaje y seguimiento de rutinas para niños y jóvenes.</p>
+      <button class="btn-start" onclick="iniciarApp()">🚀 INICIAR APLICACIÓN</button>
     </div>
-  </div>
+  </section>
 
-  <!-- MODAL DE CONFIGURACIÓN DE ACCESO Y PERFILES -->
-  <div id="profileModal">
-    <div class="profile-card-modal">
-      <h2>Configuración de Acceso</h2>
-      <p style="color: var(--text-muted); font-size: 14px;">1. Selecciona tu Rol y 2. Gestiona o elige al Paciente</p>
-      
-      <p style="font-weight: bold; text-align: left; margin-top: 15px;">Selecciona tu Rol:</p>
-      <div class="role-grid">
-        <button class="role-btn active" type="button" id="rFamiliar">🏠 Familia</button>
-        <button class="role-btn" type="button" id="rPsico">👩‍⚕️ Psicólogo</button>
-        <button class="role-btn" type="button" id="rEst">📚 Estudiante</button>
-      </div>
-
-      <p style="font-weight: bold; text-align: left; margin-top: 20px;">Selecciona o Administra el Paciente Activo:</p>
-      <div class="patient-list" id="patientListContainer"></div>
-
-      <hr style="margin: 15px 0; border: 0; border-top: 1px solid var(--border-soft);">
-
-      <h4 style="text-align: left; margin: 0 0 8px;">➕ Registrar Nuevo Paciente</h4>
-      <div class="form-group"><label>Nombre:</label><input type="text" id="newPatientName" placeholder="Ej: Mateo Pérez"></div>
-      <div class="form-group">
-        <label>Edad:</label>
-        <select id="newPatientAge">
-          <option value="3-6">3 a 6 años</option>
-          <option value="7-9">7 a 9 años</option>
-          <option value="10-12">10 a 12 años</option>
-        </select>
-      </div>
-      <button class="btn-submit" type="button" id="createPatientBtn">Crear y Empezar Sesión</button>
-    </div>
-  </div>
-
-  <!-- Barra superior de comunicación -->
-  <div class="sentence-bar" id="topSentenceBar">
-    <div class="sentence-strip" id="sentenceStrip">
-      <span style="color: var(--text-muted); font-size: 15px;">Toca las tarjetas para formar una frase...</span>
-    </div>
-    <div style="display: flex; gap: 8px;">
-      <button class="action-btn btn-speak" type="button" id="speakSentenceBtn">🔊 HABLAR</button>
-      <button class="action-btn btn-clear" type="button" id="clearSentenceBtn">🗑️</button>
-    </div>
-  </div>
-
-  <!-- Navegación con Menú Desplegable de Funciones y Selector de Tema -->
-  <div class="nav-header">
-    <div class="nav-modules">
-      <button class="mod-btn active" type="button" data-module="dashboard">🏠 Inicio</button>
-      <button class="mod-btn" type="button" data-module="comunicador">💬 Comunicador</button>
-      <button class="mod-btn" type="button" data-module="vocabulario">🖼️ Vocabulario</button>
-      
-      <!-- Menú Desplegable -->
-      <div class="dropdown-container">
-        <select id="navDropdownMenu" class="dropdown-select" onchange="jumpToModule(this.value)">
-          <option value="" disabled selected>📂 Menú de Funciones ▼</option>
+  <!-- 2. APLICACIÓN PRINCIPAL -->
+  <div id="app-shell" class="hidden">
+    <header class="navbar">
+      <div class="nav-group">
+        <button class="nav-btn active" data-view="home" onclick="navigate('home')">🏠 Inicio</button>
+        <button class="nav-btn" data-view="caa" onclick="navigate('caa')">💬 Comunicador</button>
+        <button class="nav-btn" data-view="vocab" onclick="navigate('vocab')">🖼️ Vocabulario</button>
+        <select class="nav-select" id="menu-funciones" onchange="handleMenuSelect(this)">
+          <option value="">📂 Menú de Funciones ▼</option>
           <option value="agenda">📅 Agenda Visual Predictiva</option>
           <option value="fonologia">🧩 Fonología (Sonidos)</option>
           <option value="semantica">🧠 Semántica y Agrupación</option>
-          <option value="terapeuta">📊 Panel Clínico y Métricas</option>
+          <option value="panel">📊 Panel Clínico y Métricas</option>
           <option value="credenciales">🔐 Registro de Credenciales</option>
           <option value="soporte">🛠️ Soporte Clínico</option>
-          <option value="configuracion">⚙️ Configuración General</option>
+          <option value="config">⚙️ Configuración General</option>
         </select>
       </div>
-    </div>
 
-    <div class="nav-right-group">
-      <button class="btn-theme-toggle" type="button" id="themeToggleBtn" title="Cambiar Tema Visual">☀️ Claro</button>
-      <div class="profile-badge" id="profileBadge">👤 Perfil</div>
-      <button class="btn-logout" type="button" id="logoutBtn" title="Cerrar Sesión / Salir">🚪 Salir</button>
-    </div>
-  </div>
-
-  <!-- MÓDULO 0: PÁGINA PRINCIPAL / DASHBOARD RESUMEN -->
-  <div class="view-section active" id="view-dashboard">
-    <div style="max-width: 800px; margin: 0 auto; width: 100%;">
-      <div class="stats-card" id="welcomeBannerCard" style="background: linear-gradient(135deg, #4A90E2 0%, #50B89C 100%); color: white;">
-        <h2 style="margin-top:0;">👋 ¡Bienvenido a VozVisual!</h2>
-        <p style="font-size: 16px; line-height: 1.5; margin-bottom: 0;">
-          Plataforma clínica y educativa especializada en Comunicación Aumentativa y Alternativa (CAA), estimulación del lenguaje y seguimiento de rutinas para niños y jóvenes.
-        </p>
+      <div class="nav-group">
+        <button class="nav-btn" id="theme-btn" onclick="cycleTheme()">☀️ Claro</button>
+        <button class="nav-btn" id="profile-badge" onclick="openProfileModal()">👤 Perfil</button>
+        <button class="nav-btn" onclick="salirApp()">🚪 Salir</button>
       </div>
+    </header>
 
-      <h3 style="margin-top: 25px; color: var(--text-main);">📌 Resumen de Módulos y Funcionalidades</h3>
-      
-      <div class="dashboard-grid">
-        <div class="dashboard-card">
-          <div>
-            <h4>💬 Comunicador CAA</h4>
-            <p style="font-size: 14px;">Tablero interactivo con categorías avanzadas de tiempo, cognición, conectores y síntesis de voz.</p>
+    <main class="container">
+
+      <!-- VISTA: INICIO -->
+      <section id="view-home" class="app-view">
+        <div class="section-card">
+          <h2 class="section-title">👋 ¡Bienvenido a VozVisual!</h2>
+          <p class="section-desc">Plataforma clínica y educativa especializada en Comunicación Aumentativa y Alternativa (CAA), estimulación del lenguaje y seguimiento de rutinas para niños y jóvenes.</p>
+          <p id="active-user-summary" style="font-weight:600; color:var(--primary);"></p>
+        </div>
+
+        <h3 style="margin-bottom:12px;">📌 Resumen de Módulos y Funcionalidades</h3>
+        <div class="modules-grid">
+          <div class="module-card">
+            <div>
+              <h3>💬 Comunicador CAA</h3>
+              <p>Tablero interactivo con categorías avanzadas de tiempo, cognición, conectores y síntesis de voz.</p>
+            </div>
+            <button class="btn-primary" onclick="navigate('caa')">Ir a Comunicador ➔</button>
           </div>
-          <button class="action-btn btn-speak" type="button" style="font-size: 14px; padding: 10px; margin-top: 15px;" onclick="switchModule('comunicador', document.querySelector('[data-module=comunicador]'))">Ir a Comunicador ➔</button>
-        </div>
 
-        <div class="dashboard-card">
-          <div>
-            <h4>📅 Agenda Visual</h4>
-            <p style="font-size: 14px;">Anticipa actividades, reordena pasos, marca tareas completadas y guarda plantillas de rutinas.</p>
+          <div class="module-card">
+            <div>
+              <h3>📅 Agenda Visual</h3>
+              <p>Anticipa actividades, reordena pasos, marca tareas completadas y guarda plantillas de rutinas.</p>
+            </div>
+            <button class="btn-primary" onclick="navigate('agenda')">Ir a Agenda ➔</button>
           </div>
-          <button class="action-btn btn-speak" type="button" style="font-size: 14px; padding: 10px; margin-top: 15px;" onclick="switchModule('agenda', null)">Ir a Agenda ➔</button>
-        </div>
 
-        <div class="dashboard-card">
-          <div>
-            <h4>🧩 Fonología y Semántica</h4>
-            <p style="font-size: 14px;">Ejercicios de sonido inicial, asociación de palabras, uniones y agrupación por atributos (color, forma, tamaño).</p>
+          <div class="module-card">
+            <div>
+              <h3>🧩 Fonología y Semántica</h3>
+              <p>Ejercicios de sonido inicial, asociación de palabras, uniones y agrupación por atributos (color, forma, tamaño).</p>
+            </div>
+            <button class="btn-primary" onclick="navigate('fonologia')">Ir a Fonología ➔</button>
           </div>
-          <button class="action-btn btn-speak" type="button" style="font-size: 14px; padding: 10px; margin-top: 15px;" onclick="switchModule('fonologia', null)">Ir a Fonología ➔</button>
-        </div>
 
-        <div class="dashboard-card">
-          <div>
-            <h4>📊 Panel Clínico y Soporte</h4>
-            <p style="font-size: 14px;">Monitorea métricas en tiempo real, exporta reportes en PDF, gestiona credenciales y solicita soporte.</p>
+          <div class="module-card">
+            <div>
+              <h3>📊 Panel Clínico y Soporte</h3>
+              <p>Monitorea métricas en tiempo real, exporta reportes en PDF, gestiona credenciales y solicita soporte.</p>
+            </div>
+            <button class="btn-primary" onclick="navigate('panel')">Ir a Panel ➔</button>
           </div>
-          <button class="action-btn btn-speak" type="button" style="font-size: 14px; padding: 10px; margin-top: 15px;" onclick="switchModule('terapeuta', null)">Ir a Panel ➔</button>
         </div>
-      </div>
-    </div>
-  </div>
+      </section>
 
-  <!-- MÓDULO 1: COMUNICADOR CAA -->
-  <div class="view-section" id="view-comunicador">
-    <div class="tabs">
-      <button class="tab-btn active" type="button" data-cat="todos">Todo</button>
-      <button class="tab-btn" type="button" data-cat="basico">Básico</button>
-      <button class="tab-btn" type="button" data-cat="necesidades">Necesidades</button>
-      <button class="tab-btn" type="button" data-cat="emociones">Emociones</button>
-      <button class="tab-btn" type="button" data-cat="tiempo">⏳ Tiempo</button>
-      <button class="tab-btn" type="button" data-cat="cognicion">🧠 Cognición</button>
-      <button class="tab-btn" type="button" data-cat="conectores">💬 Conectores</button>
-      <button class="tab-btn" type="button" data-cat="custom">Mis Fotos ⭐</button>
-    </div>
-    <div class="grid-container" id="pictoGrid" style="margin-top: 15px;"></div>
-  </div>
+      <!-- VISTA: COMUNICADOR CAA -->
+      <section id="view-caa" class="app-view hidden">
+        <div class="section-card">
+          <h2 class="section-title">💬 Comunicador CAA</h2>
+          <p class="section-desc">Selecciona pictogramas para construir frases y reproducirlas con voz sintetizada.</p>
 
-  <!-- MÓDULO 2: VOCABULARIO EN IMÁGENES -->
-  <div class="view-section" id="view-vocabulario">
-    <div class="tabs">
-      <button class="tab-btn active" type="button" data-vcat="todos">Todo</button>
-      <button class="tab-btn" type="button" data-vcat="animales">🦁 Animales</button>
-      <button class="tab-btn" type="button" data-vcat="alimentos">🍎 Alimentos</button>
-      <button class="tab-btn" type="button" data-vcat="casa">🏠 Casa</button>
-      <button class="tab-btn" type="button" data-vcat="ropa">👕 Ropa</button>
-      <button class="tab-btn" type="button" data-vcat="naturaleza">🌳 Naturaleza</button>
-    </div>
-    <div class="grid-container" id="vocabGrid" style="margin-top: 15px;"></div>
-  </div>
-
-  <!-- MÓDULO 3: AGENDA VISUAL PREDICTIVA -->
-  <div class="view-section" id="view-agenda">
-    <div style="max-width: 680px; margin: 0 auto; width: 100%;">
-      <div class="stats-card" style="text-align: center;">
-        <h3>📅 Agenda Visual Predictiva de Rutinas</h3>
-        <p style="color: var(--text-muted); font-size: 14px;">Anticipa, reordena y administra plantillas para las sesiones.</p>
-        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
-          <button class="action-btn btn-speak" type="button" id="speakAgendaBtn" style="font-size: 14px; padding: 12px 18px;">🔊 Leer Secuencia</button>
-          <button class="action-btn" type="button" id="saveRoutineBtn" style="font-size: 14px; padding: 12px 18px; background-color: var(--primary);">💾 Guardar Rutina</button>
-        </div>
-      </div>
-
-      <div class="stats-card">
-        <h3>📂 Gestionar Rutinas Guardadas</h3>
-        <div class="form-group">
-          <select id="savedRoutinesSelect">
-            <option value="">-- Selecciona una rutina guardada --</option>
-          </select>
-        </div>
-        <div style="display: flex; gap: 10px;">
-          <button class="btn-submit" type="button" id="loadRoutineBtn" style="background-color: var(--primary); flex-grow: 1;">Cargar Plantilla</button>
-          <button class="action-btn btn-clear" type="button" id="deleteRoutineBtn" style="font-size: 14px; padding: 12px 18px;" title="Eliminar rutina seleccionada">🗑️ Eliminar</button>
-        </div>
-      </div>
-
-      <div class="agenda-timeline" id="agendaTimelineContainer"></div>
-
-      <div class="stats-card" style="margin-top: 20px;">
-        <h3>➕ Agregar Paso a la Rutina</h3>
-        <div class="form-group"><label>Actividad:</label><input type="text" id="agendaNewTitle" placeholder="Ej: Ir al baño / Terapia / Descanso"></div>
-        <div class="form-group"><label>Tipo de Representación:</label>
-          <select id="agendaTypeSelect" onchange="toggleAgendaInputType()">
-            <option value="emoji">Emoji (Ej: 🚽)</option>
-            <option value="image">Subir o Buscar Imagen / Pictograma</option>
-          </select>
-        </div>
-        <div class="form-group" id="groupAgendaEmoji">
-          <label>Emoji:</label><input type="text" id="agendaNewEmoji" placeholder="Ej: 🎒" maxlength="4" value="📌">
-        </div>
-        <div class="form-group" id="groupAgendaFile" style="display: none;">
-          <label>Imagen o Búsqueda Web:</label>
-          <input type="file" id="agendaNewFile" accept="image/*" style="margin-bottom: 8px;">
-          <div style="display: flex; gap: 8px;">
-            <input type="text" id="agendaWebSearchQuery" placeholder="🔍 Buscar en web (ej: lápiz, parque)...">
-            <button class="action-btn btn-speak" type="button" onclick="performGoogleSearchForAgenda()" style="padding: 10px 14px; font-size: 14px;">Buscar</button>
+          <div class="sentence-bar">
+            <div class="sentence-items" id="sentence-items">
+              <span style="color:var(--text-muted);">Toca un pictograma para armar tu frase...</span>
+            </div>
+            <div class="nav-group">
+              <button class="btn-accent" onclick="speakSentence()">🔊 Hablar</button>
+              <button class="nav-btn" onclick="backspaceSentence()">⌫ Borrar</button>
+              <button class="btn-danger" onclick="clearSentence()">🗑️ Limpiar</button>
+            </div>
           </div>
-          <div class="web-search-results" id="agendaSearchResults"></div>
-          <input type="hidden" id="agendaSelectedImgSrc" value="">
-        </div>
-        <button class="btn-submit" type="button" id="addAgendaStepBtn">Añadir a la Agenda</button>
-      </div>
-    </div>
-  </div>
 
-  <!-- MÓDULO 4: FONOLOGÍA -->
-  <div class="view-section" id="view-fonologia">
-    <div class="fono-wrapper">
-      <div class="age-bar">
-        <button class="age-tab active" type="button" data-fmode="sonido">🎯 Sonido Inicial</button>
-        <button class="age-tab" type="button" data-fmode="unir">🔗 Unir Palabra con Objeto</button>
-      </div>
+          <div class="cat-tabs" id="caa-categories"></div>
+          <div class="picto-grid" id="caa-grid"></div>
+        </div>
+      </section>
 
-      <div class="fono-card" id="fonoModeSonido">
-        <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;">
-          <button class="age-tab active" type="button" data-fage="3-6">3 a 6 años</button>
-          <button class="age-tab" type="button" data-fage="7-9">7 a 9 años</button>
-          <button class="age-tab" type="button" data-fage="10-12">10 a 12 años</button>
-        </div>
-        <h3 id="fonoTitle">1. Sonido Inicial</h3>
-        <div style="font-size: 70px; margin: 15px 0;" id="fonoTargetEmoji">🍎</div>
-        <button class="action-btn btn-speak" type="button" id="playFonoBtn" style="font-size: 15px; padding: 12px 20px; margin-bottom: 15px; display: inline-flex;">🔊 Escuchar</button>
-        <div class="options-grid" id="fonoOptions"></div>
-        <p id="fonoFeedback" style="font-weight: bold; margin-top: 15px; font-size: 17px;"></p>
-      </div>
-
-      <div class="fono-card" id="fonoModeUnir" style="display: none;">
-        <h3 style="margin-bottom: 5px;">🔗 Encuentra el Objeto</h3>
-        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">Lee la palabra o escúchala y selecciona la imagen correcta:</p>
-        <div style="background: var(--strip-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; display: inline-block; border: 1px solid var(--border-soft);">
-          <span id="unirTargetWord" style="font-size: 26px; font-weight: bold; color: var(--primary);">MANZANA</span>
-        </div>
-        <div>
-          <button class="action-btn btn-speak" type="button" id="playUnirBtn" style="font-size: 15px; padding: 12px 20px; margin-bottom: 15px; display: inline-flex;">🔊 Escuchar Palabra</button>
-        </div>
-        <div class="options-grid" id="unirOptionsGrid"></div>
-        <p id="unirFeedback" style="font-weight: bold; margin-top: 15px; font-size: 17px;"></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- MÓDULO 5: SEMÁNTICA -->
-  <div class="view-section" id="view-semantica">
-    <div class="fono-wrapper">
-      <div class="age-bar">
-        <button class="age-tab active" type="button" data-smode="asociacion">🧠 Asociación Semántica</button>
-        <button class="age-tab" type="button" data-smode="agrupar">📦 Agrupar (Forma, Color, Tamaño)</button>
-      </div>
-
-      <div class="fono-card" id="semModeAsociacion">
-        <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;">
-          <button class="age-tab active" type="button" data-sage="3-6">3 a 6 años</button>
-          <button class="age-tab" type="button" data-sage="7-9">7 a 9 años</button>
-          <button class="age-tab" type="button" data-sage="10-12">10 a 12 años</button>
-        </div>
-        <h3 id="semanticaTitleHeading">🧠 Asociación Semántica</h3>
-        <p id="semanticaPrompt" style="font-size: 19px; font-weight: bold; color: var(--primary); margin: 12px 0;">¿Qué va con...?</p>
-        <div style="font-size: 70px; margin: 15px 0;" id="semanticaTargetEmoji">🌧️</div>
-        <button class="action-btn btn-speak" type="button" id="playSemBtn" style="font-size: 15px; padding: 12px 20px; margin-bottom: 15px; display: inline-flex;">🔊 Escuchar</button>
-        <div class="options-grid" id="semanticaOptions"></div>
-        <p id="semanticaFeedback" style="font-weight: bold; margin-top: 15px; font-size: 17px;"></p>
-      </div>
-
-      <div class="fono-card" id="semModeAgrupar" style="display: none;">
-        <h3 style="margin-bottom: 5px;">📦 Agrupación por Atributo</h3>
-        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 12px;">Selecciona el objeto que cumple con la regla de clasificación:</p>
-        <div style="background: var(--strip-bg); padding: 14px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-soft);">
-          <span id="agruparReglaText" style="font-size: 21px; font-weight: bold; color: var(--secondary);">Criterio: Color Rojo</span>
-        </div>
-        <div>
-          <button class="action-btn btn-speak" type="button" id="playAgruparBtn" style="font-size: 15px; padding: 12px 20px; margin-bottom: 15px; display: inline-flex;">🔊 Escuchar Criterio</button>
-        </div>
-        <div class="options-grid" id="agruparOptionsGrid"></div>
-        <p id="agruparFeedback" style="font-weight: bold; margin-top: 15px; font-size: 17px;"></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- MÓDULO 6: PANEL CLÍNICO -->
-  <div class="view-section" id="view-terapeuta">
-    <div style="max-width: 680px; margin: 0 auto; width: 100%;">
-      <div class="stats-card">
-        <h3>📊 Panel de Registro: <span id="statPatientName" style="color: var(--primary);">-</span></h3>
-        <p><strong>Total de pictogramas activados:</strong> <span id="statTotalClicks">0</span></p>
-        <p><strong>Categoría más solicitada:</strong> <span id="statTopCategory">-</span></p>
-        <div style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;">
-          <button class="action-btn btn-speak" type="button" id="exportPdfBtn" style="font-size: 14px; padding: 10px 16px; background-color: var(--primary);">📄 Exportar Reporte PDF</button>
-          <button class="action-btn btn-clear" type="button" id="resetStatsBtn" style="font-size: 14px; padding: 10px 16px;">Reiniciar Métricas</button>
-        </div>
-      </div>
-
-      <div class="stats-card">
-        <h3>➕ Agregar Nuevo Ejercicio / Actividad</h3>
-        <div class="form-group"><label>Módulo:</label>
-          <select id="newExModule">
-            <option value="fono">Fonología</option>
-            <option value="semantica">Semántica</option>
-          </select>
-        </div>
-        <div class="form-group"><label>Edad:</label>
-          <select id="newExAge">
-            <option value="3-6">3 a 6 años</option>
-            <option value="7-9">7 a 9 años</option>
-            <option value="10-12">10 a 12 años</option>
-          </select>
-        </div>
-        <div class="form-group"><label>Pregunta/Palabra (con Emoji):</label><input type="text" id="newExPrompt" placeholder="Ej: León 🦁"></div>
-        <div class="form-group"><label>Respuesta Correcta:</label><input type="text" id="newExCorrect" placeholder="Ej: Rugido"></div>
-        <button class="btn-submit" type="button" id="addExerciseBtn">Registrar Ejercicio</button>
-      </div>
-
-      <div class="stats-card">
-        <h3>➕ Subir o Buscar Foto Personalizada</h3>
-        <div class="form-group"><label>Nombre:</label><input type="text" id="customWord" placeholder="Ej: Pelota"></div>
-        <div class="form-group"><label>Imagen o Búsqueda Web:</label>
-          <input type="file" id="customImageFile" accept="image/*" style="margin-bottom: 8px;">
-          <div style="display: flex; gap: 8px;">
-            <input type="text" id="customWebSearchQuery" placeholder="🔍 Buscar en web (ej: pelota, carro)...">
-            <button class="action-btn btn-speak" type="button" onclick="performGoogleSearchForCustom()" style="padding: 10px 14px; font-size: 14px;">Buscar</button>
+      <!-- VISTA: VOCABULARIO -->
+      <section id="view-vocab" class="app-view hidden">
+        <div class="section-card">
+          <h2 class="section-title">🖼️ Constructor de Vocabulario Personalizado</h2>
+          <p class="section-desc">Agrega nuevos pictogramas personalizados que se integrarán automáticamente al comunicador.</p>
+          <div class="form-row">
+            <input type="text" id="new-picto-emoji" placeholder="Emoji (ej. 🍎)" style="width:110px;" />
+            <input type="text" id="new-picto-word" placeholder="Palabra o frase (ej. Manzana)" />
+            <select id="new-picto-cat">
+              <option value="Basicos">Básicos</option>
+              <option value="Acciones">Acciones</option>
+              <option value="Emociones">Emociones</option>
+              <option value="Tiempo">Tiempo</option>
+              <option value="Cognicion">Cognición</option>
+              <option value="Conectores">Conectores</option>
+            </select>
+            <button class="btn-primary" onclick="addCustomPicto()">➕ Agregar Pictograma</button>
           </div>
-          <div class="web-search-results" id="customSearchResults"></div>
-          <input type="hidden" id="customSelectedImgSrc" value="">
+          <div class="picto-grid" id="custom-vocab-list"></div>
         </div>
-        <button class="btn-submit" type="button" id="saveCustomPictoBtn">Guardar Foto</button>
+      </section>
+
+      <!-- VISTA: AGENDA VISUAL -->
+      <section id="view-agenda" class="app-view hidden">
+        <div class="section-card">
+          <h2 class="section-title">📅 Agenda Visual Predictiva</h2>
+          <p class="section-desc">Organiza la secuencia de actividades diarias para anticipar transiciones.</p>
+          <div class="form-row">
+            <input type="text" id="agenda-emoji" placeholder="Icono (ej. 🪥)" style="width:95px;" />
+            <input type="text" id="agenda-text" placeholder="Actividad (ej. Cepillar los dientes)" style="flex:1;" />
+            <input type="time" id="agenda-time" value="08:00" />
+            <button class="btn-primary" onclick="addAgendaStep()">➕ Añadir Paso</button>
+          </div>
+          <div class="agenda-list" id="agenda-list"></div>
+        </div>
+      </section>
+
+      <!-- VISTA: FONOLOGÍA -->
+      <section id="view-fonologia" class="app-view hidden">
+        <div class="section-card">
+          <h2 class="section-title">🧩 Conciencia Fonológica (Sonido Inicial)</h2>
+          <p class="section-desc">Escucha o lee la consigna y selecciona el elemento que comienza con el sonido indicado.</p>
+          <div id="fono-exercise-box"></div>
+        </div>
+      </section>
+
+      <!-- VISTA: SEMÁNTICA -->
+      <section id="view-semantica" class="app-view hidden">
+        <div class="section-card">
+          <h2 class="section-title">🧠 Semántica y Agrupación por Atributos</h2>
+          <p class="section-desc">Identifica categorías, asociaciones y atributos (color, forma, función).</p>
+          <div id="sem-exercise-box"></div>
+        </div>
+      </section>
+
+      <!-- VISTA: PANEL CLÍNICO -->
+      <section id="view-panel" class="app-view hidden">
+        <div class="section-card">
+          <h2 class="section-title">📊 Panel Clínico y Métricas en Tiempo Real</h2>
+          <p class="section-desc">Seguimiento del desempeño comunicativo y terapéutico de la sesión.</p>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-num" id="stat-frases">0</div>
+              <div>Frases Expresadas (CAA)</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="stat-fono">0</div>
+              <div>Aciertos Fonología</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="stat-sem">0</div>
+              <div>Aciertos Semántica</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="stat-agenda">0</div>
+              <div>Tareas Completadas</div>
+            </div>
+          </div>
+          <div class="form-row no-print">
+            <button class="btn-primary" onclick="window.print()">🖨️ Exportar / Imprimir Reporte PDF</button>
+            <button class="btn-danger" onclick="resetMetrics()">🔄 Reiniciar Métricas</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- VISTA: CREDENCIALES -->
+      <section id="view-credenciales" class="app-view hidden">
+        <div class="section-card">
+          <h2 class="section-title">🔐 Registro de Credenciales Clínicas</h2>
+          <p class="section-desc">Configura los datos del especialista o centro terapéutico para los reportes.</p>
+          <div class="form-row" style="flex-direction:column; max-width:480px;">
+            <input type="text" id="cred-centro" placeholder="Centro / Institución" />
+            <input type="text" id="cred-especialista" placeholder="Nombre del Especialista" />
+            <input type="text" id="cred-exequatur" placeholder="Registro / Licencia Profesional" />
+            <button class="btn-primary" onclick="saveCredentials()">💾 Guardar Credenciales</button>
+          </div>
+          <p id="cred-status" style="color:var(--accent); font-weight:600;"></p>
+        </div>
+      </section>
+
+      <!-- VISTA: SOPORTE -->
+      <section id="view-soporte" class="app-view hidden">
+        <div class="section-card">
+          <h2 class="section-title">🛠️ Soporte Clínico y Guía Rápida</h2>
+          <p class="section-desc">Recomendaciones de uso para sesiones de terapia del lenguaje y apoyo en el hogar:</p>
+          <ul style="padding-left:20px; line-height:1.8;">
+            <li><strong>Modelado constante:</strong> El adulto debe señalar los pictogramas mientras habla de forma natural.</li>
+            <li><strong>Anticipación:</strong> Revisa la Agenda Visual antes de iniciar cada bloque de actividad.</li>
+            <li><strong>Refuerzo positivo:</strong> Celebra cualquier intento comunicativo espontáneo del estudiante.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- VISTA: CONFIGURACIÓN -->
+      <section id="view-config" class="app-view hidden">
+        <div class="section-card">
+          <h2 class="section-title">⚙️ Configuración General de Voz</h2>
+          <p class="section-desc">Ajusta la velocidad de lectura de la síntesis de voz.</p>
+          <label style="display:block; margin-bottom:8px; font-weight:600;">Velocidad de voz: <span id="rate-val">1.0</span>x</label>
+          <input type="range" id="voice-rate" min="0.6" max="1.4" step="0.1" value="1.0" oninput="updateVoiceRate(this.value)" style="width:260px;" />
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL GESTIÓN DE PERFIL -->
+  <div id="profile-modal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <h3 style="margin-bottom:12px;">👤 Configuración de Perfil</h3>
+      <div class="form-row" style="flex-direction:column;">
+        <label>Nombre del Usuario / Paciente:</label>
+        <input type="text" id="prof-name" placeholder="Ej. Mateo" />
+        <label>Rol:</label>
+        <select id="prof-role">
+          <option value="Estudiante">Estudiante</option>
+          <option value="Terapeuta">Terapeuta</option>
+          <option value="Padre/Madre">Padre / Madre</option>
+        </select>
+        <label>Grupo de Edad:</label>
+        <select id="prof-age">
+          <option value="3-6">3–6 años (Inicial)</option>
+          <option value="7-9">7–9 años (Intermedio)</option>
+          <option value="10-12">10–12 años (Avanzado)</option>
+        </select>
+      </div>
+      <div class="nav-group" style="justify-content:flex-end;">
+        <button class="nav-btn" onclick="closeProfileModal()">Cancelar</button>
+        <button class="btn-primary" onclick="saveProfile()">Guardar Perfil</button>
       </div>
     </div>
   </div>
 
-  <!-- MÓDULO 7: REGISTRO DE CREDENCIALES -->
-  <div class="view-section" id="view-credenciales">
-    <div style="max-width: 680px; margin: 0 auto; width: 100%;">
-      <div class="stats-card">
-        <h3>🔐 Registro de Credenciales de Usuario</h3>
-        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">
-          Configura tus datos de acceso institucional para sincronizar perfiles y configuraciones de sesión.
-        </p>
-        <div class="form-group">
-          <label>Nombre de Usuario:</label>
-          <input type="text" id="authUsername" placeholder="Ej: ana_baez_cenior">
-        </div>
-        <div class="form-group">
-          <label>Correo Electrónico:</label>
-          <input type="email" id="authEmail" placeholder="Ej: ceniorrd@gmail.com">
-        </div>
-        <div class="form-group">
-          <label>Contraseña:</label>
-          <input type="password" id="authPassword" placeholder="••••••••">
-        </div>
-        <button class="btn-submit" type="button" id="saveCredentialsBtn" style="background-color: var(--primary);">Guardar Credenciales</button>
-      </div>
-    </div>
-  </div>
+  <script>
+    // ESTADO GLOBAL
+    const defaultPictos = [
+      { emoji: "🙋", word: "Yo", cat: "Basicos" },
+      { emoji: "👉", word: "Quiero", cat: "Basicos" },
+      { emoji: "🙏", word: "Por favor", cat: "Basicos" },
+      { emoji: "✅", word: "Sí", cat: "Basicos" },
+      { emoji: "❌", word: "No", cat: "Basicos" },
+      { emoji: "🆘", word: "Ayuda", cat: "Basicos" },
+      { emoji: "💧", word: "Agua", cat: "Basicos" },
+      { emoji: "🍽️", word: "Comer", cat: "Acciones" },
+      { emoji: "🎮", word: "Jugar", cat: "Acciones" },
+      { emoji: "🚽", word: "Ir al baño", cat: "Acciones" },
+      { emoji: "😴", word: "Dormir", cat: "Acciones" },
+      { emoji: "😊", word: "Feliz", cat: "Emociones" },
+      { emoji: "😢", word: "Triste", cat: "Emociones" },
+      { emoji: "😠", word: "Enojado", cat: "Emociones" },
+      { emoji: "😨", word: "Asustado", cat: "Emociones" },
+      { emoji: "⏰", word: "Ahora", cat: "Tiempo" },
+      { emoji: "⏳", word: "Después", cat: "Tiempo" },
+      { emoji: "📅", word: "Mañana", cat: "Tiempo" },
+      { emoji: "🤔", word: "Pienso", cat: "Cognicion" },
+      { emoji: "💡", word: "Entiendo", cat: "Cognicion" },
+      { emoji: "❓", word: "No sé", cat: "Cognicion" },
+      { emoji: "➕", word: "Y", cat: "Conectores" },
+      { emoji: "🔄", word: "Pero", cat: "Conectores" },
+      { emoji: "🎯", word: "Porque", cat: "Conectores" }
+    ];
 
-  <!-- MÓDULO 8: SOPORTE Y REGISTRO DE USUARIO -->
-  <div class="view-section" id="view-soporte">
-    <div style="max-width: 680px; margin: 0 auto; width: 100%;">
-      <div class="stats-card">
-        <h3>🛠️ Registro de Usuario y Soporte Clínico</h3>
-        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">
-          Completa el siguiente formulario para registrar tu cuenta en el sistema de seguimiento o solicitar asistencia clínica con la plataforma.
-        </p>
-        <div class="form-group">
-          <label>Nombre y Apellido:</label>
-          <input type="text" id="supportUserName" placeholder="Ej: Lic. Ana Báez">
-        </div>
-        <div class="form-group">
-          <label>Correo Electrónico de Contacto:</label>
-          <input type="email" id="supportUserEmail" placeholder="Ej: correo@institucion.com">
-        </div>
-        <div class="form-group">
-          <label>Rol Principal:</label>
-          <select id="supportUserRole">
-            <option value="Familiar / Tutor">Familiar / Tutor</option>
-            <option value="Terapeuta / Psicólogo">Terapeuta / Psicólogo</option>
-            <option value="Institución / Centro">Institución / Centro</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Tipo de Requerimiento:</label>
-          <select id="supportRequestType">
-            <option value="Seguimiento clínico">Seguimiento clínico y de perfiles</option>
-            <option value="Soporte clínico general">Soporte clínico / Dudas de uso</option>
-            <option value="Reporte de incidencia">Reporte de incidencia</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Descripción del caso o consulta:</label>
-          <textarea id="supportMessage" rows="4" placeholder="Detalle aquí su requerimiento..."></textarea>
-        </div>
-        <button class="btn-submit" type="button" id="submitSupportBtn" style="background-color: var(--primary);">Enviar Solicitud de Soporte Clínico</button>
-      </div>
-    </div>
-  </div>
+    let state = {
+      themeIndex: 0,
+      themes: [
+        { cls: "", label: "☀️ Claro" },
+        { cls: "theme-dark", label: "🌙 Oscuro" },
+        { cls: "theme-contrast", label: "👁️ Alto Contraste" }
+      ],
+      currentCat: "Basicos",
+      sentence: [],
+      customPictos: JSON.parse(localStorage.getItem("vv_custom_pictos") || "[]"),
+      agenda: JSON.parse(localStorage.getItem("vv_agenda") || JSON.stringify([
+        { emoji: "🌅", text: "Saludo y bienvenida", time: "09:00", done: false },
+        { emoji: "🧩", text: "Ejercicios de lenguaje", time: "09:15", done: false },
+        { emoji: "🎨", text: "Actividad creativa", time: "09:40", done: false }
+      ])),
+      profile: JSON.parse(localStorage.getItem("vv_profile") || JSON.stringify({
+        name: "Invitado",
+        role: "Estudiante",
+        age: "3-6"
+      })),
+      metrics: JSON.parse(localStorage.getItem("vv_metrics") || JSON.stringify({
+        frases: 0,
+        fono: 0,
+        sem: 0
+      })),
+      voiceRate: 1.0,
+      fonoIndex: 0,
+      semIndex: 0
+    };
 
-  <!-- MÓDULO 9: CONFIGURACIÓN -->
-  <div class="view-section" id="view-configuracion">
-    <div style="max-width: 680px; margin: 0 auto; width: 100%;">
-      <div class="stats-card">
-        <h3>🎨 Tema Visual y Accesibilidad</h3>
-        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">
-          Personaliza la apariencia de la interfaz según las preferencias sensoriales o de iluminación:
-        </p>
-        <div class="form-group">
-          <label>Seleccionar Tema:</label>
-          <select id="themeSelectorDropdown" onchange="applyTheme(this.value)">
-            <option value="light">☀️ Modo Claro (Estándar)</option>
-            <option value="dark">🌙 Modo Oscuro (Descanso visual)</option>
-            <option value="high-contrast">👁️ Modo Alto Contraste (Baja visión)</option>
-          </select>
-        </div>
-      </div>
+    const fonoQuestions = [
+      { prompt: "¿Cuál empieza con el sonido /M/ (Mmmm)?", options: [{ e: "🍎", w: "Manzana", ok: true }, { e: "🐶", w: "Perro", ok: false }, { e: "☀️", w: "Sol", ok: false }] },
+      { prompt: "¿Cuál empieza con el sonido /S/ (Ssss)?", options: [{ e: "🐱", w: "Gato", ok: false }, { e: "🐍", w: "Serpiente", ok: true }, { e: "🚗", w: "Carro", ok: false }] },
+      { prompt: "¿Cuál empieza con el sonido /P/ (P)?", options: [{ e: "🦆", w: "Pato", ok: true }, { e: "🌙", w: "Luna", ok: false }, { e: "🌸", w: "Flor", ok: false }] }
+    ];
 
-      <div class="stats-card">
-        <h3>🌐 Idioma de la Aplicación y Síntesis de Voz</h3>
-        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">
-          Selecciona el idioma deseado. Esto ajustará automáticamente el acento y la síntesis de voz del sistema:
+    const semQuestions = [
+      { prompt: "Selecciona el elemento que pertenece al grupo de las FRUTAS:", options: [{ e: "🍌", w: "Guineo / Banana", ok: true }, { e: "👟", w: "Zapato", ok: false }, { e: "🚌", w: "Autobús", ok: false }] },
+      { prompt: "¿Cuál de estos objetos es de color ROJO y sirve para transportar?", options: [{ e: "🚒", w: "Camión de bomberos", ok: true }, { e: "🐸", w: "Rana", ok: false }, { e: "📘", w: "Libro azul", ok: false }] },
+      { prompt: "¿Qué usamos para protegernos de la lluvia?", options: [{ e: "☂️", w: "Paraguas", ok: true }, { e: "🕶️", w: "Gafas de sol", ok: false }, { e: "🥄", w: "Cuchara", ok: false }] }
+    ];
+
+    // NAVEGACIÓN INICIO / SALIR
+    function iniciarApp() {
+      document.getElementById("welcome-screen").classList.add("hidden");
+      document.getElementById("app-shell").classList.remove("hidden");
+      updateProfileUI();
+      renderCAA();
+      renderCustomVocab();
+      renderAgenda();
+      renderFono();
+      renderSemantica();
+      updateMetricsUI();
+    }
+
+    function salirApp() {
+      document.getElementById("app-shell").classList.add("hidden");
+      document.getElementById("welcome-screen").classList.remove("hidden");
+    }
+
+    function navigate(viewId) {
+      document.querySelectorAll(".app-view").forEach(v => v.classList.add("hidden"));
+      const target = document.getElementById("view-" + viewId);
+      if (target) target.classList.remove("hidden");
+
+      document.querySelectorAll(".nav-btn[data-view]").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.view === viewId);
+      });
+
+      if (viewId === "panel") updateMetricsUI();
+    }
+
+    function handleMenuSelect(selectEl) {
+      if (selectEl.value) {
+        navigate(selectEl.value);
+        selectEl.value = "";
+      }
+    }
+
+    // TEMAS
+    function cycleTheme() {
+      state.themeIndex = (state.themeIndex + 1) % state.themes.length;
+      const t = state.themes[state.themeIndex];
+      document.body.className = t.cls;
+      document.getElementById("theme-btn").textContent = t.label;
+    }
+
+    // SÍNTESIS DE VOZ
+    function speakText(text) {
+      if (!("speechSynthesis" in window)) return;
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "es-ES";
+      utter.rate = state.voiceRate;
+      window.speechSynthesis.speak(utter);
+    }
+
+    function updateVoiceRate(val) {
+      state.voiceRate = parseFloat(val);
+      document.getElementById("rate-val").textContent = val;
+    }
+
+    // COMUNICADOR CAA
+    function renderCAA() {
+      const allPictos = [...defaultPictos, ...state.customPictos];
+      const cats = ["Basicos", "Acciones", "Emociones", "Tiempo", "Cognicion", "Conectores"];
+      const catContainer = document.getElementById("caa-categories");
+      catContainer.innerHTML = cats.map(c => `
+        <button class="nav-btn ${state.currentCat === c ? 'active' : ''}" onclick="setCategory('${c}')">${c}</button>
+      `).join("");
+
+      const grid = document.getElementById("caa-grid");
+      const filtered = allPictos.filter(p => p.cat === state.currentCat);
+      grid.innerHTML = filtered.map(p => `
+        <button class="picto-btn" onclick="addToSentence('${p.emoji}', '${p.word.replace(/'/g, "\\'")}')">
+          <span class="picto-emoji">${p.emoji}</span>
+          <span class="picto-label">${p.word}</span>
+        </button>
+      `).join("");
+    }
+
+    function setCategory(cat) {
+      state.currentCat = cat;
+      renderCAA();
+    }
+
+    function addToSentence(emoji, word) {
+      state.sentence.push({ emoji, word });
+      speakText(word);
+      renderSentence();
+    }
+
+    function renderSentence() {
+      const box = document.getElementById("sentence-items");
+      if (state.sentence.length === 0) {
+        box.innerHTML = `<span style="color:var(--text-muted);">Toca un pictograma para armar tu frase...</span>`;
+        return;
+      }
+      box.innerHTML = state.sentence.map(item => `
+        <span class="sentence-chip">${item.emoji} ${item.word}</span>
+      `).join("");
+    }
+
+    function speakSentence() {
+      if (state.sentence.length === 0) return;
+      const fullText = state.sentence.map(i => i.word).join(" ");
+      speakText(fullText);
+      state.metrics.frases++;
+      saveMetrics();
+    }
+
+    function backspaceSentence() {
+      state.sentence.pop();
+      renderSentence();
+    }
+
+    function clearSentence() {
+      state.sentence = [];
+      renderSentence();
+    }
+
+    // VOCABULARIO PERSONALIZADO
+    function addCustomPicto() {
+      const emoji = document.getElementById("new-picto-emoji").value.trim() || "⭐";
+      const word = document.getElementById("new-picto-word").value.trim();
+      const cat = document.getElementById("new-picto-cat").value;
+      if (!word) return;
+      state.customPictos.push({ emoji, word, cat });
+      localStorage.setItem("vv_custom_pictos", JSON.stringify(state.customPictos));
+      document.getElementById("new-picto-emoji").value = "";
+      document.getElementById("new-picto-word").value = "";
+      renderCustomVocab();
+      renderCAA();
+    }
+
+    function renderCustomVocab() {
+      const list = document.getElementById("custom-vocab-list");
+      list.innerHTML = state.customPictos.map((p, idx) => `
+        <div class="picto-btn">
+          <span class="picto-emoji">${p.emoji}</span>
+          <div class="picto-label">${p.word}</div>
+          <small style="color:var(--text-muted); display:block; margin:4px 0;">${p.cat}</small>
+          <button class="btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="removeCustomPicto(${idx})">Eliminar</button>
+        </div>
+      `).join("");
+    }
+
+    function removeCustomPicto(idx) {
+      state.customPictos.splice(idx, 1);
+      localStorage.setItem("vv_custom_pictos", JSON.stringify(state.customPictos));
+      renderCustomVocab();
+      renderCAA();
+    }
+
+    // AGENDA VISUAL
+    function renderAgenda() {
+      const list = document.getElementById("agenda-list");
+      list.innerHTML = state.agenda.map((item, idx) => `
+        <div class="agenda-item ${item.done ? 'done' : ''}">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleAgenda(${idx})" style="width:20px; height:20px;" />
+            <span style="font-size:1.6rem;">${item.emoji}</span>
+            <div>
+              <strong>${item.text}</strong>
+              <div style="font-size:0.85rem; color:var(--text-muted);">🕒 ${item.time}</div>
+            </div>
+          </div>
+          <div class="nav-group">
+            <button class="nav-btn" onclick="speakText('${item.text.replace(/'/g, "\\'")}')">🔊</button>
+            <button class="btn-danger" onclick="deleteAgenda(${idx})">✕</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function addAgendaStep() {
+      const emoji = document.getElementById("agenda-emoji").value.trim() || "📌";
+      const text = document.getElementById("agenda-text").value.trim();
+      const time = document.getElementById("agenda-time").value || "10:00";
+      if (!text) return;
+      state.agenda.push({ emoji, text, time, done: false });
+      localStorage.setItem("vv_agenda", JSON.stringify(state.agenda));
+      document.getElementById("agenda-emoji").value = "";
+      document.getElementById("agenda-text").value = "";
+      renderAgenda();
+    }
+
+    function toggleAgenda(idx) {
+      state.agenda[idx].done = !state.agenda[idx].done;
+      localStorage.setItem("vv_agenda", JSON.stringify(state.agenda));
+      renderAgenda();
+    }
+
+    function deleteAgenda(idx) {
+      state.agenda.splice(idx, 1);
+      localStorage.setItem("vv_agenda", JSON.stringify(state.agenda));
+      renderAgenda();
+    }
+
+    // FONOLOGÍA
+    function renderFono() {
+      const q = fonoQuestions[state.fonoIndex % fonoQuestions.length];
+      document.getElementById("fono-exercise-box").innerHTML = `
+        <h3 style="margin-bottom:10px;">${q.prompt}</h3>
+        <button class="nav-btn" onclick="speakText('${q.prompt}')">🔊 Escuchar Consigna</button>
+        <div class="quiz-options">
+          ${q.options.map(o => `
+            <button class="picto-btn" onclick="checkFono(${o.ok}, '${o.w}')">
+              <span class="picto-emoji">${o.e}</span>
+              <span class="picto-label">${o.w}</span>
+            </button>
+          `).join("")}
+        </div>
+        <div id="fono-feedback" class="feedback-box hidden"></div>
+      `;
+    }
+
+    function checkFono(isCorrect, word) {
+      const fb = document.getElementById("fono-feedback");
+      fb.classList.remove("hidden");
+      if (isCorrect) {
+        fb.style.background = "#dcfce7";
+        fb.style.color = "#166534";
+        fb.textContent = `✅ ¡Excelente! "${word}" es correcto.`;
+        speakText("¡Muy bien! " + word);
+        state.metrics.fono++;
+        saveMetrics();
+        setTimeout(() => {
+          state.fonoIndex++;
+          renderFono();
+        }, 1400);
+      } else {
+        fb.style.background = "#fee2e2";
+        fb.style.color = "#991b1b";
+        fb.textContent = `❌ "${word}" empieza con otro sonido. ¡Intenta de nuevo!`;
+        speakText("Intenta de nuevo");
+      }
+    }
+
+    // SEMÁNTICA
+    function renderSemantica() {
+      const q = semQuestions[state.semIndex % semQuestions.length];
+      document.getElementById("sem-exercise-box").innerHTML = `
+        <h3 style="margin-bottom:10px;">${q.prompt}</h3>
+        <button class="nav-btn" onclick="speakText('${q.prompt}')">🔊 Escuchar Consigna</button>
+        <div class="quiz-options">
+          ${q.options.map(o => `
+            <button class="picto-btn" onclick="checkSem(${o.ok}, '${o.w}')">
+              <span class="picto-emoji">${o.e}</span>
+              <span class="picto-label">${o.w}</span>
+            </button>
+          `).join("")}
+        </div>
+        <div id="sem-feedback" class="feedback-box hidden"></div>
+      `;
+    }
+
+    function checkSem(isCorrect, word) {
+      const fb = document.getElementById("sem-feedback");
+      fb.classList.remove("hidden");
+      if (isCorrect) {
+        fb.style.background = "#dcfce7";
+        fb.style.color = "#166534";
+        fb.textContent = `✅ ¡Correcto! ${word}.`;
+        speakText("¡Excelente! " + word);
+        state.metrics.sem++;
+        saveMetrics();
+        setTimeout(() => {
+          state.semIndex++;
+          renderSemantica();
+        }, 1400);
+      } else {
+        fb.style.background = "#fee2e2";
+        fb.style.color = "#991b1b";
+        fb.textContent = `❌ Ese elemento no corresponde. Prueba otra opción.`;
+        speakText("Prueba otra opción");
+      }
+    }
+
+    // MÉTRICAS Y PANEL CLÍNICO
+    function saveMetrics() {
+      localStorage.setItem("vv_metrics", JSON.stringify(state.metrics));
+      updateMetricsUI();
+    }
+
+    function updateMetricsUI() {
+      document.getElementById("stat-frases").textContent = state.metrics.frases;
+      document.getElementById("stat-fono").textContent = state.metrics.fono;
+      document.getElementById("stat-sem").textContent = state.metrics.sem;
+      document.getElementById("stat-agenda").textContent = state.agenda.filter(a => a.done).length;
+    }
+
+    function resetMetrics() {
+      state.metrics = { frases: 0, fono: 0, sem: 0 };
+      saveMetrics();
+    }
+
+    // PERFIL
+    function openProfileModal() {
+      document.getElementById("prof-name").value = state.profile.name;
+      document.getElementById("prof-role").value = state.profile.role;
+      document.getElementById("prof-age").value = state.profile.age;
+      document.getElementById("profile-modal").classList.remove("hidden");
+    }
+
+    function closeProfileModal() {
+      document.getElementById("profile-modal").classList.add("hidden");
+    }
+
+    function saveProfile() {
+      state.profile = {
+        name: document.getElementById("prof-name").value.trim() || "Invitado",
+        role: document.getElementById("prof-role").value,
+        age: document.getElementById("prof-age").value
+      };
+      localStorage.setItem("vv_profile", JSON.stringify(state.profile));
+      updateProfileUI();
+      closeProfileModal();
+    }
+
+    function updateProfileUI() {
+      document.getElementById("profile-badge").textContent = `👤 ${state.profile.name} (${state.profile.age})`;
+      document.getElementById("active-user-summary").textContent =
+        `Sesión activa: ${state.profile.name} • Rol: ${state.profile.role} • Nivel de edad: ${state.profile.age} años`;
+    }
+
+    // CREDENCIALES
+    function saveCredentials() {
+      const data = {
+        centro: document.getElementById("cred-centro").value,
+        especialista: document.getElementById("cred-especialista").value,
+        exequatur: document.getElementById("cred-exequatur").value
+      };
+      localStorage.setItem("vv_credentials", JSON.stringify(data));
+      document.getElementById("cred-status").textContent = "✅ Credenciales guardadas localmente.";
+    }
+
+    // SERVICE WORKER PWA
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("pwabuilder-sw.js").catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
