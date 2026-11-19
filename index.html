@@ -251,7 +251,7 @@
     .btn-submit { background: var(--secondary); color: white; border: none; padding: 14px 20px; font-size: 17px; font-weight: bold; border-radius: 10px; cursor: pointer; width: 100%; min-height: 52px; }
 
     /* Tarjetas del Dashboard de Inicio */
-    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-top: 18px; }
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-top: 18px; }
     .dashboard-card { background: var(--card-bg); color: var(--text-main); border: 2px solid var(--border-soft); border-radius: 18px; padding: 22px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; }
     .dashboard-card h4 { margin-top: 0; color: var(--primary); display: flex; align-items: center; gap: 8px; font-size: 18px; }
     .dashboard-card p { color: var(--text-muted); }
@@ -690,1183 +690,1238 @@
           Selecciona el idioma deseado. Esto ajustará automáticamente el acento y la síntesis de voz del sistema:
         </p>
         <div class="form-group">
-          <label>Idioma y Acento de Voz:</label>
-          <select id="voiceLangSelect" onchange="updateVoiceSettings()">
-            <option value="es-ES">🇪🇸 Español (España)</option>
-            <option value="es-MX">🇲🇽 Español (Latinoamérica / México)</option>
-            <option value="es-US" selected>🌎 Español (Neutral / EE.UU.)</option>
-            <option value="en-US">🇺🇸 Inglés (EE.UU.)</option>
+          <label>Idioma Principal:</label>
+          <select id="appLanguage">
+            <option value="es-ES">🇪🇸 Español (España / América Latina)</option>
+            <option value="en-US">🇺🇸 English (United States)</option>
+            <option value="fr-FR">🇫🇷 Français (France)</option>
+            <option value="pt-BR">🇧🇷 Português (Brasil)</option>
+            <option value="it-IT">🇮🇹 Italiano (Italia)</option>
+            <option value="de-DE">🇩🇪 Deutsch (Deutschland)</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>Velocidad de Lectura: <span id="voiceRateLabel">1.0x</span></label>
-          <input type="range" id="voiceRateRange" min="0.6" max="1.4" step="0.1" value="1.0" oninput="updateVoiceSettings()">
-        </div>
-        <button class="action-btn btn-speak" type="button" onclick="speakText('Hola, esta es una prueba de voz de VozVisual.')" style="font-size: 14px; padding: 10px 18px;">
-          🔊 Probar Voz
-        </button>
-      </div>
-
-      <div class="stats-card">
-        <h3>🗑️ Gestión de Datos Locales</h3>
-        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">
-          Toda la información se guarda de forma privada en este dispositivo. Si deseas reiniciar la aplicación de fábrica:
-        </p>
-        <button class="action-btn btn-clear" type="button" onclick="factoryResetApp()" style="font-size: 14px; padding: 10px 18px;">
-          ⚠️ Restablecer Datos de Fábrica
-        </button>
       </div>
     </div>
   </div>
 
   <script>
-    // ==========================================
-    // 1. ESTADO GLOBAL Y PERSISTENCIA
-    // ==========================================
-    const STORAGE_KEY = 'vozvisual_app_state_v1';
+    const STORAGE_KEY = 'vozvisual_complete_state_v1';
 
-    const defaultState = {
-      theme: 'light',
-      voiceLang: 'es-US',
-      voiceRate: 1.0,
-      currentRole: 'Familia',
-      activePatientId: 'p1',
-      patients: [
-        { id: 'p1', name: 'Paciente Demo', age: '3-6', stats: { totalClicks: 0, categories: {} } }
-      ],
-      sentence: [],
-      customPictos: [],
-      agendaSteps: [
-        { id: 1, title: 'Saludar', type: 'emoji', visual: '👋', completed: false },
-        { id: 2, title: 'Trabajar en mesa', type: 'emoji', visual: '🧩', completed: false },
-        { id: 3, title: 'Tomar agua', type: 'emoji', visual: '🥤', completed: false },
-        { id: 4, title: 'Descanso / Juego', type: 'emoji', visual: '⚽', completed: false }
-      ],
-      savedRoutines: {
-        'Rutina de Terapia Estándar': [
-          { id: 101, title: 'Saludar', type: 'emoji', visual: '👋', completed: false },
-          { id: 102, title: 'Ejercicios de lenguaje', type: 'emoji', visual: '🗣️', completed: false },
-          { id: 103, title: 'Premio / Juego libre', type: 'emoji', visual: '🎈', completed: false }
-        ],
-        'Rutina de Mañana en Casa': [
-          { id: 201, title: 'Ir al baño', type: 'emoji', visual: '🚽', completed: false },
-          { id: 202, title: 'Lavar dientes', type: 'emoji', visual: '🪥', completed: false },
-          { id: 203, title: 'Desayunar', type: 'emoji', visual: '🥣', completed: false }
+    let currentRoleKey = "familiar", currentRoleName = "Padre / Madre", appLang = "es-ES";
+    let currentTheme = "light";
+
+    let savedRoutinesTemplates = [
+      {
+        name: "Rutina Escolar Estándar",
+        steps: [
+          { id: 1, title: "Llegar al centro", emoji: "🏫", isImage: false, completed: false },
+          { id: 2, title: "Sesión de lenguaje", emoji: "🗣️", isImage: false, completed: false },
+          { id: 3, title: "Recreo / Descanso", emoji: "🛝", isImage: false, completed: false },
+          { id: 4, title: "Regresar a casa", emoji: "🏠", isImage: false, completed: false }
         ]
       },
-      customExercises: { fono: [], semantica: [] },
-      credentials: { username: '', email: '' }
+      {
+        name: "Jornada Terapéutica Matutina",
+        steps: [
+          { id: 1, title: "Recepción y Saludo", emoji: "👋", isImage: false, completed: false },
+          { id: 2, title: "Estimulación cognitiva", emoji: "🧠", isImage: false, completed: false },
+          { id: 3, title: "Terapia ocupacional", emoji: "🎨", isImage: false, completed: false }
+        ]
+      }
+    ];
+
+    let patients = [
+      {
+        id: 1,
+        name: "Lucas Gómez",
+        ageGroup: "3-6",
+        stats: { totalClicks: 0, categories: {} },
+        customPictos: [],
+        agendaSteps: [
+          { id: 1, title: "Llegar al centro", emoji: "🏫", isImage: false, completed: true },
+          { id: 2, title: "Sesión de lenguaje", emoji: "🗣️", isImage: false, completed: false },
+          { id: 3, title: "Jugar en el parque", emoji: "🛝", isImage: false, completed: false },
+          { id: 4, title: "Regresar a casa", emoji: "🏠", isImage: false, completed: false }
+        ]
+      },
+      {
+        id: 2,
+        name: "Sofía Martínez",
+        ageGroup: "7-9",
+        stats: { totalClicks: 0, categories: {} },
+        customPictos: [],
+        agendaSteps: [
+          { id: 1, title: "Escuela", emoji: "📚", isImage: false, completed: true },
+          { id: 2, title: "Almuerzo", emoji: "🍲", isImage: false, completed: false },
+          { id: 3, title: "Estimulación cognitiva", emoji: "🧠", isImage: false, completed: false }
+        ]
+      }
+    ];
+    let activePatientId = 1, currentFonoAgeGroup = "3-6", currentSemanticaAgeGroup = "3-6";
+
+    let basePictograms = [
+      { id: 1, word: "Yo quiero", emoji: "🙋", type: "cat-pronombre", group: "basico" },
+      { id: 2, word: "No quiero", emoji: "🙅", type: "cat-verbo", group: "basico" },
+      { id: 3, word: "Más", emoji: "➕", type: "cat-verbo", group: "basico" },
+      { id: 4, word: "Ayuda", emoji: "🤝", type: "cat-verbo", group: "basico" },
+      { id: 5, word: "Agua", emoji: "💧", type: "cat-sustantivo", group: "necesidades" },
+      { id: 6, word: "Comer", emoji: "🍎", type: "cat-verbo", group: "necesidades" },
+      { id: 7, word: "Baño", emoji: "🚽", type: "cat-sustantivo", group: "necesidades" },
+      { id: 8, word: "Jugar", emoji: "⚽", type: "cat-verbo", group: "necesidades" },
+      { id: 9, word: "Feliz", emoji: "😊", type: "cat-emocion", group: "emociones" },
+      { id: 10, word: "Triste", emoji: "😢", type: "cat-emocion", group: "emociones" },
+      { id: 11, word: "Ayer", emoji: "⏪", type: "cat-tiempo", group: "tiempo" },
+      { id: 12, word: "Hoy", emoji: "📅", type: "cat-tiempo", group: "tiempo" },
+      { id: 13, word: "Mañana", emoji: "⏩", type: "cat-tiempo", group: "tiempo" },
+      { id: 14, word: "Ahora", emoji: "⏰", type: "cat-tiempo", group: "tiempo" },
+      { id: 15, word: "Después", emoji: "⏭️", type: "cat-tiempo", group: "tiempo" },
+      { id: 16, word: "Pensar", emoji: "💭", type: "cat-cognicion", group: "cognicion" },
+      { id: 17, word: "Saber", emoji: "💡", type: "cat-cognicion", group: "cognicion" },
+      { id: 18, word: "Recordar", emoji: "🧠", type: "cat-cognicion", group: "cognicion" },
+      { id: 19, word: "Por qué", emoji: "❓", type: "cat-cognicion", group: "cognicion" },
+      { id: 20, word: "Quién", emoji: "👤", type: "cat-conectores", group: "conectores" },
+      { id: 21, word: "Dónde", emoji: "📍", type: "cat-conectores", group: "conectores" },
+      { id: 22, word: "Cuándo", emoji: "⏱️", type: "cat-conectores", group: "conectores" },
+      { id: 23, word: "Y", emoji: "➕", type: "cat-conectores", group: "conectores" },
+      { id: 24, word: "Pero", emoji: "⚖️", type: "cat-conectores", group: "conectores" }
+    ];
+
+    let vocabDatabase = [
+      { id: 101, word: "Perro", emoji: "🐶", category: "animales" },
+      { id: 102, word: "Gato", emoji: "🐱", category: "animales" },
+      { id: 103, word: "Vaca", emoji: "🐮", category: "animales" },
+      { id: 104, word: "León", emoji: "🦁", category: "animales" },
+      { id: 105, word: "Manzana", emoji: "🍎", category: "alimentos" },
+      { id: 106, word: "Plátano", emoji: "🍌", category: "alimentos" },
+      { id: 107, word: "Pan", emoji: "🍞", category: "alimentos" },
+      { id: 108, word: "Agua", emoji: "🥛", category: "alimentos" },
+      { id: 109, word: "Cama", emoji: "🛏️", category: "casa" },
+      { id: 110, word: "Silla", emoji: "🪑", category: "casa" },
+      { id: 111, word: "Mesa", emoji: "🪵", category: "casa" },
+      { id: 112, word: "Puerta", emoji: "🚪", category: "casa" },
+      { id: 113, word: "Camisa", emoji: "👕", category: "ropa" },
+      { id: 114, word: "Pantalón", emoji: "👖", category: "ropa" },
+      { id: 115, word: "Zapatos", emoji: "👟", category: "ropa" },
+      { id: 116, word: "Gorro", emoji: "🧢", category: "ropa" },
+      { id: 117, word: "Árbol", emoji: "🌳", category: "naturaleza" },
+      { id: 118, word: "Flor", emoji: "🌸", category: "naturaleza" },
+      { id: 119, word: "Sol", emoji: "☀️", category: "naturaleza" },
+      { id: 120, word: "Nube", emoji: "☁️", category: "naturaleza" }
+    ];
+
+    let agruparDatabase = [
+      { attribute: "color", value: "Rojo", target: { name: "Manzana Roja", emoji: "🍎" }, distractors: [{ name: "Plátano Amarillo", emoji: "🍌" }, { name: "Hoja Verde", emoji: "🍃" }] },
+      { attribute: "color", value: "Amarillo", target: { name: "Estrella Amarilla", emoji: "⭐" }, distractors: [{ name: "Manzana Roja", emoji: "🍎" }, { name: "Cereza", emoji: "🍒" }] },
+      { attribute: "forma", value: "Redonda", target: { name: "Pelota Redonda", emoji: "⚽" }, distractors: [{ name: "Caja Cuadrada", emoji: "📦" }, { name: "Libro Rectangular", emoji: "📘" }] },
+      { attribute: "forma", value: "Cuadrada / Rectangular", target: { name: "Regalo Cuadrado", emoji: "🎁" }, distractors: [{ name: "Balón Redondo", emoji: "🏀" }, { name: "Sol Redondo", emoji: "☀️" }] },
+      { attribute: "tamano", value: "Grande", target: { name: "Elefante Grande", emoji: "🐘" }, distractors: [{ name: "Hormiga Pequeña", emoji: "🐜" }, { name: "Ratón Pequeño", emoji: "🐁" }] },
+      { attribute: "tamano", value: "Pequeño", target: { name: "Ratón Pequeño", emoji: "🐁" }, distractors: [{ name: "Ballena Grande", emoji: "🐋" }, { name: "Montaña Grande", emoji: "⛰️" }] }
+    ];
+
+    let fonoDatabase = {
+      "3-6": [{ word: "Avión", emoji: "✈️" }, { word: "Oso", emoji: "🐻" }, { word: "Uva", emoji: "🍇" }],
+      "7-9": [{ word: "Plátano", emoji: "🍌" }, { word: "Jirafa", emoji: "🦒" }],
+      "10-12": [{ word: "Astronauta", emoji: "👨‍🚀" }, { word: "Microscopio", emoji: "🔬" }]
     };
 
-    let appState = loadState();
+    let semanticaDatabase = {
+      "3-6": [{ prompt: "Si llueve, usamos...", targetCorrect: "Paraguas ☂️", distractors: ["Zapato 👞"], spoken: "Si llueve, ¿qué usamos?" }],
+      "7-9": [{ prompt: "En la escuela usamos...", targetCorrect: "Libro 📚", distractors: ["Sartén 🍳"], spoken: "Para aprender usamos..." }],
+      "10-12": [{ prompt: "Para experimentos requerimos...", targetCorrect: "Laboratorio 🧪", distractors: ["Cancha 🏀"], spoken: "Para un experimento requerimos..." }]
+    };
 
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return JSON.parse(JSON.stringify(defaultState));
-        const parsed = JSON.parse(raw);
-        return { ...JSON.parse(JSON.stringify(defaultState)), ...parsed };
-      } catch (e) {
-        return JSON.parse(JSON.stringify(defaultState));
-      }
-    }
+    let sentence = [];
+    let currentCommunicatorFilter = 'todos';
+    let currentVocabFilter = 'todos';
 
-    function saveState() {
+    function persistState() {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        const payload = {
+          currentRoleKey,
+          currentRoleName,
+          appLang,
+          currentTheme,
+          savedRoutinesTemplates,
+          patients,
+          activePatientId,
+          currentFonoAgeGroup,
+          currentSemanticaAgeGroup,
+          vocabDatabase,
+          fonoDatabase,
+          semanticaDatabase,
+          sentence
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
       } catch (e) {
         console.warn('No se pudo guardar en localStorage:', e);
       }
     }
 
-    // ==========================================
-    // 2. DATOS BASE (PICTOGRAMAS, VOCABULARIO, EJERCICIOS)
-    // ==========================================
-    const basePictograms = [
-      { id: 'b1', word: 'YO', emoji: '🙋', cat: 'basico', grammar: 'pronombre' },
-      { id: 'b2', word: 'TÚ', emoji: '👉', cat: 'basico', grammar: 'pronombre' },
-      { id: 'b3', word: 'SÍ', emoji: '✅', cat: 'basico', grammar: 'conectores' },
-      { id: 'b4', word: 'NO', emoji: '❌', cat: 'basico', grammar: 'conectores' },
-      { id: 'b5', word: 'HOLA', emoji: '👋', cat: 'basico', grammar: 'verbo' },
-      { id: 'b6', word: 'POR FAVOR', emoji: '🙏', cat: 'basico', grammar: 'conectores' },
-      { id: 'b7', word: 'GRACIAS', emoji: '💛', cat: 'basico', grammar: 'conectores' },
-      { id: 'b8', word: 'AYUDA', emoji: '🆘', cat: 'basico', grammar: 'verbo' },
-      { id: 'n1', word: 'QUIERO', emoji: '🤲', cat: 'necesidades', grammar: 'verbo' },
-      { id: 'n2', word: 'AGUA', emoji: '💧', cat: 'necesidades', grammar: 'sustantivo' },
-      { id: 'n3', word: 'COMER', emoji: '🍽️', cat: 'necesidades', grammar: 'verbo' },
-      { id: 'n4', word: 'BAÑO', emoji: '🚽', cat: 'necesidades', grammar: 'sustantivo' },
-      { id: 'n5', word: 'DORMIR', emoji: '🛌', cat: 'necesidades', grammar: 'verbo' },
-      { id: 'n6', word: 'JUGAR', emoji: '🧸', cat: 'necesidades', grammar: 'verbo' },
-      { id: 'n7', word: 'MÁS', emoji: '➕', cat: 'necesidades', grammar: 'conectores' },
-      { id: 'n8', word: 'TERMINÉ', emoji: '🏁', cat: 'necesidades', grammar: 'verbo' },
-      { id: 'e1', word: 'FELIZ', emoji: '😄', cat: 'emociones', grammar: 'emocion' },
-      { id: 'e2', word: 'TRISTE', emoji: '😢', cat: 'emociones', grammar: 'emocion' },
-      { id: 'e3', word: 'ENOJADO', emoji: '😠', cat: 'emociones', grammar: 'emocion' },
-      { id: 'e4', word: 'ASUSTADO', emoji: '😨', cat: 'emociones', grammar: 'emocion' },
-      { id: 'e5', word: 'CANSADO', emoji: '😫', cat: 'emociones', grammar: 'emocion' },
-      { id: 'e6', word: 'ME DUELE', emoji: '🤕', cat: 'emociones', grammar: 'emocion' },
-      { id: 't1', word: 'AHORA', emoji: '⏱️', cat: 'tiempo', grammar: 'tiempo' },
-      { id: 't2', word: 'DESPUÉS', emoji: '⏭️', cat: 'tiempo', grammar: 'tiempo' },
-      { id: 't3', word: 'HOY', emoji: '📅', cat: 'tiempo', grammar: 'tiempo' },
-      { id: 't4', word: 'MAÑANA', emoji: '🌅', cat: 'tiempo', grammar: 'tiempo' },
-      { id: 't5', word: 'AYER', emoji: '⏪', cat: 'tiempo', grammar: 'tiempo' },
-      { id: 't6', word: 'ESPERAR', emoji: '⏳', cat: 'tiempo', grammar: 'tiempo' },
-      { id: 'c1', word: 'PIENSO', emoji: '💭', cat: 'cognicion', grammar: 'cognicion' },
-      { id: 'c2', word: 'SÉ', emoji: '💡', cat: 'cognicion', grammar: 'cognicion' },
-      { id: 'c3', word: 'NO ENTIENDO', emoji: '❓', cat: 'cognicion', grammar: 'cognicion' },
-      { id: 'c4', word: 'RECUERDO', emoji: '🧠', cat: 'cognicion', grammar: 'cognicion' },
-      { id: 'c5', word: 'MIRAR', emoji: '👀', cat: 'cognicion', grammar: 'cognicion' },
-      { id: 'c6', word: 'ESCUCHAR', emoji: '👂', cat: 'cognicion', grammar: 'cognicion' },
-      { id: 'k1', word: 'Y', emoji: '🔗', cat: 'conectores', grammar: 'conectores' },
-      { id: 'k2', word: 'CON', emoji: '🤝', cat: 'conectores', grammar: 'conectores' },
-      { id: 'k3', word: 'PORQUE', emoji: '💬', cat: 'conectores', grammar: 'conectores' },
-      { id: 'k4', word: 'PERO', emoji: '🔄', cat: 'conectores', grammar: 'conectores' },
-      { id: 'k5', word: 'DÓNDE', emoji: '📍', cat: 'conectores', grammar: 'conectores' },
-      { id: 'k6', word: 'QUÉ', emoji: '❔', cat: 'conectores', grammar: 'conectores' }
-    ];
-
-    const vocabularyItems = [
-      { word: 'PERRO', emoji: '🐶', cat: 'animales' },
-      { word: 'GATO', emoji: '🐱', cat: 'animales' },
-      { word: 'LEÓN', emoji: '🦁', cat: 'animales' },
-      { word: 'ELEFANTE', emoji: '🐘', cat: 'animales' },
-      { word: 'PÁJARO', emoji: '🐦', cat: 'animales' },
-      { word: 'PEZ', emoji: '🐟', cat: 'animales' },
-      { word: 'MANZANA', emoji: '🍎', cat: 'alimentos' },
-      { word: 'PLÁTANO', emoji: '🍌', cat: 'alimentos' },
-      { word: 'PAN', emoji: '🍞', cat: 'alimentos' },
-      { word: 'LECHE', emoji: '🥛', cat: 'alimentos' },
-      { word: 'POLLO', emoji: '🍗', cat: 'alimentos' },
-      { word: 'AGUA', emoji: '💧', cat: 'alimentos' },
-      { word: 'CAMA', emoji: '🛏️', cat: 'casa' },
-      { word: 'SILLA', emoji: '🪑', cat: 'casa' },
-      { word: 'PUERTA', emoji: '🚪', cat: 'casa' },
-      { word: 'TELEVISOR', emoji: '📺', cat: 'casa' },
-      { word: 'CAMISA', emoji: '👕', cat: 'ropa' },
-      { word: 'PANTALÓN', emoji: '👖', cat: 'ropa' },
-      { word: 'ZAPATOS', emoji: '👟', cat: 'ropa' },
-      { word: 'GORRA', emoji: '🧢', cat: 'ropa' },
-      { word: 'ÁRBOL', emoji: '🌳', cat: 'naturaleza' },
-      { word: 'SOL', emoji: '☀️', cat: 'naturaleza' },
-      { word: 'FLOR', emoji: '🌸', cat: 'naturaleza' },
-      { word: 'LLUVIA', emoji: '🌧️', cat: 'naturaleza' }
-    ];
-
-    const fonoExercisesByAge = {
-      '3-6': [
-        { word: 'Avión', emoji: '✈️', correct: 'A', options: ['A', 'O', 'M', 'P'] },
-        { word: 'Mesa', emoji: '🪑', correct: 'M', options: ['S', 'M', 'L', 'T'] },
-        { word: 'Sol', emoji: '☀️', correct: 'S', options: ['P', 'R', 'S', 'D'] },
-        { word: 'Pelota', emoji: '⚽', correct: 'P', options: ['P', 'B', 'F', 'N'] }
-      ],
-      '7-9': [
-        { word: 'Estrella', emoji: '⭐', correct: 'ES', options: ['ES', 'AS', 'OS', 'IS'] },
-        { word: 'Tortuga', emoji: '🐢', correct: 'TOR', options: ['TAR', 'TOR', 'TUR', 'TER'] },
-        { word: 'Mariposa', emoji: '🦋', correct: 'MA', options: ['NA', 'MA', 'PA', 'LA'] }
-      ],
-      '10-12': [
-        { word: 'Helicóptero', emoji: '🚁', correct: 'HE (4 sílabas)', options: ['HE (4 sílabas)', 'LI (5 sílabas)', 'HE (5 sílabas)', 'CO (3 sílabas)'] },
-        { word: 'Dinosaurio', emoji: '🦕', correct: 'DI-NO-SAU-RIO', options: ['DI-NO-SAU-RIO', 'DI-NOS-AU-RI-O', 'DIN-O-SAU-RIO', 'DI-NO-SA-U-RIO'] }
-      ]
-    };
-
-    const unirExercises = [
-      { word: 'MANZANA', correct: '🍎', options: ['🍎', '🚗', '🐶', '⚽'] },
-      { word: 'PERRO', correct: '🐶', options: ['🐱', '🐶', '🌳', '🍌'] },
-      { word: 'CARRO', correct: '🚗', options: ['✈️', '🚢', '🚗', '🚲'] },
-      { word: 'LIBRO', correct: '📖', options: ['✏️', '📖', '🎒', '🪑'] }
-    ];
-
-    const semanticaExercisesByAge = {
-      '3-6': [
-        { prompt: '¿Qué usamos cuando llueve?', emoji: '🌧️', correct: 'Paraguas ☂️', options: ['Paraguas ☂️', 'Gafas de sol 🕶️', 'Pelota ⚽', 'Cuchara 🥄'] },
-        { prompt: '¿Dónde dormimos en la noche?', emoji: '🌙', correct: 'Cama 🛏️', options: ['Silla 🪑', 'Cama 🛏️', 'Mesa 🍽️', 'Carro 🚗'] },
-        { prompt: '¿Qué come el conejo?', emoji: '🐰', correct: 'Zanahoria 🥕', options: ['Zanahoria 🥕', 'Hueso 🦴', 'Pescado 🐟', 'Zapato 👟'] }
-      ],
-      '7-9': [
-        { prompt: 'El martillo es al carpintero como el estetoscopio es al...', emoji: '🩺', correct: 'Médico 👨‍⚕️', options: ['Bombero 🚒', 'Médico 👨‍⚕️', 'Panadero 🥖', 'Pintor 🎨'] },
-        { prompt: '¿Cuál NO pertenece al grupo de transportes?', emoji: '🚦', correct: 'Manzana 🍎', options: ['Avión ✈️', 'Barco 🚢', 'Manzana 🍎', 'Tren 🚂'] }
-      ],
-      '10-12': [
-        { prompt: 'Sinónimo de "Comenzar":', emoji: '▶️', correct: 'Iniciar', options: ['Terminar', 'Iniciar', 'Pausar', 'Olvidar'] },
-        { prompt: 'Antónimo de "Abundante":', emoji: '⚖️', correct: 'Escaso', options: ['Mucho', 'Escaso', 'Grande', 'Lleno'] }
-      ]
-    };
-
-    const agruparExercises = [
-      { rule: 'Criterio: Color Rojo', correct: '🍎 Manzana', options: ['🍎 Manzana', '🍌 Plátano', '🥦 Brócoli', '🫐 Mora'] },
-      { rule: 'Criterio: Forma Circular / Redonda', correct: '⚽ Pelota', options: ['📖 Libro', '⚽ Pelota', '🚪 Puerta', '📏 Regla'] },
-      { rule: 'Criterio: Tamaño Grande (Animal)', correct: '🐘 Elefante', options: ['🐜 Hormiga', '🐭 Ratón', '🐘 Elefante', '🐝 Abeja'] },
-      { rule: 'Criterio: Prenda para el frío', correct: '🧥 Abrigo', options: ['🩳 Pantalón corto', '🧥 Abrigo', '🩴 Sandalias', '🕶️ Gafas'] }
-    ];
-
-    const quickEmojiLibrary = [
-      { keys: ['pelota', 'balon', 'juego'], emoji: '⚽' },
-      { keys: ['carro', 'auto', 'coche'], emoji: '🚗' },
-      { keys: ['lapiz', 'escribir', 'tarea'], emoji: '✏️' },
-      { keys: ['parque', 'arbol', 'jugar'], emoji: '🏞️' },
-      { keys: ['bano', 'baño', 'inodoro'], emoji: '🚽' },
-      { keys: ['comer', 'comida', 'almuerzo'], emoji: '🍽️' },
-      { keys: ['agua', 'beber', 'sed'], emoji: '💧' },
-      { keys: ['dormir', 'cama', 'siesta'], emoji: '🛏️' },
-      { keys: ['escuela', 'colegio', 'libro'], emoji: '🏫' },
-      { keys: ['musica', 'cantar', 'cancion'], emoji: '🎵' },
-      { keys: ['perro', 'mascota', 'animal'], emoji: '🐶' },
-      { keys: ['gato', 'minino'], emoji: '🐱' },
-      { keys: ['feliz', 'alegre', 'sonrisa'], emoji: '😄' },
-      { keys: ['triste', 'llorar'], emoji: '😢' },
-      { keys: ['doctor', 'terapia', 'medico'], emoji: '👩‍⚕️' },
-      { keys: ['casa', 'hogar'], emoji: '🏠' }
-    ];
-
-    // ==========================================
-    // 3. SÍNTESIS DE VOZ (WEB SPEECH API)
-    // ==========================================
-    function speakText(text) {
-      if (!('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = appState.voiceLang || 'es-US';
-      utterance.rate = parseFloat(appState.voiceRate) || 1.0;
-      window.speechSynthesis.speak(utterance);
-    }
-
-    function updateVoiceSettings() {
-      const langEl = document.getElementById('voiceLangSelect');
-      const rateEl = document.getElementById('voiceRateRange');
-      const labelEl = document.getElementById('voiceRateLabel');
-      if (langEl) appState.voiceLang = langEl.value;
-      if (rateEl) {
-        appState.voiceRate = parseFloat(rateEl.value);
-        if (labelEl) labelEl.textContent = appState.voiceRate.toFixed(1) + 'x';
-      }
-      saveState();
-    }
-
-    // ==========================================
-    // 4. TEMAS VISUALES Y ACCESIBILIDAD
-    // ==========================================
-    function applyTheme(themeName) {
-      document.body.classList.remove('theme-dark', 'theme-high-contrast');
-      const toggleBtn = document.getElementById('themeToggleBtn');
-      const dropdown = document.getElementById('themeSelectorDropdown');
-      const metaTheme = document.querySelector('meta[name="theme-color"]');
-
-      if (themeName === 'dark') {
-        document.body.classList.add('theme-dark');
-        if (toggleBtn) toggleBtn.textContent = '🌙 Oscuro';
-        if (metaTheme) metaTheme.setAttribute('content', '#121820');
-      } else if (themeName === 'high-contrast') {
-        document.body.classList.add('theme-high-contrast');
-        if (toggleBtn) toggleBtn.textContent = '👁️ Contraste';
-        if (metaTheme) metaTheme.setAttribute('content', '#000000');
-      } else {
-        themeName = 'light';
-        if (toggleBtn) toggleBtn.textContent = '☀️ Claro';
-        if (metaTheme) metaTheme.setAttribute('content', '#4A90E2');
-      }
-
-      if (dropdown) dropdown.value = themeName;
-      appState.theme = themeName;
-      saveState();
-    }
-
-    function cycleTheme() {
-      const order = ['light', 'dark', 'high-contrast'];
-      const next = order[(order.indexOf(appState.theme) + 1) % order.length];
-      applyTheme(next);
-    }
-
-    // ==========================================
-    // 5. NAVEGACIÓN ENTRE MÓDULOS
-    // ==========================================
-    function switchModule(moduleId, btnElement) {
-      document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
-      const target = document.getElementById('view-' + moduleId);
-      if (target) target.classList.add('active');
-
-      document.querySelectorAll('.mod-btn').forEach(btn => btn.classList.remove('active'));
-      if (btnElement) btnElement.classList.add('active');
-
-      const sentenceBar = document.getElementById('topSentenceBar');
-      if (sentenceBar) {
-        sentenceBar.style.display = (moduleId === 'comunicador' || moduleId === 'vocabulario') ? 'flex' : 'none';
-      }
-
-      if (moduleId === 'terapeuta') updateStatsUI();
-      if (moduleId === 'agenda') renderAgenda();
-      if (moduleId === 'fonologia') loadFonoExercise();
-      if (moduleId === 'semantica') loadSemanticaExercise();
-    }
-
-    function jumpToModule(moduleId) {
-      if (!moduleId) return;
-      switchModule(moduleId, null);
-      const dropdown = document.getElementById('navDropdownMenu');
-      if (dropdown) dropdown.selectedIndex = 0;
-    }
-
-    // ==========================================
-    // 6. GESTIÓN DE PERFILES Y PACIENTES
-    // ==========================================
-    function getActivePatient() {
-      return appState.patients.find(p => p.id === appState.activePatientId) || appState.patients[0];
-    }
-
-    function updateProfileBadge() {
-      const patient = getActivePatient();
-      const badge = document.getElementById('profileBadge');
-      if (badge && patient) {
-        badge.textContent = `👤 ${patient.name} (${appState.currentRole})`;
+    function hydrateState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const d = JSON.parse(raw);
+        if (d.currentRoleKey) currentRoleKey = d.currentRoleKey;
+        if (d.currentRoleName) currentRoleName = d.currentRoleName;
+        if (d.appLang) appLang = d.appLang;
+        if (d.currentTheme) currentTheme = d.currentTheme;
+        if (Array.isArray(d.savedRoutinesTemplates)) savedRoutinesTemplates = d.savedRoutinesTemplates;
+        if (Array.isArray(d.patients) && d.patients.length > 0) patients = d.patients;
+        if (d.activePatientId) activePatientId = d.activePatientId;
+        if (d.currentFonoAgeGroup) currentFonoAgeGroup = d.currentFonoAgeGroup;
+        if (d.currentSemanticaAgeGroup) currentSemanticaAgeGroup = d.currentSemanticaAgeGroup;
+        if (Array.isArray(d.vocabDatabase)) vocabDatabase = d.vocabDatabase;
+        if (d.fonoDatabase) fonoDatabase = d.fonoDatabase;
+        if (d.semanticaDatabase) semanticaDatabase = d.semanticaDatabase;
+        if (Array.isArray(d.sentence)) sentence = d.sentence;
+      } catch (e) {
+        console.warn('No se pudo cargar desde localStorage:', e);
       }
     }
 
-    function renderPatientList() {
-      const container = document.getElementById('patientListContainer');
-      if (!container) return;
-      container.innerHTML = '';
+    document.addEventListener("DOMContentLoaded", () => {
+      hydrateState();
+      applyTheme(currentTheme);
+      const langSelect = document.getElementById("appLanguage");
+      if (langSelect) langSelect.value = appLang;
+      const pat = getCurrentPatient();
+      const badge = document.getElementById("profileBadge");
+      if (badge && pat) badge.innerText = `${currentRoleName} | ${pat.name}`;
 
-      appState.patients.forEach(p => {
-        const isActive = p.id === appState.activePatientId;
-        const row = document.createElement('div');
-        row.className = 'patient-row';
-        if (isActive) row.style.borderColor = 'var(--primary)';
-
-        row.innerHTML = `
-          <div class="patient-info" style="cursor:pointer; flex-grow:1;" onclick="selectPatient('${p.id}')">
-            <span>${isActive ? '✅' : '👤'}</span>
-            <div>
-              <div>${p.name}</div>
-              <small style="color: var(--text-muted); font-weight:normal;">Edad: ${p.age} años</small>
-            </div>
-          </div>
-          ${appState.patients.length > 1 ? `<button class="delete-badge" type="button" onclick="deletePatient('${p.id}')" title="Eliminar">✕</button>` : ''}
-        `;
-        container.appendChild(row);
-      });
-    }
-
-    function selectPatient(patientId) {
-      appState.activePatientId = patientId;
-      saveState();
-      updateProfileBadge();
-      renderPatientList();
-      updateStatsUI();
-      document.getElementById('profileModal').style.display = 'none';
-    }
-
-    function deletePatient(patientId) {
-      if (appState.patients.length <= 1) return;
-      appState.patients = appState.patients.filter(p => p.id !== patientId);
-      if (appState.activePatientId === patientId) {
-        appState.activePatientId = appState.patients[0].id;
-      }
-      saveState();
-      renderPatientList();
-      updateProfileBadge();
-    }
-
-    // ==========================================
-    // 7. COMUNICADOR CAA Y VOCABULARIO
-    // ==========================================
-    let currentPictoCat = 'todos';
-    let currentVocabCat = 'todos';
-
-    function recordUsage(categoryName) {
-      const patient = getActivePatient();
-      if (!patient) return;
-      if (!patient.stats) patient.stats = { totalClicks: 0, categories: {} };
-      patient.stats.totalClicks += 1;
-      patient.stats.categories[categoryName] = (patient.stats.categories[categoryName] || 0) + 1;
-      saveState();
-    }
-
-    function renderPictograms(cat = currentPictoCat) {
-      currentPictoCat = cat;
-      const grid = document.getElementById('pictoGrid');
-      if (!grid) return;
-      grid.innerHTML = '';
-
-      const allItems = [
-        ...basePictograms,
-        ...appState.customPictos.map(c => ({ ...c, cat: 'custom', grammar: 'custom' }))
-      ];
-
-      const filtered = cat === 'todos' ? allItems : allItems.filter(item => item.cat === cat);
-
-      if (filtered.length === 0) {
-        grid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1; text-align:center;">No hay tarjetas en esta categoría aún.</p>';
-        return;
-      }
-
-      filtered.forEach(item => {
-        const card = document.createElement('div');
-        card.className = `picto-card cat-${item.grammar || 'sustantivo'}`;
-
-        const visualHtml = item.imgSrc
-          ? `<img src="${item.imgSrc}" alt="${item.word}" class="picto-img">`
-          : `<div class="picto-emoji">${item.emoji || '📌'}</div>`;
-
-        card.innerHTML = `${visualHtml}<div class="picto-word">${item.word}</div>`;
-
-        card.addEventListener('click', () => {
-          speakText(item.word);
-          addToSentence(item);
-          recordUsage(item.cat);
+      const startBtn = document.getElementById("startBtn");
+      if (startBtn) {
+        startBtn.addEventListener("click", () => {
+          document.getElementById("welcomeScreen").style.display = "none";
+          document.getElementById("profileModal").style.display = "flex";
+          renderPatientListModal();
+          applyRolePermissions();
         });
-
-        grid.appendChild(card);
-      });
-    }
-
-    function addToSentence(item) {
-      appState.sentence.push({
-        word: item.word,
-        emoji: item.emoji || '📌',
-        imgSrc: item.imgSrc || ''
-      });
-      saveState();
-      renderSentenceStrip();
-    }
-
-    function renderSentenceStrip() {
-      const strip = document.getElementById('sentenceStrip');
-      if (!strip) return;
-
-      if (appState.sentence.length === 0) {
-        strip.innerHTML = '<span style="color: var(--text-muted); font-size: 15px;">Toca las tarjetas para formar una frase...</span>';
-        return;
       }
 
-      strip.innerHTML = '';
-      appState.sentence.forEach((item, index) => {
-        const mini = document.createElement('div');
-        mini.className = 'mini-card';
-        mini.title = 'Toca para quitar';
-        mini.style.cursor = 'pointer';
+      document.getElementById("themeToggleBtn").addEventListener("click", cycleTheme);
+      document.getElementById("rFamiliar").addEventListener("click", () => setRole("Padre / Madre", "familiar"));
+      document.getElementById("rPsico").addEventListener("click", () => setRole("Psicólogo", "psicologo"));
+      document.getElementById("rEst").addEventListener("click", () => setRole("Estudiante", "estudiante"));
 
-        const visual = item.imgSrc
-          ? `<img src="${item.imgSrc}" alt="${item.word}">`
-          : `<span>${item.emoji}</span>`;
+      document.getElementById("createPatientBtn").addEventListener("click", createPatientProfile);
+      document.getElementById("speakSentenceBtn").addEventListener("click", speakSentence);
+      document.getElementById("clearSentenceBtn").addEventListener("click", clearSentence);
+      document.getElementById("profileBadge").addEventListener("click", openProfileModal);
+      document.getElementById("logoutBtn").addEventListener("click", logoutApp);
+      document.getElementById("resetStatsBtn").addEventListener("click", resetStats);
+      document.getElementById("exportPdfBtn").addEventListener("click", exportPatientPDF);
+      document.getElementById("addExerciseBtn").addEventListener("click", addNewExercise);
+      document.getElementById("saveCustomPictoBtn").addEventListener("click", saveCustomPicto);
+      document.getElementById("playFonoBtn").addEventListener("click", playFonoTarget);
+      document.getElementById("playSemBtn").addEventListener("click", playSemanticaPrompt);
+      document.getElementById("playUnirBtn").addEventListener("click", playUnirTarget);
+      document.getElementById("playAgruparBtn").addEventListener("click", playAgruparCriterio);
+      document.getElementById("addAgendaStepBtn").addEventListener("click", addAgendaStep);
+      document.getElementById("speakAgendaBtn").addEventListener("click", speakFullAgenda);
+      document.getElementById("saveRoutineBtn").addEventListener("click", saveCurrentRoutine);
+      document.getElementById("loadRoutineBtn").addEventListener("click", loadSelectedRoutine);
+      document.getElementById("deleteRoutineBtn").addEventListener("click", deleteSelectedRoutine);
+      document.getElementById("submitSupportBtn").addEventListener("click", submitSupportForm);
+      document.getElementById("saveCredentialsBtn").addEventListener("click", saveCredentialsForm);
+      document.getElementById("appLanguage").addEventListener("change", changeLanguage);
 
-        mini.innerHTML = `${visual}<div class="lbl">${item.word}</div>`;
-        mini.addEventListener('click', () => {
-          appState.sentence.splice(index, 1);
-          saveState();
-          renderSentenceStrip();
-        });
-        strip.appendChild(mini);
-      });
-      strip.scrollLeft = strip.scrollWidth;
-    }
-
-    function renderVocabulary(cat = currentVocabCat) {
-      currentVocabCat = cat;
-      const grid = document.getElementById('vocabGrid');
-      if (!grid) return;
-      grid.innerHTML = '';
-
-      const filtered = cat === 'todos' ? vocabularyItems : vocabularyItems.filter(v => v.cat === cat);
-      filtered.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'picto-card cat-sustantivo';
-        card.innerHTML = `<div class="picto-emoji">${item.emoji}</div><div class="picto-word">${item.word}</div>`;
-        card.addEventListener('click', () => {
-          speakText(item.word);
-          addToSentence(item);
-          recordUsage('vocabulario_' + item.cat);
-        });
-        grid.appendChild(card);
-      });
-    }
-
-    // ==========================================
-    // 8. AGENDA VISUAL PREDICTIVA
-    // ==========================================
-    function renderAgenda() {
-      const container = document.getElementById('agendaTimelineContainer');
-      if (!container) return;
-      container.innerHTML = '';
-
-      appState.agendaSteps.forEach((step, idx) => {
-        const card = document.createElement('div');
-        card.className = 'agenda-step-card' + (step.completed ? ' completed' : '');
-
-        const visualHtml = step.type === 'image' && step.visual.startsWith('data:')
-          ? `<img src="${step.visual}" alt="${step.title}">`
-          : step.visual;
-
-        card.innerHTML = `
-          <div class="agenda-step-left" style="cursor:pointer;" onclick="toggleAgendaStep(${idx})">
-            <div class="agenda-visual-box">${visualHtml}</div>
-            <div>
-              <div class="agenda-title" style="${step.completed ? 'text-decoration: line-through;' : ''}">
-                ${idx + 1}. ${step.title}
-              </div>
-              <small style="color: var(--text-muted);">${step.completed ? '✅ Completado' : '⏳ Pendiente (toca para marcar)'}</small>
-            </div>
-          </div>
-          <div style="display:flex; gap:6px; align-items:center;">
-            <button class="mod-btn" type="button" onclick="moveAgendaStep(${idx}, -1)" title="Subir">⬆️</button>
-            <button class="mod-btn" type="button" onclick="moveAgendaStep(${idx}, 1)" title="Bajar">⬇️</button>
-            <button class="delete-badge" type="button" onclick="removeAgendaStep(${idx})" title="Eliminar">✕</button>
-          </div>
-        `;
-        container.appendChild(card);
+      document.querySelectorAll(".mod-btn[data-module]").forEach(btn => {
+        btn.addEventListener("click", (e) => switchModule(btn.getAttribute("data-module"), btn));
       });
 
-      renderSavedRoutinesDropdown();
-    }
-
-    function toggleAgendaStep(idx) {
-      appState.agendaSteps[idx].completed = !appState.agendaSteps[idx].completed;
-      if (appState.agendaSteps[idx].completed) {
-        speakText('Completado: ' + appState.agendaSteps[idx].title);
-      }
-      saveState();
-      renderAgenda();
-    }
-
-    function moveAgendaStep(idx, dir) {
-      const targetIdx = idx + dir;
-      if (targetIdx < 0 || targetIdx >= appState.agendaSteps.length) return;
-      const temp = appState.agendaSteps[idx];
-      appState.agendaSteps[idx] = appState.agendaSteps[targetIdx];
-      appState.agendaSteps[targetIdx] = temp;
-      saveState();
-      renderAgenda();
-    }
-
-    function removeAgendaStep(idx) {
-      appState.agendaSteps.splice(idx, 1);
-      saveState();
-      renderAgenda();
-    }
-
-    function toggleAgendaInputType() {
-      const type = document.getElementById('agendaTypeSelect').value;
-      document.getElementById('groupAgendaEmoji').style.display = type === 'emoji' ? 'block' : 'none';
-      document.getElementById('groupAgendaFile').style.display = type === 'image' ? 'block' : 'none';
-    }
-
-    function renderSavedRoutinesDropdown() {
-      const sel = document.getElementById('savedRoutinesSelect');
-      if (!sel) return;
-      sel.innerHTML = '<option value="">-- Selecciona una rutina guardada --</option>';
-      Object.keys(appState.savedRoutines).forEach(name => {
-        const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
-        sel.appendChild(opt);
+      document.querySelectorAll(".tab-btn[data-cat]").forEach(btn => {
+        btn.addEventListener("click", (e) => filterCategory(btn.getAttribute("data-cat"), btn));
       });
-    }
 
-    function searchVisualHelper(query, resultsContainerId, hiddenInputId, emojiInputId) {
-      const container = document.getElementById(resultsContainerId);
-      if (!container) return;
-      const q = (query || '').toLowerCase().trim();
-      container.innerHTML = '';
-
-      const matches = quickEmojiLibrary.filter(item =>
-        !q || item.keys.some(k => k.includes(q) || q.includes(k))
-      );
-
-      const list = matches.length > 0 ? matches : quickEmojiLibrary.slice(0, 8);
-      list.forEach(m => {
-        const div = document.createElement('div');
-        div.className = 'search-result-item';
-        div.textContent = m.emoji;
-        div.title = 'Seleccionar ' + m.emoji;
-        div.onclick = () => {
-          if (hiddenInputId) document.getElementById(hiddenInputId).value = m.emoji;
-          if (emojiInputId) document.getElementById(emojiInputId).value = m.emoji;
-          container.querySelectorAll('.search-result-item').forEach(el => el.style.borderColor = 'var(--border-soft)');
-          div.style.borderColor = 'var(--primary)';
-        };
-        container.appendChild(div);
+      document.querySelectorAll(".tab-btn[data-vcat]").forEach(btn => {
+        btn.addEventListener("click", (e) => filterVocab(btn.getAttribute("data-vcat"), btn));
       });
-    }
 
-    function performGoogleSearchForAgenda() {
-      const q = document.getElementById('agendaWebSearchQuery').value;
-      searchVisualHelper(q, 'agendaSearchResults', 'agendaSelectedImgSrc', 'agendaNewEmoji');
-    }
-
-    function performGoogleSearchForCustom() {
-      const q = document.getElementById('customWebSearchQuery').value;
-      searchVisualHelper(q, 'customSearchResults', 'customSelectedImgSrc', null);
-    }
-
-    // ==========================================
-    // 9. FONOLOGÍA Y SEMÁNTICA
-    // ==========================================
-    let currentFonoAge = '3-6';
-    let currentFonoIndex = 0;
-    let currentUnirIndex = 0;
-
-    function loadFonoExercise() {
-      const customList = (appState.customExercises.fono || [])
-        .filter(e => e.age === currentFonoAge)
-        .map(e => ({ word: e.prompt, emoji: '🌟', correct: e.correct, options: [e.correct, 'Otro', 'Ninguno', 'Pausa'] }));
-
-      const pool = [...(fonoExercisesByAge[currentFonoAge] || fonoExercisesByAge['3-6']), ...customList];
-      const ex = pool[currentFonoIndex % pool.length];
-
-      document.getElementById('fonoTargetEmoji').textContent = ex.emoji;
-      document.getElementById('fonoTitle').textContent = `Identifica el sonido / sílaba de: ${ex.word}`;
-      document.getElementById('fonoFeedback').textContent = '';
-
-      const optionsBox = document.getElementById('fonoOptions');
-      optionsBox.innerHTML = '';
-      ex.options.forEach(opt => {
-        const btn = document.createElement('button');
-        btn.className = 'fono-option';
-        btn.type = 'button';
-        btn.textContent = opt;
-        btn.onclick = () => {
-          const fb = document.getElementById('fonoFeedback');
-          if (opt === ex.correct) {
-            fb.style.color = 'var(--secondary)';
-            fb.textContent = '🎉 ¡Excelente! Respuesta correcta.';
-            speakText('¡Muy bien! ' + ex.word);
-            setTimeout(() => {
-              currentFonoIndex++;
-              loadFonoExercise();
-            }, 1300);
+      document.querySelectorAll("#view-fonologia .age-bar .age-tab[data-fmode]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          document.querySelectorAll("#view-fonologia .age-bar .age-tab[data-fmode]").forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const mode = btn.getAttribute("data-fmode");
+          if(mode === 'sonido') {
+            document.getElementById('fonoModeSonido').style.display = 'block';
+            document.getElementById('fonoModeUnir').style.display = 'none';
+            initFonoGame();
           } else {
-            fb.style.color = 'var(--danger)';
-            fb.textContent = '🔄 Inténtalo de nuevo, escucha con atención.';
-            speakText('Inténtalo de nuevo');
+            document.getElementById('fonoModeSonido').style.display = 'none';
+            document.getElementById('fonoModeUnir').style.display = 'block';
+            initUnirGame();
           }
-        };
-        optionsBox.appendChild(btn);
+        });
       });
-    }
 
-    function loadUnirExercise() {
-      const ex = unirExercises[currentUnirIndex % unirExercises.length];
-      document.getElementById('unirTargetWord').textContent = ex.word;
-      document.getElementById('unirFeedback').textContent = '';
-
-      const grid = document.getElementById('unirOptionsGrid');
-      grid.innerHTML = '';
-      ex.options.forEach(emojiOpt => {
-        const btn = document.createElement('button');
-        btn.className = 'fono-option';
-        btn.type = 'button';
-        btn.style.fontSize = '42px';
-        btn.textContent = emojiOpt;
-        btn.onclick = () => {
-          const fb = document.getElementById('unirFeedback');
-          if (emojiOpt === ex.correct) {
-            fb.style.color = 'var(--secondary)';
-            fb.textContent = '🎉 ¡Correcto! Has unido la palabra con su objeto.';
-            speakText('¡Excelente! ' + ex.word);
-            setTimeout(() => {
-              currentUnirIndex++;
-              loadUnirExercise();
-            }, 1300);
+      document.querySelectorAll("#view-semantica .age-bar .age-tab[data-smode]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          document.querySelectorAll("#view-semantica .age-bar .age-tab[data-smode]").forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const mode = btn.getAttribute("data-smode");
+          if(mode === 'asociacion') {
+            document.getElementById('semModeAsociacion').style.display = 'block';
+            document.getElementById('semModeAgrupar').style.display = 'none';
+            initSemanticaGame();
           } else {
-            fb.style.color = 'var(--danger)';
-            fb.textContent = '❌ Ese no corresponde. Vuelve a intentarlo.';
-            speakText('Intenta otra vez');
+            document.getElementById('semModeAsociacion').style.display = 'none';
+            document.getElementById('semModeAgrupar').style.display = 'block';
+            initAgruparGame();
           }
-        };
-        grid.appendChild(btn);
-      });
-    }
-
-    let currentSemAge = '3-6';
-    let currentSemIndex = 0;
-    let currentAgruparIndex = 0;
-
-    function loadSemanticaExercise() {
-      const customList = (appState.customExercises.semantica || [])
-        .filter(e => e.age === currentSemAge)
-        .map(e => ({ prompt: e.prompt, emoji: '🧠', correct: e.correct, options: [e.correct, 'Opción B', 'Opción C', 'Opción D'] }));
-
-      const pool = [...(semanticaExercisesByAge[currentSemAge] || semanticaExercisesByAge['3-6']), ...customList];
-      const ex = pool[currentSemIndex % pool.length];
-
-      document.getElementById('semanticaPrompt').textContent = ex.prompt;
-      document.getElementById('semanticaTargetEmoji').textContent = ex.emoji;
-      document.getElementById('semanticaFeedback').textContent = '';
-
-      const optionsBox = document.getElementById('semanticaOptions');
-      optionsBox.innerHTML = '';
-      ex.options.forEach(opt => {
-        const btn = document.createElement('button');
-        btn.className = 'fono-option';
-        btn.type = 'button';
-        btn.textContent = opt;
-        btn.onclick = () => {
-          const fb = document.getElementById('semanticaFeedback');
-          if (opt === ex.correct) {
-            fb.style.color = 'var(--secondary)';
-            fb.textContent = '🎉 ¡Correcto! Muy buena asociación.';
-            speakText('¡Muy bien! ' + opt);
-            setTimeout(() => {
-              currentSemIndex++;
-              loadSemanticaExercise();
-            }, 1300);
-          } else {
-            fb.style.color = 'var(--danger)';
-            fb.textContent = '🤔 Piénsalo bien e inténtalo de nuevo.';
-            speakText('Inténtalo de nuevo');
-          }
-        };
-        optionsBox.appendChild(btn);
-      });
-    }
-
-    function loadAgruparExercise() {
-      const ex = agruparExercises[currentAgruparIndex % agruparExercises.length];
-      document.getElementById('agruparReglaText').textContent = ex.rule;
-      document.getElementById('agruparFeedback').textContent = '';
-
-      const grid = document.getElementById('agruparOptionsGrid');
-      grid.innerHTML = '';
-      ex.options.forEach(opt => {
-        const btn = document.createElement('button');
-        btn.className = 'fono-option';
-        btn.type = 'button';
-        btn.textContent = opt;
-        btn.onclick = () => {
-          const fb = document.getElementById('agruparFeedback');
-          if (opt === ex.correct) {
-            fb.style.color = 'var(--secondary)';
-            fb.textContent = '🎉 ¡Excelente clasificación!';
-            speakText('¡Correcto! ' + opt);
-            setTimeout(() => {
-              currentAgruparIndex++;
-              loadAgruparExercise();
-            }, 1300);
-          } else {
-            fb.style.color = 'var(--danger)';
-            fb.textContent = '🔄 Revisa el criterio e intenta otra vez.';
-            speakText('Inténtalo de nuevo');
-          }
-        };
-        grid.appendChild(btn);
-      });
-    }
-
-    // ==========================================
-    // 10. PANEL CLÍNICO Y EXPORTACIÓN PDF
-    // ==========================================
-    function updateStatsUI() {
-      const patient = getActivePatient();
-      if (!patient) return;
-      const stats = patient.stats || { totalClicks: 0, categories: {} };
-
-      document.getElementById('statPatientName').textContent = `${patient.name} (${patient.age} años)`;
-      document.getElementById('statTotalClicks').textContent = stats.totalClicks;
-
-      let topCat = '-';
-      let maxVal = 0;
-      for (const [k, v] of Object.entries(stats.categories)) {
-        if (v > maxVal) {
-          maxVal = v;
-          topCat = `${k.toUpperCase()} (${v} usos)`;
-        }
-      }
-      document.getElementById('statTopCategory').textContent = topCat;
-    }
-
-    function exportClinicalPDF() {
-      const patient = getActivePatient();
-      const stats = patient.stats || { totalClicks: 0, categories: {} };
-
-      if (!window.jspdf || !window.jspdf.jsPDF) {
-        alert('La librería PDF aún está cargando o no hay conexión. Intenta nuevamente en unos segundos.');
-        return;
-      }
-
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-
-      doc.setFontSize(18);
-      doc.setTextColor(74, 144, 226);
-      doc.text('VozVisual - Reporte Clínico y Educativo CAA', 20, 22);
-
-      doc.setFontSize(11);
-      doc.setTextColor(60, 60, 60);
-      doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 20, 32);
-      doc.text(`Paciente: ${patient.name} | Rango de edad: ${patient.age} años`, 20, 40);
-      doc.text(`Perfil Evaluador: ${appState.currentRole}`, 20, 48);
-
-      doc.setDrawColor(200, 200, 200);
-      doc.line(20, 54, 190, 54);
-
-      doc.setFontSize(13);
-      doc.setTextColor(44, 62, 80);
-      doc.text('Resumen de Actividad Comunicativa', 20, 64);
-
-      doc.setFontSize(11);
-      doc.text(`• Total de pictogramas activados: ${stats.totalClicks}`, 25, 74);
-
-      let y = 84;
-      doc.text('• Desglose por categoría:', 25, y);
-      y += 8;
-      const entries = Object.entries(stats.categories);
-      if (entries.length === 0) {
-        doc.text('   - Sin registros de uso todavía.', 25, y);
-      } else {
-        entries.forEach(([cat, count]) => {
-          doc.text(`   - ${cat.toUpperCase()}: ${count} activaciones`, 25, y);
-          y += 7;
-        });
-      }
-
-      y += 8;
-      doc.setFontSize(13);
-      doc.text('Estado de Agenda Visual Actual', 20, y);
-      y += 8;
-      doc.setFontSize(11);
-      appState.agendaSteps.forEach((step, idx) => {
-        doc.text(`   ${idx + 1}. ${step.title} [${step.completed ? 'Completado' : 'Pendiente'}]`, 25, y);
-        y += 7;
-      });
-
-      doc.save(`Reporte_VozVisual_${patient.name.replace(/\s+/g, '_')}.pdf`);
-    }
-
-    function factoryResetApp() {
-      if (confirm('¿Seguro que deseas borrar todos los pacientes, fotos personalizadas y métricas locales?')) {
-        localStorage.removeItem(STORAGE_KEY);
-        location.reload();
-      }
-    }
-
-    // ==========================================
-    // 11. INICIALIZACIÓN Y EVENT LISTENERS
-    // ==========================================
-    document.addEventListener('DOMContentLoaded', () => {
-      applyTheme(appState.theme);
-      const langSel = document.getElementById('voiceLangSelect');
-      const rateRange = document.getElementById('voiceRateRange');
-      const rateLabel = document.getElementById('voiceRateLabel');
-      if (langSel) langSel.value = appState.voiceLang;
-      if (rateRange) rateRange.value = appState.voiceRate;
-      if (rateLabel) rateLabel.textContent = Number(appState.voiceRate).toFixed(1) + 'x';
-
-      updateProfileBadge();
-      renderPatientList();
-      renderPictograms('todos');
-      renderVocabulary('todos');
-      renderSentenceStrip();
-      renderAgenda();
-      loadFonoExercise();
-      loadUnirExercise();
-      loadSemanticaExercise();
-      loadAgruparExercise();
-
-      document.getElementById('startBtn')?.addEventListener('click', () => {
-        document.getElementById('welcomeScreen').style.display = 'none';
-        speakText('Bienvenido a VozVisual');
-      });
-
-      document.getElementById('logoutBtn')?.addEventListener('click', () => {
-        document.getElementById('welcomeScreen').style.display = 'flex';
-      });
-
-      document.getElementById('profileBadge')?.addEventListener('click', () => {
-        renderPatientList();
-        document.getElementById('profileModal').style.display = 'flex';
-      });
-
-      document.getElementById('profileModal')?.addEventListener('click', (e) => {
-        if (e.target.id === 'profileModal') {
-          document.getElementById('profileModal').style.display = 'none';
-        }
-      });
-
-      const roleMap = { rFamiliar: 'Familia', rPsico: 'Psicólogo', rEst: 'Estudiante' };
-      Object.keys(roleMap).forEach(btnId => {
-        document.getElementById(btnId)?.addEventListener('click', (e) => {
-          document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
-          e.currentTarget.classList.add('active');
-          appState.currentRole = roleMap[btnId];
-          saveState();
-          updateProfileBadge();
         });
       });
 
-      document.getElementById('createPatientBtn')?.addEventListener('click', () => {
-        const nameInput = document.getElementById('newPatientName');
-        const ageSelect = document.getElementById('newPatientAge');
-        const name = nameInput.value.trim();
-        if (!name) {
-          alert('Por favor escribe el nombre del paciente.');
-          return;
-        }
-        const newId = 'p_' + Date.now();
-        appState.patients.push({
-          id: newId,
-          name,
-          age: ageSelect.value,
-          stats: { totalClicks: 0, categories: {} }
-        });
-        appState.activePatientId = newId;
-        nameInput.value = '';
-        saveState();
-        updateProfileBadge();
-        renderPatientList();
-        document.getElementById('profileModal').style.display = 'none';
+      document.querySelectorAll(".fono-card .age-tab[data-fage]").forEach(btn => {
+        btn.addEventListener("click", (e) => setFonoAge(btn.getAttribute("data-fage"), btn));
       });
 
-      document.getElementById('themeToggleBtn')?.addEventListener('click', cycleTheme);
-
-      document.querySelectorAll('.mod-btn[data-module]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          switchModule(btn.getAttribute('data-module'), btn);
-        });
-      });
-
-      document.getElementById('speakSentenceBtn')?.addEventListener('click', () => {
-        if (appState.sentence.length === 0) return;
-        const phrase = appState.sentence.map(s => s.word).join(' ');
-        speakText(phrase);
-      });
-
-      document.getElementById('clearSentenceBtn')?.addEventListener('click', () => {
-        appState.sentence = [];
-        saveState();
-        renderSentenceStrip();
-      });
-
-      document.querySelectorAll('#view-comunicador .tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('#view-comunicador .tab-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          renderPictograms(btn.getAttribute('data-cat'));
-        });
-      });
-
-      document.querySelectorAll('#view-vocabulario .tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('#view-vocabulario .tab-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          renderVocabulary(btn.getAttribute('data-vcat'));
-        });
-      });
-
-      document.getElementById('speakAgendaBtn')?.addEventListener('click', () => {
-        if (appState.agendaSteps.length === 0) return;
-        const text = appState.agendaSteps.map((s, i) => `Paso ${i + 1}: ${s.title}`).join('. ');
-        speakText(text);
-      });
-
-      document.getElementById('addAgendaStepBtn')?.addEventListener('click', () => {
-        const title = document.getElementById('agendaNewTitle').value.trim();
-        if (!title) {
-          alert('Escribe el nombre de la actividad.');
-          return;
-        }
-        const type = document.getElementById('agendaTypeSelect').value;
-        const fileInput = document.getElementById('agendaNewFile');
-
-        if (type === 'image' && fileInput.files && fileInput.files[0]) {
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            appState.agendaSteps.push({
-              id: Date.now(),
-              title,
-              type: 'image',
-              visual: ev.target.result,
-              completed: false
-            });
-            document.getElementById('agendaNewTitle').value = '';
-            fileInput.value = '';
-            saveState();
-            renderAgenda();
-          };
-          reader.readAsDataURL(fileInput.files[0]);
-        } else {
-          const chosenEmoji = document.getElementById('agendaSelectedImgSrc').value || document.getElementById('agendaNewEmoji').value || '📌';
-          appState.agendaSteps.push({
-            id: Date.now(),
-            title,
-            type: 'emoji',
-            visual: chosenEmoji,
-            completed: false
-          });
-          document.getElementById('agendaNewTitle').value = '';
-          document.getElementById('agendaSelectedImgSrc').value = '';
-          saveState();
-          renderAgenda();
-        }
-      });
-
-      document.getElementById('saveRoutineBtn')?.addEventListener('click', () => {
-        const name = prompt('Nombre para guardar esta plantilla de rutina:');
-        if (!name || !name.trim()) return;
-        appState.savedRoutines[name.trim()] = JSON.parse(JSON.stringify(appState.agendaSteps));
-        saveState();
-        renderSavedRoutinesDropdown();
-        alert('Rutina guardada correctamente.');
-      });
-
-      document.getElementById('loadRoutineBtn')?.addEventListener('click', () => {
-        const name = document.getElementById('savedRoutinesSelect').value;
-        if (!name || !appState.savedRoutines[name]) return;
-        appState.agendaSteps = JSON.parse(JSON.stringify(appState.savedRoutines[name]));
-        saveState();
-        renderAgenda();
-      });
-
-      document.getElementById('deleteRoutineBtn')?.addEventListener('click', () => {
-        const name = document.getElementById('savedRoutinesSelect').value;
-        if (!name || !appState.savedRoutines[name]) return;
-        if (confirm(`¿Eliminar la rutina "${name}"?`)) {
-          delete appState.savedRoutines[name];
-          saveState();
-          renderSavedRoutinesDropdown();
-        }
-      });
-
-      document.querySelectorAll('[data-fmode]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('[data-fmode]').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const mode = btn.getAttribute('data-fmode');
-          document.getElementById('fonoModeSonido').style.display = mode === 'sonido' ? 'block' : 'none';
-          document.getElementById('fonoModeUnir').style.display = mode === 'unir' ? 'block' : 'none';
-        });
-      });
-
-      document.querySelectorAll('[data-fage]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('[data-fage]').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          currentFonoAge = btn.getAttribute('data-fage');
-          currentFonoIndex = 0;
-          loadFonoExercise();
-        });
-      });
-
-      document.getElementById('playFonoBtn')?.addEventListener('click', () => {
-        const title = document.getElementById('fonoTitle').textContent;
-        speakText(title);
-      });
-
-      document.getElementById('playUnirBtn')?.addEventListener('click', () => {
-        const word = document.getElementById('unirTargetWord').textContent;
-        speakText(word);
-      });
-
-      document.querySelectorAll('[data-smode]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('[data-smode]').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const mode = btn.getAttribute('data-smode');
-          document.getElementById('semModeAsociacion').style.display = mode === 'asociacion' ? 'block' : 'none';
-          document.getElementById('semModeAgrupar').style.display = mode === 'agrupar' ? 'block' : 'none';
-        });
-      });
-
-      document.querySelectorAll('[data-sage]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('[data-sage]').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          currentSemAge = btn.getAttribute('data-sage');
-          currentSemIndex = 0;
-          loadSemanticaExercise();
-        });
-      });
-
-      document.getElementById('playSemBtn')?.addEventListener('click', () => {
-        const prompt = document.getElementById('semanticaPrompt').textContent;
-        speakText(prompt);
-      });
-
-      document.getElementById('playAgruparBtn')?.addEventListener('click', () => {
-        const rule = document.getElementById('agruparReglaText').textContent;
-        speakText(rule);
-      });
-
-      document.getElementById('exportPdfBtn')?.addEventListener('click', exportClinicalPDF);
-
-      document.getElementById('resetStatsBtn')?.addEventListener('click', () => {
-        const patient = getActivePatient();
-        if (patient && confirm('¿Reiniciar las métricas de este paciente?')) {
-          patient.stats = { totalClicks: 0, categories: {} };
-          saveState();
-          updateStatsUI();
-        }
-      });
-
-      document.getElementById('addExerciseBtn')?.addEventListener('click', () => {
-        const mod = document.getElementById('newExModule').value;
-        const age = document.getElementById('newExAge').value;
-        const prompt = document.getElementById('newExPrompt').value.trim();
-        const correct = document.getElementById('newExCorrect').value.trim();
-
-        if (!prompt || !correct) {
-          alert('Completa la pregunta/palabra y la respuesta correcta.');
-          return;
-        }
-        appState.customExercises[mod].push({ age, prompt, correct });
-        saveState();
-        document.getElementById('newExPrompt').value = '';
-        document.getElementById('newExCorrect').value = '';
-        alert('Ejercicio agregado correctamente.');
-      });
-
-      document.getElementById('saveCustomPictoBtn')?.addEventListener('click', () => {
-        const word = document.getElementById('customWord').value.trim().toUpperCase();
-        if (!word) {
-          alert('Escribe el nombre del pictograma.');
-          return;
-        }
-        const fileInput = document.getElementById('customImageFile');
-        const selectedEmoji = document.getElementById('customSelectedImgSrc').value;
-
-        if (fileInput.files && fileInput.files[0]) {
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            appState.customPictos.push({ id: 'c_' + Date.now(), word, imgSrc: ev.target.result });
-            saveState();
-            renderPictograms(currentPictoCat);
-            document.getElementById('customWord').value = '';
-            fileInput.value = '';
-            alert('Tarjeta personalizada guardada en "Mis Fotos ⭐".');
-          };
-          reader.readAsDataURL(fileInput.files[0]);
-        } else {
-          appState.customPictos.push({ id: 'c_' + Date.now(), word, emoji: selectedEmoji || '⭐' });
-          saveState();
-          renderPictograms(currentPictoCat);
-          document.getElementById('customWord').value = '';
-          document.getElementById('customSelectedImgSrc').value = '';
-          alert('Tarjeta personalizada guardada en "Mis Fotos ⭐".');
-        }
-      });
-
-      document.getElementById('saveCredentialsBtn')?.addEventListener('click', () => {
-        const username = document.getElementById('authUsername').value.trim();
-        const email = document.getElementById('authEmail').value.trim();
-        appState.credentials = { username, email };
-        saveState();
-        alert('Credenciales guardadas localmente.');
-      });
-
-      document.getElementById('submitSupportBtn')?.addEventListener('click', () => {
-        const name = document.getElementById('supportUserName').value.trim();
-        const email = document.getElementById('supportUserEmail').value.trim();
-        const msg = document.getElementById('supportMessage').value.trim();
-        if (!name || !email || !msg) {
-          alert('Por favor completa nombre, correo y descripción.');
-          return;
-        }
-        alert('Solicitud registrada. Nuestro equipo clínico se pondrá en contacto.');
-        document.getElementById('supportMessage').value = '';
+      document.querySelectorAll("#semModeAsociacion .age-tab[data-sage]").forEach(btn => {
+        btn.addEventListener("click", (e) => setSemanticaAge(btn.getAttribute("data-sage"), btn));
       });
 
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./pwabuilder-sw.js').catch(() => {});
       }
     });
+
+    /* Gestión de Temas Visuales (Claro, Oscuro, Alto Contraste) */
+    function cycleTheme() {
+      if (currentTheme === "light") {
+        applyTheme("dark");
+      } else if (currentTheme === "dark") {
+        applyTheme("high-contrast");
+      } else {
+        applyTheme("light");
+      }
+    }
+
+    function applyTheme(theme) {
+      currentTheme = theme;
+      document.body.classList.remove("theme-dark", "theme-high-contrast");
+      const toggleBtn = document.getElementById("themeToggleBtn");
+      const dropdown = document.getElementById("themeSelectorDropdown");
+      const bannerCard = document.getElementById("welcomeBannerCard");
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+
+      if (theme === "dark") {
+        document.body.classList.add("theme-dark");
+        if (toggleBtn) toggleBtn.innerText = "🌙 Oscuro";
+        if (dropdown) dropdown.value = "dark";
+        if (bannerCard) bannerCard.style.background = "linear-gradient(135deg, #2C3E50 0%, #16A085 100%)";
+        if (metaTheme) metaTheme.setAttribute("content", "#121820");
+      } else if (theme === "high-contrast") {
+        document.body.classList.add("theme-high-contrast");
+        if (toggleBtn) toggleBtn.innerText = "👁️ Contraste";
+        if (dropdown) dropdown.value = "high-contrast";
+        if (bannerCard) bannerCard.style.background = "#000000";
+        if (metaTheme) metaTheme.setAttribute("content", "#000000");
+      } else {
+        if (toggleBtn) toggleBtn.innerText = "☀️ Claro";
+        if (dropdown) dropdown.value = "light";
+        if (bannerCard) bannerCard.style.background = "linear-gradient(135deg, #4A90E2 0%, #50B89C 100%)";
+        if (metaTheme) metaTheme.setAttribute("content", "#4A90E2");
+      }
+      persistState();
+    }
+
+    function setRole(name, key) {
+      currentRoleName = name; currentRoleKey = key;
+      document.querySelectorAll('.role-grid .role-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(key === 'familiar' ? 'rFamiliar' : key === 'psicologo' ? 'rPsico' : 'rEst').classList.add('active');
+      applyRolePermissions();
+      persistState();
+    }
+
+    function applyRolePermissions() {
+      const panelBtn = document.getElementById('navPanelBtn');
+      if(panelBtn) panelBtn.style.display = currentRoleKey === 'familiar' ? 'none' : 'block';
+    }
+
+    function logoutApp() {
+      if(confirm("¿Estás seguro de que deseas cerrar la sesión actual y salir de la aplicación?")) {
+        window.speechSynthesis.cancel();
+        sentence = [];
+        updateSentenceStrip();
+        document.getElementById('topSentenceBar').style.display = 'none';
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById('welcomeScreen').style.display = 'flex';
+        persistState();
+      }
+    }
+
+    function jumpToModule(modId) {
+      if(!modId) return;
+      const targetBtn = document.querySelector(`[data-module="${modId}"]`);
+      switchModule(modId, targetBtn);
+      document.getElementById('navDropdownMenu').selectedIndex = 0;
+    }
+
+    function renderPatientListModal() {
+      const container = document.getElementById('patientListContainer');
+      container.innerHTML = '';
+      patients.forEach(pat => {
+        const row = document.createElement('div');
+        row.className = 'patient-row';
+        row.innerHTML = `
+          <div class="patient-info">
+            <span>👤 <b>${pat.name}</b> (${pat.ageGroup}a)</span>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="action-btn btn-speak" type="button" style="font-size: 13px; padding: 8px 12px; min-height: 40px;" onclick="confirmSession(${pat.id})">Elegir ➔</button>
+            <button class="delete-badge" type="button" title="Eliminar paciente" onclick="deletePatientRecord(${pat.id})">✕</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function deletePatientRecord(patientId) {
+      if(patients.length <= 1) {
+        alert("Debe existir al menos un registro de paciente en el sistema.");
+        return;
+      }
+      const pat = patients.find(p => p.id === patientId);
+      if(confirm(`¿Estás seguro de eliminar el registro de "${pat.name}"? Se perderán sus estadísticas y su agenda asociada.`)) {
+        patients = patients.filter(p => p.id !== patientId);
+        if(activePatientId === patientId) {
+          activePatientId = patients[0].id;
+        }
+        persistState();
+        renderPatientListModal();
+      }
+    }
+
+    function createPatientProfile() {
+      const nameInput = document.getElementById('newPatientName');
+      const ageSelect = document.getElementById('newPatientAge');
+      if(!nameInput.value.trim()) { alert("Ingresa un nombre."); return; }
+
+      const newPat = {
+        id: Date.now(), name: nameInput.value.trim(), ageGroup: ageSelect.value,
+        stats: { totalClicks: 0, categories: {} }, customPictos: [],
+        agendaSteps: [{ id: Date.now(), title: "Inicio de jornada", emoji: "⭐", isImage: false, completed: false }]
+      };
+      patients.push(newPat);
+      nameInput.value = '';
+      persistState();
+      renderPatientListModal();
+      confirmSession(newPat.id);
+    }
+
+    function confirmSession(patientId) {
+      activePatientId = patientId;
+      const pat = getCurrentPatient();
+      document.getElementById('profileBadge').innerText = `${currentRoleName} | ${pat.name}`;
+      currentFonoAgeGroup = pat.ageGroup; currentSemanticaAgeGroup = pat.ageGroup;
+      persistState();
+      document.getElementById('profileModal').style.display = 'none';
+      document.getElementById('topSentenceBar').style.display = 'flex';
+      renderGrid();
+      renderVocabGrid();
+      renderAgendaTimeline();
+      updateSavedRoutinesDropdown();
+      updateStatsUI();
+    }
+
+    function openProfileModal() { renderPatientListModal(); document.getElementById('profileModal').style.display = 'flex'; }
+    function getCurrentPatient() { return patients.find(p => p.id === activePatientId) || patients[0]; }
+
+    function speak(txt) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(txt);
+      u.lang = appLang;
+      u.rate = 0.9;
+      window.speechSynthesis.speak(u);
+    }
+
+    function switchModule(modId, btn) {
+      document.querySelectorAll('.mod-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+      if(btn) btn.classList.add('active');
+      const targetSec = document.getElementById(`view-${modId}`);
+      if(targetSec) targetSec.classList.add('active');
+
+      const topBar = document.getElementById('topSentenceBar');
+      if (modId === 'comunicador') {
+        topBar.style.display = 'flex';
+      } else {
+        topBar.style.display = 'none';
+        if (modId === 'vocabulario') renderVocabGrid();
+        if (modId === 'agenda') {
+          renderAgendaTimeline();
+          updateSavedRoutinesDropdown();
+        }
+        if (modId === 'fonologia') {
+          initFonoGame();
+          initUnirGame();
+        }
+        if (modId === 'semantica') {
+          initSemanticaGame();
+          initAgruparGame();
+        }
+        if (modId === 'terapeuta') updateStatsUI();
+      }
+    }
+
+    function exportPatientPDF() {
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert("La librería PDF aún está cargando. Intenta de nuevo en unos segundos.");
+        return;
+      }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const pat = getCurrentPatient();
+
+      doc.setFillColor(74, 144, 226);
+      doc.rect(0, 0, 210, 30, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(20);
+      doc.text("VozVisual - Reporte Clínico y de Evolución", 15, 20);
+
+      doc.setTextColor(44, 62, 80);
+      doc.setFontSize(14);
+      doc.text(`Paciente: ${pat.name}`, 15, 45);
+      doc.setFontSize(11);
+      doc.text(`Grupo de Edad: ${pat.ageGroup} años`, 15, 53);
+      doc.text(`Fecha de Emisión: ${new Date().toLocaleDateString()}`, 15, 61);
+      doc.text(`Profesional / Rol: ${currentRoleName}`, 15, 69);
+
+      doc.setLineWidth(0.5);
+      doc.setLineColor(220, 228, 236);
+      doc.line(15, 75, 195, 75);
+
+      doc.setFontSize(14);
+      doc.text("Resumen de Estadísticas y Uso:", 15, 88);
+      doc.setFontSize(11);
+      doc.text(`• Total de pictogramas activados en sesiones: ${pat.stats.totalClicks}`, 20, 98);
+
+      let topCat = "-", maxVal = 0;
+      for (let c in pat.stats.categories) {
+        if(pat.stats.categories[c] > maxVal) { maxVal = pat.stats.categories[c]; topCat = c.toUpperCase(); }
+      }
+      doc.text(`• Categoría comunicativa más solicitada: ${topCat}`, 20, 108);
+
+      doc.text("Agenda Visual Actual:", 15, 125);
+      let yPos = 135;
+      if(pat.agendaSteps && pat.agendaSteps.length > 0) {
+        pat.agendaSteps.forEach((step, idx) => {
+          let statusText = step.completed ? "[Completado]" : "[Pendiente]";
+          doc.text(`${idx + 1}. ${step.title} - ${statusText}`, 20, yPos);
+          yPos += 8;
+        });
+      } else {
+        doc.text("No hay actividades registradas en la agenda.", 20, yPos);
+      }
+
+      doc.setFontSize(9);
+      doc.setTextColor(150, 150, 150);
+      doc.text("Generado automáticamente por la plataforma VozVisual (CAA & Estimulación del Lenguaje).", 15, 285);
+
+      doc.save(`Reporte_Clinico_${pat.name.replace(/\s+/g, '_')}.pdf`);
+    }
+
+    function saveCredentialsForm() {
+      const username = document.getElementById('authUsername').value.trim();
+      const email = document.getElementById('authEmail').value.trim();
+      const password = document.getElementById('authPassword').value.trim();
+
+      if(!username || !email || !password) {
+        alert("Por favor completa todos los campos (Nombre de usuario, Correo y Contraseña).");
+        return;
+      }
+
+      alert(`¡Credenciales guardadas con éxito para el usuario "${username}" (${email})!`);
+      document.getElementById('authPassword').value = '';
+    }
+
+    function submitSupportForm() {
+      const name = document.getElementById('supportUserName').value.trim();
+      const email = document.getElementById('supportUserEmail').value.trim();
+      const msg = document.getElementById('supportMessage').value.trim();
+
+      if(!name || !email || !msg) {
+        alert("Por favor completa los campos obligatorios (Nombre, Correo y Mensaje).");
+        return;
+      }
+
+      alert(`¡Gracias ${name}! Tu solicitud de soporte clínico ha sido registrada con éxito. Nos pondremos en contacto contigo a través de ${email}.`);
+      document.getElementById('supportUserName').value = '';
+      document.getElementById('supportUserEmail').value = '';
+      document.getElementById('supportMessage').value = '';
+    }
+
+    function performGoogleSearchForAgenda() {
+      const query = document.getElementById('agendaWebSearchQuery').value.trim();
+      const resultsContainer = document.getElementById('agendaSearchResults');
+      resultsContainer.innerHTML = '';
+      if(!query) return;
+
+      let mockResults = [
+        { type: 'emoji', val: '🎒' }, { type: 'emoji', val: '✏️' }, { type: 'emoji', val: '🏫' },
+        { type: 'image', val: `https://picsum.photos/seed/${encodeURIComponent(query)}1/100/100` },
+        { type: 'image', val: `https://picsum.photos/seed/${encodeURIComponent(query)}2/100/100` }
+      ];
+
+      mockResults.forEach(res => {
+        const item = document.createElement('div');
+        item.className = 'search-result-item';
+        if(res.type === 'emoji') {
+          item.innerText = res.val;
+          item.onclick = () => {
+            document.getElementById('agendaTypeSelect').value = 'emoji';
+            toggleAgendaInputType();
+            document.getElementById('agendaNewEmoji').value = res.val;
+            resultsContainer.innerHTML = '<span style="font-size:13px; color:var(--secondary); padding:5px;">¡Emoji seleccionado!</span>';
+          };
+        } else {
+          item.innerHTML = `<img src="${res.val}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;">`;
+          item.onclick = () => {
+            document.getElementById('agendaSelectedImgSrc').value = res.val;
+            resultsContainer.innerHTML = '<span style="font-size:13px; color:var(--secondary); padding:5px;">¡Imagen web seleccionada!</span>';
+          };
+        }
+        resultsContainer.appendChild(item);
+      });
+    }
+
+    function performGoogleSearchForCustom() {
+      const query = document.getElementById('customWebSearchQuery').value.trim();
+      const resultsContainer = document.getElementById('customSearchResults');
+      resultsContainer.innerHTML = '';
+      if(!query) return;
+
+      let mockResults = [
+        { type: 'emoji', val: '⭐' }, { type: 'emoji', val: '⚽' }, { type: 'emoji', val: '🎨' },
+        { type: 'image', val: `https://picsum.photos/seed/custom${encodeURIComponent(query)}1/100/100` },
+        { type: 'image', val: `https://picsum.photos/seed/custom${encodeURIComponent(query)}2/100/100` }
+      ];
+
+      mockResults.forEach(res => {
+        const item = document.createElement('div');
+        item.className = 'search-result-item';
+        if(res.type === 'emoji') {
+          item.innerText = res.val;
+          item.onclick = () => {
+            document.getElementById('customSelectedImgSrc').value = res.val;
+            resultsContainer.innerHTML = '<span style="font-size:13px; color:var(--secondary); padding:5px;">¡Seleccionado!</span>';
+          };
+        } else {
+          item.innerHTML = `<img src="${res.val}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;">`;
+          item.onclick = () => {
+            document.getElementById('customSelectedImgSrc').value = res.val;
+            resultsContainer.innerHTML = '<span style="font-size:13px; color:var(--secondary); padding:5px;">¡Imagen seleccionada!</span>';
+          };
+        }
+        resultsContainer.appendChild(item);
+      });
+    }
+
+    function toggleAgendaInputType() {
+      const type = document.getElementById('agendaTypeSelect').value;
+      if(type === 'emoji') {
+        document.getElementById('groupAgendaEmoji').style.display = 'block';
+        document.getElementById('groupAgendaFile').style.display = 'none';
+      } else {
+        document.getElementById('groupAgendaEmoji').style.display = 'none';
+        document.getElementById('groupAgendaFile').style.display = 'block';
+      }
+    }
+
+    function renderAgendaTimeline() {
+      const pat = getCurrentPatient();
+      const container = document.getElementById('agendaTimelineContainer');
+      container.innerHTML = '';
+
+      if(!pat.agendaSteps || pat.agendaSteps.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">No hay actividades en la agenda de este paciente.</p>';
+        return;
+      }
+
+      pat.agendaSteps.forEach((step, index) => {
+        const card = document.createElement('div');
+        card.className = `agenda-step-card ${step.completed ? 'completed' : ''}`;
+
+        let visualHTML = step.isImage ? `<img src="${step.imgSrc}">` : (step.emoji || '📌');
+
+        card.innerHTML = `
+          <div class="agenda-step-left">
+            <div class="agenda-visual-box">${visualHTML}</div>
+            <div>
+              <div style="font-size: 12px; color: var(--text-muted); font-weight: bold;">PASO ${index + 1}</div>
+              <div class="agenda-title" style="${step.completed ? 'text-decoration: line-through; color: var(--secondary);' : ''}">${step.title}</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <button class="action-btn" type="button" style="font-size: 11px; padding: 4px 8px; background: var(--primary); min-height: 24px;" title="Mover arriba" onclick="moveAgendaStep(${index}, -1)" ${index === 0 ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>⬆️</button>
+              <button class="action-btn" type="button" style="font-size: 11px; padding: 4px 8px; background: var(--primary); min-height: 24px;" title="Mover abajo" onclick="moveAgendaStep(${index}, 1)" ${index === pat.agendaSteps.length - 1 ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>⬇️</button>
+            </div>
+            <button class="action-btn ${step.completed ? 'btn-clear' : 'btn-speak'}" type="button" style="font-size: 14px; padding: 10px 14px; min-height: 44px;" onclick="toggleAgendaStep(${step.id})">
+              ${step.completed ? '↩️' : '✅'}
+            </button>
+            <button class="delete-badge" type="button" onclick="deleteAgendaStep(${step.id})">✕</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function moveAgendaStep(index, direction) {
+      const pat = getCurrentPatient();
+      const newIndex = index + direction;
+      if (newIndex < 0 || newIndex >= pat.agendaSteps.length) return;
+
+      const temp = pat.agendaSteps[index];
+      pat.agendaSteps[index] = pat.agendaSteps[newIndex];
+      pat.agendaSteps[newIndex] = temp;
+
+      persistState();
+      renderAgendaTimeline();
+    }
+
+    function toggleAgendaStep(stepId) {
+      const pat = getCurrentPatient();
+      const step = pat.agendaSteps.find(s => s.id === stepId);
+      if(step) {
+        step.completed = !step.completed;
+        if(step.completed) {
+          speak(`Completado: ${step.title}`);
+        }
+        persistState();
+        renderAgendaTimeline();
+      }
+    }
+
+    function deleteAgendaStep(stepId) {
+      const pat = getCurrentPatient();
+      pat.agendaSteps = pat.agendaSteps.filter(s => s.id !== stepId);
+      persistState();
+      renderAgendaTimeline();
+    }
+
+    function addAgendaStep() {
+      const titleInput = document.getElementById('agendaNewTitle');
+      const typeSelect = document.getElementById('agendaTypeSelect').value;
+      if(!titleInput.value.trim()) { alert("Ingresa el título de la actividad."); return; }
+
+      const pat = getCurrentPatient();
+      if(!pat.agendaSteps) pat.agendaSteps = [];
+
+      if(typeSelect === 'emoji') {
+        const emojiVal = document.getElementById('agendaNewEmoji').value.trim() || '📌';
+        pat.agendaSteps.push({
+          id: Date.now(),
+          title: titleInput.value.trim(),
+          emoji: emojiVal,
+          isImage: false,
+          completed: false
+        });
+        titleInput.value = '';
+        document.getElementById('agendaNewEmoji').value = '📌';
+        persistState();
+        renderAgendaTimeline();
+        alert("¡Paso agregado a la agenda visual!");
+      } else {
+        const fileInput = document.getElementById('agendaNewFile');
+        const selectedWebImg = document.getElementById('agendaSelectedImgSrc').value;
+
+        if(fileInput.files.length > 0) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            pat.agendaSteps.push({
+              id: Date.now(),
+              title: titleInput.value.trim(),
+              imgSrc: e.target.result,
+              isImage: true,
+              completed: false
+            });
+            titleInput.value = '';
+            fileInput.value = '';
+            document.getElementById('agendaSearchResults').innerHTML = '';
+            persistState();
+            renderAgendaTimeline();
+            alert("¡Paso agregado con imagen personalizada!");
+          };
+          reader.readAsDataURL(fileInput.files[0]);
+        } else if(selectedWebImg) {
+          pat.agendaSteps.push({
+            id: Date.now(),
+            title: titleInput.value.trim(),
+            imgSrc: selectedWebImg,
+            isImage: true,
+            completed: false
+          });
+          titleInput.value = '';
+          document.getElementById('agendaSelectedImgSrc').value = '';
+          document.getElementById('agendaSearchResults').innerHTML = '';
+          persistState();
+          renderAgendaTimeline();
+          alert("¡Paso agregado desde la búsqueda web!");
+        } else {
+          alert("Selecciona una imagen local o búscala en la web.");
+        }
+      }
+    }
+
+    function saveCurrentRoutine() {
+      const pat = getCurrentPatient();
+      if(!pat.agendaSteps || pat.agendaSteps.length === 0) { alert("La agenda actual está vacía."); return; }
+      const routineName = prompt("Ingresa un nombre para guardar esta rutina:");
+      if(!routineName || !routineName.trim()) return;
+
+      const templateSteps = pat.agendaSteps.map(s => ({ ...s, id: Date.now() + Math.random(), completed: false }));
+      savedRoutinesTemplates.push({
+        name: routineName.trim(),
+        steps: templateSteps
+      });
+      persistState();
+      updateSavedRoutinesDropdown();
+      alert(`¡Rutina "${routineName}" guardada correctamente!`);
+    }
+
+    function updateSavedRoutinesDropdown() {
+      const select = document.getElementById('savedRoutinesSelect');
+      select.innerHTML = '<option value="">-- Selecciona una rutina guardada --</option>';
+      savedRoutinesTemplates.forEach((rut, index) => {
+        const opt = document.createElement('option');
+        opt.value = index;
+        opt.innerText = rut.name;
+        select.appendChild(opt);
+      });
+    }
+
+    function loadSelectedRoutine() {
+      const select = document.getElementById('savedRoutinesSelect');
+      const index = select.value;
+      if(index === "") { alert("Selecciona una rutina de la lista."); return; }
+
+      const selectedRoutine = savedRoutinesTemplates[index];
+      const pat = getCurrentPatient();
+      pat.agendaSteps = selectedRoutine.steps.map(s => ({ ...s, id: Date.now() + Math.random(), completed: false }));
+      persistState();
+      renderAgendaTimeline();
+      alert(`¡Rutina "${selectedRoutine.name}" cargada con éxito!`);
+    }
+
+    function deleteSelectedRoutine() {
+      const select = document.getElementById('savedRoutinesSelect');
+      const index = select.value;
+      if(index === "") { alert("Selecciona una rutina guardada para eliminar."); return; }
+
+      const routineName = savedRoutinesTemplates[index].name;
+      if(confirm(`¿Estás seguro de eliminar la rutina guardada "${routineName}"?`)) {
+        savedRoutinesTemplates.splice(index, 1);
+        persistState();
+        updateSavedRoutinesDropdown();
+        alert("Rutina eliminada correctamente.");
+      }
+    }
+
+    function speakFullAgenda() {
+      const pat = getCurrentPatient();
+      if(!pat.agendaSteps || pat.agendaSteps.length === 0) { speak("La agenda está vacía."); return; }
+      let text = "Secuencia de la agenda: " + pat.agendaSteps.map(s => s.title + (s.completed ? ", completado" : "")).join(". ");
+      speak(text);
+    }
+
+    function renderGrid(filter = 'todos') {
+      currentCommunicatorFilter = filter;
+      const pat = getCurrentPatient();
+      const grid = document.getElementById('pictoGrid');
+      grid.innerHTML = '';
+      let all = [...basePictograms, ...pat.customPictos];
+      let filtered = filter === 'todos' ? all : all.filter(p => p.group === filter);
+
+      filtered.forEach(item => {
+        const c = document.createElement('div');
+        c.className = `picto-card ${item.type}`;
+        let contentHTML = item.isCustom ? `<img src="${item.imgSrc}" class="picto-img"><div class="picto-word">${item.word}</div>` : `<div class="picto-emoji">${item.emoji}</div><div class="picto-word">${item.word}</div>`;
+
+        if(item.isCustom) {
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'delete-badge';
+          deleteBtn.type = 'button';
+          deleteBtn.title = 'Eliminar imagen';
+          deleteBtn.innerText = '✕';
+          deleteBtn.style.position = 'absolute';
+          deleteBtn.style.top = '10px';
+          deleteBtn.style.right = '10px';
+          deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if(confirm(`¿Deseas eliminar "${item.word}" del comunicador?`)) {
+              pat.customPictos = pat.customPictos.filter(p => p.id !== item.id);
+              persistState();
+              renderGrid(currentCommunicatorFilter);
+            }
+          });
+          c.appendChild(deleteBtn);
+        }
+
+        c.insertAdjacentHTML('afterbegin', contentHTML);
+        c.addEventListener("click", () => handleCardClick(item));
+        grid.appendChild(c);
+      });
+    }
+
+    function renderVocabGrid(category = 'todos') {
+      currentVocabFilter = category;
+      const grid = document.getElementById('vocabGrid');
+      grid.innerHTML = '';
+      let filtered = category === 'todos' ? vocabDatabase : vocabDatabase.filter(v => v.category === category);
+
+      filtered.forEach(item => {
+        const c = document.createElement('div');
+        c.className = 'picto-card cat-sustantivo';
+        let contentHTML = item.isCustom ? `<img src="${item.imgSrc}" class="picto-img"><div class="picto-word">${item.word}</div>` : `<div class="picto-emoji">${item.emoji}</div><div class="picto-word">${item.word}</div>`;
+
+        if(item.isCustom) {
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'delete-badge';
+          deleteBtn.type = 'button';
+          deleteBtn.title = 'Eliminar imagen';
+          deleteBtn.innerText = '✕';
+          deleteBtn.style.position = 'absolute';
+          deleteBtn.style.top = '10px';
+          deleteBtn.style.right = '10px';
+          deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if(confirm(`¿Deseas eliminar "${item.word}" de vocabulario?`)) {
+              vocabDatabase = vocabDatabase.filter(v => v.id !== item.id);
+              persistState();
+              renderVocabGrid(currentVocabFilter);
+            }
+          });
+          c.appendChild(deleteBtn);
+        }
+
+        const speakBtn = document.createElement('button');
+        speakBtn.className = 'action-btn btn-speak';
+        speakBtn.type = 'button';
+        speakBtn.style.cssText = 'font-size:12px; padding:6px 12px; margin-top:8px; min-height: 36px;';
+        speakBtn.innerText = '🔊 Escuchar';
+        speakBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          speak(item.word);
+        });
+
+        c.insertAdjacentHTML('afterbegin', contentHTML);
+        c.appendChild(speakBtn);
+        c.addEventListener("click", () => speak(item.word));
+        grid.appendChild(c);
+      });
+
+      const uploadCard = document.createElement('div');
+      uploadCard.className = 'picto-card';
+      uploadCard.style.border = '3px dashed var(--secondary)';
+      uploadCard.style.background = 'var(--option-bg)';
+      uploadCard.innerHTML = `
+        <div style="font-size:45px; margin-bottom:5px;">➕</div>
+        <div class="picto-word" style="font-size:14px; color:var(--secondary);">Subir Imagen</div>
+        <input type="file" id="vocabFileInput" accept="image/*" style="display:none;">
+      `;
+      uploadCard.addEventListener('click', () => {
+        const fileInput = uploadCard.querySelector('#vocabFileInput');
+        fileInput.click();
+        fileInput.onchange = (e) => handleVocabFileUpload(e);
+      });
+      grid.appendChild(uploadCard);
+    }
+
+    function filterVocab(category, btn) {
+      document.querySelectorAll('#view-vocabulario .tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderVocabGrid(category);
+    }
+
+    function handleVocabFileUpload(event) {
+      const file = event.target.files[0];
+      if(!file) return;
+      const wordName = prompt("Ingresa el nombre o palabra para esta imagen de vocabulario:");
+      if(!wordName || !wordName.trim()) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        vocabDatabase.push({
+          id: Date.now(),
+          word: wordName.trim(),
+          isCustom: true,
+          imgSrc: e.target.result,
+          category: currentVocabFilter === 'todos' ? 'animales' : currentVocabFilter
+        });
+        persistState();
+        alert("¡Imagen de vocabulario añadida con éxito!");
+        renderVocabGrid(currentVocabFilter);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleCardClick(item) {
+      speak(item.word);
+      sentence.push(item);
+      updateSentenceStrip();
+      let pat = getCurrentPatient();
+      pat.stats.totalClicks++;
+      pat.stats.categories[item.group] = (pat.stats.categories[item.group] || 0) + 1;
+      persistState();
+      updateStatsUI();
+    }
+
+    function updateSentenceStrip() {
+      const strip = document.getElementById('sentenceStrip');
+      if (!sentence.length) { strip.innerHTML = '<span style="color: var(--text-muted); font-size: 15px;">Toca las tarjetas para formar una frase...</span>'; return; }
+      strip.innerHTML = sentence.map(i => `<div class="mini-card">${i.isCustom?`<img src="${i.imgSrc}">`:`<span>${i.emoji}</span>`}<span class="lbl">${i.word}</span></div>`).join('');
+    }
+
+    function speakSentence() { if(sentence.length) speak(sentence.map(s => s.word).join(' ')); }
+    function clearSentence() { sentence = []; updateSentenceStrip(); persistState(); }
+    function filterCategory(cat, btn) {
+      document.querySelectorAll('#view-comunicador .tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderGrid(cat);
+    }
+
+    function saveCustomPicto() {
+      const wInput = document.getElementById('customWord');
+      const fInput = document.getElementById('customImageFile');
+      const selectedWebImg = document.getElementById('customSelectedImgSrc').value;
+
+      if(!wInput.value.trim()) { alert("Ingresa un nombre."); return; }
+
+      if(fInput.files.length > 0) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          getCurrentPatient().customPictos.push({ id: Date.now(), word: wInput.value.trim(), isCustom: true, imgSrc: e.target.result, type: "cat-custom", group: "custom" });
+          wInput.value = ''; fInput.value = '';
+          document.getElementById('customSearchResults').innerHTML = '';
+          persistState();
+          alert("¡Foto guardada en el comunicador!");
+          renderGrid('custom');
+        };
+        reader.readAsDataURL(fInput.files[0]);
+      } else if(selectedWebImg) {
+        if(selectedWebImg.length <= 4) {
+          getCurrentPatient().customPictos.push({ id: Date.now(), word: wInput.value.trim(), emoji: selectedWebImg, type: "cat-custom", group: "custom" });
+        } else {
+          getCurrentPatient().customPictos.push({ id: Date.now(), word: wInput.value.trim(), isCustom: true, imgSrc: selectedWebImg, type: "cat-custom", group: "custom" });
+        }
+        wInput.value = '';
+        document.getElementById('customSelectedImgSrc').value = '';
+        document.getElementById('customSearchResults').innerHTML = '';
+        persistState();
+        alert("¡Foto guardada en el comunicador!");
+        renderGrid('custom');
+      } else {
+        alert("Selecciona una imagen local o búscala en la web.");
+      }
+    }
+
+    function addNewExercise() {
+      const mod = document.getElementById('newExModule').value;
+      const age = document.getElementById('newExAge').value;
+      const prompt = document.getElementById('newExPrompt').value.trim();
+      const correct = document.getElementById('newExCorrect').value.trim();
+      if(!prompt || !correct) { alert("Completa todos los campos."); return; }
+
+      if(mod === 'fono') {
+        fonoDatabase[age].push({ word: prompt.split(" ")[0], emoji: prompt.split(" ")[1] || "⭐" });
+      } else {
+        semanticaDatabase[age].push({ prompt: prompt, targetCorrect: correct, distractors: ["Opción X"], spoken: prompt });
+      }
+      document.getElementById('newExPrompt').value = '';
+      document.getElementById('newExCorrect').value = '';
+      persistState();
+      alert("¡Ejercicio agregado!");
+    }
+
+    let curFono = null;
+    function setFonoAge(age, btn) {
+      currentFonoAgeGroup = age;
+      document.querySelectorAll('#view-fonologia .fono-card .age-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      persistState();
+      initFonoGame();
+    }
+    function initFonoGame() {
+      const items = fonoDatabase[currentFonoAgeGroup] || fonoDatabase["3-6"];
+      curFono = items[Math.floor(Math.random() * items.length)];
+      document.getElementById('fonoTargetEmoji').innerText = curFono.emoji;
+      document.getElementById('fonoTitle').innerText = `1. Sonido Inicial (${currentFonoAgeGroup} años)`;
+      document.getElementById('fonoFeedback').innerText = '';
+
+      let opts = [curFono.word];
+      while(opts.length < Math.min(3, items.length)) {
+        let r = items[Math.floor(Math.random() * items.length)].word;
+        if(!opts.includes(r)) opts.push(r);
+      }
+      opts.sort(() => Math.random() - 0.5);
+
+      const grid = document.getElementById('fonoOptions');
+      grid.innerHTML = '';
+      opts.forEach(o => {
+        const b = document.createElement('button');
+        b.className = 'fono-option'; b.type = 'button'; b.innerText = o;
+        b.addEventListener("click", () => checkFono(o));
+        grid.appendChild(b);
+      });
+    }
+    function playFonoTarget() { if(curFono) speak(curFono.word); }
+    function checkFono(w) {
+      const fb = document.getElementById('fonoFeedback');
+      if (w === curFono.word) {
+        fb.style.color = "#2ECC71"; fb.innerText = "¡Correcto! 🎉";
+        speak("¡Muy bien!");
+        setTimeout(initFonoGame, 1500);
+      } else {
+        fb.style.color = "#E74C3C"; fb.innerText = "Inténtalo de nuevo 💪";
+      }
+    }
+
+    let curUnir = null;
+    function initUnirGame() {
+      curUnir = vocabDatabase[Math.floor(Math.random() * vocabDatabase.length)];
+      document.getElementById('unirTargetWord').innerText = curUnir.word.toUpperCase();
+      document.getElementById('unirFeedback').innerText = '';
+
+      let options = [curUnir];
+      while(options.length < 3 && options.length < vocabDatabase.length) {
+        let rand = vocabDatabase[Math.floor(Math.random() * vocabDatabase.length)];
+        if(!options.some(o => o.word === rand.word)) {
+          options.push(rand);
+        }
+      }
+      options.sort(() => Math.random() - 0.5);
+
+      const grid = document.getElementById('unirOptionsGrid');
+      grid.innerHTML = '';
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'fono-option';
+        btn.type = 'button';
+        btn.style.cssText = 'font-size: 40px; padding: 20px; display: flex; align-items: center; justify-content: center;';
+        btn.innerText = opt.emoji;
+        btn.addEventListener("click", () => checkUnir(opt));
+        grid.appendChild(btn);
+      });
+    }
+
+    function playUnirTarget() { if(curUnir) speak(curUnir.word); }
+    function checkUnir(opt) {
+      const fb = document.getElementById('unirFeedback');
+      if(opt.word === curUnir.word) {
+        fb.style.color = "#2ECC71";
+        fb.innerText = "¡Excelente! Encontraste el objeto correcto 🌟";
+        speak("¡Muy bien!");
+        setTimeout(initUnirGame, 1800);
+      } else {
+        fb.style.color = "#E74C3C";
+        fb.innerText = "Ese no es. Piénsalo otra vez 💡";
+        speak("Inténtalo de nuevo");
+      }
+    }
+
+    let curSem = null;
+    function setSemanticaAge(age, btn) {
+      currentSemanticaAgeGroup = age;
+      document.querySelectorAll('#semModeAsociacion .age-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      persistState();
+      initSemanticaGame();
+    }
+    function initSemanticaGame() {
+      const pairs = semanticaDatabase[currentSemanticaAgeGroup] || semanticaDatabase["3-6"];
+      curSem = pairs[Math.floor(Math.random() * pairs.length)];
+      document.getElementById('semanticaPrompt').innerText = curSem.prompt;
+      document.getElementById('semanticaTargetEmoji').innerText = curSem.prompt.split(" ").pop();
+      document.getElementById('semanticaFeedback').innerText = '';
+
+      let opts = [curSem.targetCorrect, ...curSem.distractors];
+      opts.sort(() => Math.random() - 0.5);
+
+      const grid = document.getElementById('semanticaOptions');
+      grid.innerHTML = '';
+      opts.forEach(o => {
+        const b = document.createElement('button');
+        b.className = 'fono-option'; b.type = 'button'; b.innerText = o;
+        b.addEventListener("click", () => checkSem(o));
+        grid.appendChild(b);
+      });
+    }
+    function playSemanticaPrompt() { if(curSem) speak(curSem.spoken); }
+    function checkSem(o) {
+      const fb = document.getElementById('semanticaFeedback');
+      if (o === curSem.targetCorrect) {
+        fb.style.color = "#2ECC71"; fb.innerText = "¡Excelente asociación! 🌟";
+        speak("¡Excelente!");
+        setTimeout(initSemanticaGame, 2000);
+      } else {
+        fb.style.color = "#E74C3C"; fb.innerText = "Piénsalo otra vez 💡";
+      }
+    }
+
+    let curAgrupar = null;
+    function initAgruparGame() {
+      curAgrupar = agruparDatabase[Math.floor(Math.random() * agruparDatabase.length)];
+      let criterioTexto = `Agrupa por ${curAgrupar.attribute.toUpperCase()}: ${curAgrupar.value}`;
+      document.getElementById('agruparReglaText').innerText = criterioTexto;
+      document.getElementById('agruparFeedback').innerText = '';
+
+      let options = [curAgrupar.target, ...curAgrupar.distractors];
+      options.sort(() => Math.random() - 0.5);
+
+      const grid = document.getElementById('agruparOptionsGrid');
+      grid.innerHTML = '';
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'fono-option';
+        btn.type = 'button';
+        btn.style.cssText = 'font-size: 30px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 8px;';
+        btn.innerHTML = `<span>${opt.emoji}</span><span style="font-size:13px; font-weight:normal;">${opt.name}</span>`;
+        btn.addEventListener("click", () => checkAgrupar(opt));
+        grid.appendChild(btn);
+      });
+    }
+
+    function playAgruparCriterio() {
+      if(curAgrupar) {
+        speak(`Selecciona el objeto que sea de ${curAgrupar.attribute} ${curAgrupar.value}`);
+      }
+    }
+
+    function checkAgrupar(opt) {
+      const fb = document.getElementById('agruparFeedback');
+      if(opt.name === curAgrupar.target.name) {
+        fb.style.color = "#2ECC71";
+        fb.innerText = "¡Correcto! Agrupación exitosa 🎯";
+        speak("¡Muy bien!");
+        setTimeout(initAgruparGame, 1800);
+      } else {
+        fb.style.color = "#E74C3C";
+        fb.innerText = "Ese no corresponde a la regla. Inténtalo de nuevo 💪";
+        speak("Inténtalo de nuevo");
+      }
+    }
+
+    function updateStatsUI() {
+      const pat = getCurrentPatient();
+      document.getElementById('statPatientName').innerText = pat.name;
+      document.getElementById('statTotalClicks').innerText = pat.stats.totalClicks;
+      let top = "-", max = 0;
+      for (let c in pat.stats.categories) {
+        if(pat.stats.categories[c] > max) { max = pat.stats.categories[c]; top = c.toUpperCase(); }
+      }
+      document.getElementById('statTopCategory').innerText = top;
+    }
+
+    function resetStats() {
+      getCurrentPatient().stats = { totalClicks: 0, categories: {} };
+      persistState();
+      updateStatsUI();
+    }
+    function changeLanguage() {
+      appLang = document.getElementById('appLanguage').value;
+      persistState();
+    }
   </script>
 </body>
 </html>
