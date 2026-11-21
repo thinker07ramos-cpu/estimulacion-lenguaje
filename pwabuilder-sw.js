@@ -37,3 +37,53 @@ self.addEventListener("fetch", (event) => {
       .catch(() => caches.match(event.request))
   );
 });
+self.addEventListener("push", (event) => {
+  let datos = {
+    title: "VozVisual",
+    body: "Tienes una nueva actividad o recordatorio disponible.",
+    url: "/estimulacion-lenguaje/"
+  };
+
+  if (event.data) {
+    try {
+      const recibido = event.data.json();
+      datos = { ...datos, ...recibido };
+    } catch (error) {
+      datos.body = event.data.text() || datos.body;
+    }
+  }
+
+  const opciones = {
+    body: datos.body,
+    icon: "icons/icon-192x192.png",
+    badge: "icons/icon-72x72.png",
+    data: {
+      url: datos.url
+    }
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(datos.title, opciones)
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  const destinoUrl =
+    (event.notification.data && event.notification.data.url) ||
+    "/estimulacion-lenguaje/";
+
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((ventanaList) => {
+      for (const ventana of ventanaList) {
+        if (ventana.url.includes("/estimulacion-lenguaje/") && "focus" in ventana) {
+          return ventana.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(destinoUrl);
+      }
+    })
+  );
+});
