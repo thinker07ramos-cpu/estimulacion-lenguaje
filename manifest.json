@@ -23,21 +23,4 @@
       "purpose": "any"
     }
   ]
-},
-"otra_propiedad_anterior": "valor",
-  "screenshots": [
-    {
-      "src": "icons/screenshot1.png",
-      "sizes": "1024x768",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Vista 1 de VozVisual"
-    },
-    {
-      "src": "icons/screenshot2.png",
-      "sizes": "1013x768",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Vista 2 de VozVisual"
-    }
-  ]
+}
