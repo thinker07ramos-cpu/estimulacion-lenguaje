@@ -1,6 +1,7 @@
 {
   "name": "Voz Visual-Estimulación y Comunicación CAA",
   "short_name": "VozVisual",
+  "id": "/CENIOR-estimulacion-lenguaje/",
   "description": "Aplicación de estimulación del lenguaje, comunicación aumentativa y alternativa (CAA) orientada a facilitar procesos de aprendizaje e intervención neuropsicológica.",
   "start_url": "/estimulacion-lenguaje/",
   "scope": "/estimulacion-lenguaje/",
