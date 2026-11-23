@@ -950,6 +950,10 @@ if (credStatusEl && localAccountInfo.username) {
       document.getElementById("deleteRoutineBtn").addEventListener("click", deleteSelectedRoutine);
       document.getElementById("submitSupportBtn").addEventListener("click", submitSupportForm);
       document.getElementById("saveCredentialsBtn").addEventListener("click", saveCredentialsForm);
+      const exportBackupBtn = document.getElementById("exportBackupBtn");
+const importBackupInput = document.getElementById("importBackupInput");
+if (exportBackupBtn) exportBackupBtn.addEventListener("click", exportBackupJSON);
+if (importBackupInput) importBackupInput.addEventListener("change", importBackupJSON);
       document.getElementById("appLanguage").addEventListener("change", changeLanguage);
 
       document.querySelectorAll(".mod-btn[data-module]").forEach(btn => {
