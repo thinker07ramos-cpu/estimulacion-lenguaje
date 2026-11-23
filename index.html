@@ -1234,18 +1234,23 @@
     }
 
     function saveCredentialsForm() {
-      const username = document.getElementById('authUsername').value.trim();
-      const email = document.getElementById('authEmail').value.trim();
-      const password = document.getElementById('authPassword').value.trim();
+  const username = document.getElementById('authUsername').value.trim();
+  const email = document.getElementById('authEmail').value.trim();
+  const statusMsg = document.getElementById('credStatusMsg');
 
-      if(!username || !email || !password) {
-        alert("Por favor completa todos los campos (Nombre de usuario, Correo y Contraseña).");
-        return;
-      }
+  if (!username) {
+    alert("Por favor ingresa el nombre o identificador del responsable / centro.");
+    return;
+  }
 
-      alert(`¡Credenciales guardadas con éxito para el usuario "${username}" (${email})!`);
-      document.getElementById('authPassword').value = '';
-    }
+  localAccountInfo = { username, email };
+  persistState();
+
+  if (statusMsg) {
+    statusMsg.innerText = `Identificación local guardada: ${username}${email ? ` (${email})` : ""}.`;
+  }
+  alert(`¡Identificación local guardada para "${username}"!`);
+}
 
     function submitSupportForm() {
       const name = document.getElementById('supportUserName').value.trim();
