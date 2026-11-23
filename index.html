@@ -1269,7 +1269,92 @@ if (importBackupInput) importBackupInput.addEventListener("change", importBackup
   }
   alert(`¡Identificación local guardada para "${username}"!`);
 }
+function exportBackupJSON() {
+  try {
+    const backupData = {
+      app: "VozVisual",
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      currentRoleKey,
+      currentRoleName,
+      appLang,
+      currentTheme,
+      localAccountInfo,
+      savedRoutinesTemplates,
+      patients,
+      activePatientId,
+      currentFonoAgeGroup,
+      currentSemanticaAgeGroup,
+      vocabDatabase,
+      fonoDatabase,
+      semanticaDatabase,
+      sentence
+    };
 
+    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const safeName = (localAccountInfo.username || "vozvisual").replace(/[^a-z0-9_-]/gi, "_");
+    link.href = url;
+    link.download = `respaldo_${safeName}_${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    console.error("Error al exportar respaldo JSON:", e);
+    alert("No se pudo generar el archivo de respaldo JSON.");
+  }
+}
+
+function importBackupJSON(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data || !Array.isArray(data.patients) || data.patients.length === 0) {
+        alert("El archivo seleccionado no contiene un respaldo válido de VozVisual.");
+        return;
+      }
+
+      if (!confirm("¿Deseas restaurar este respaldo? Se reemplazarán los perfiles, agendas, métricas y configuración local actuales.")) {
+        return;
+      }
+
+      if (data.currentRoleKey) currentRoleKey = data.currentRoleKey;
+      if (data.currentRoleName) currentRoleName = data.currentRoleName;
+      if (data.appLang) appLang = data.appLang;
+      if (data.localAccountInfo && typeof data.localAccountInfo === "object") {
+        localAccountInfo = {
+          username: data.localAccountInfo.username || "",
+          email: data.localAccountInfo.email || ""
+        };
+      }
+      if (Array.isArray(data.savedRoutinesTemplates)) savedRoutinesTemplates = data.savedRoutinesTemplates;
+      patients = data.patients;
+      if (data.activePatientId) activePatientId = data.activePatientId;
+      if (data.currentFonoAgeGroup) currentFonoAgeGroup = data.currentFonoAgeGroup;
+      if (data.currentSemanticaAgeGroup) currentSemanticaAgeGroup = data.currentSemanticaAgeGroup;
+      if (Array.isArray(data.vocabDatabase)) vocabDatabase = data.vocabDatabase;
+      if (data.fonoDatabase) fonoDatabase = data.fonoDatabase;
+      if (data.semanticaDatabase) semanticaDatabase = data.semanticaDatabase;
+      if (Array.isArray(data.sentence)) sentence = data.sentence;
+
+      persistState();
+      alert("¡Respaldo JSON restaurado correctamente! La aplicación se actualizará.");
+      window.location.reload();
+    } catch (err) {
+      console.error("Error al importar respaldo JSON:", err);
+      alert("No se pudo leer el archivo JSON. Verifica que el formato sea correcto.");
+    } finally {
+      event.target.value = "";
+    }
+  };
+  reader.readAsText(file);
+}
     function submitSupportForm() {
       const name = document.getElementById('supportUserName').value.trim();
       const email = document.getElementById('supportUserEmail').value.trim();
