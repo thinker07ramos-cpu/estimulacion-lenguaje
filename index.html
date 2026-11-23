@@ -847,51 +847,57 @@
     let currentVocabFilter = 'todos';
 
     function persistState() {
-      try {
-        const payload = {
-          currentRoleKey,
-          currentRoleName,
-          appLang,
-          currentTheme,
-          savedRoutinesTemplates,
-          patients,
-          activePatientId,
-          currentFonoAgeGroup,
-          currentSemanticaAgeGroup,
-          vocabDatabase,
-          fonoDatabase,
-          semanticaDatabase,
-          sentence
-        };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-      } catch (e) {
-        console.warn('No se pudo guardar en localStorage:', e);
-      }
-    }
+  try {
+    const payload = {
+      currentRoleKey,
+      currentRoleName,
+      appLang,
+      currentTheme,
+      localAccountInfo,
+      savedRoutinesTemplates,
+      patients,
+      activePatientId,
+      currentFonoAgeGroup,
+      currentSemanticaAgeGroup,
+      vocabDatabase,
+      fonoDatabase,
+      semanticaDatabase,
+      sentence
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  } catch (e) {
+    console.warn('No se pudo guardar en localStorage:', e);
+  }
+}
 
-    function hydrateState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return;
-        const d = JSON.parse(raw);
-        if (d.currentRoleKey) currentRoleKey = d.currentRoleKey;
-        if (d.currentRoleName) currentRoleName = d.currentRoleName;
-        if (d.appLang) appLang = d.appLang;
-        if (d.currentTheme) currentTheme = d.currentTheme;
-        if (Array.isArray(d.savedRoutinesTemplates)) savedRoutinesTemplates = d.savedRoutinesTemplates;
-        if (Array.isArray(d.patients) && d.patients.length > 0) patients = d.patients;
-        if (d.activePatientId) activePatientId = d.activePatientId;
-        if (d.currentFonoAgeGroup) currentFonoAgeGroup = d.currentFonoAgeGroup;
-        if (d.currentSemanticaAgeGroup) currentSemanticaAgeGroup = d.currentSemanticaAgeGroup;
-        if (Array.isArray(d.vocabDatabase)) vocabDatabase = d.vocabDatabase;
-        if (d.fonoDatabase) fonoDatabase = d.fonoDatabase;
-        if (d.semanticaDatabase) semanticaDatabase = d.semanticaDatabase;
-        if (Array.isArray(d.sentence)) sentence = d.sentence;
-      } catch (e) {
-        console.warn('No se pudo cargar desde localStorage:', e);
-      }
+function hydrateState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.currentRoleKey) currentRoleKey = d.currentRoleKey;
+    if (d.currentRoleName) currentRoleName = d.currentRoleName;
+    if (d.appLang) appLang = d.appLang;
+    if (d.currentTheme) currentTheme = d.currentTheme;
+    if (d.localAccountInfo && typeof d.localAccountInfo === "object") {
+      localAccountInfo = {
+        username: d.localAccountInfo.username || "",
+        email: d.localAccountInfo.email || ""
+      };
     }
-
+    if (Array.isArray(d.savedRoutinesTemplates)) savedRoutinesTemplates = d.savedRoutinesTemplates;
+    if (Array.isArray(d.patients) && d.patients.length > 0) patients = d.patients;
+    if (d.activePatientId) activePatientId = d.activePatientId;
+    if (d.currentFonoAgeGroup) currentFonoAgeGroup = d.currentFonoAgeGroup;
+    if (d.currentSemanticaAgeGroup) currentSemanticaAgeGroup = d.currentSemanticaAgeGroup;
+    if (Array.isArray(d.vocabDatabase)) vocabDatabase = d.vocabDatabase;
+    if (d.fonoDatabase) fonoDatabase = d.fonoDatabase;
+    if (d.semanticaDatabase) semanticaDatabase = d.semanticaDatabase;
+    if (Array.isArray(d.sentence)) sentence = d.sentence;
+  } catch (e) {
+    console.warn('No se pudo cargar desde localStorage:', e);
+  }
+}
     document.addEventListener("DOMContentLoaded", () => {
       hydrateState();
       applyTheme(currentTheme);
