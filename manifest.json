@@ -33,25 +33,25 @@
     "kids"
   ],
   "screenshots": [
-    {
-      "src": "screenshots/pantalla-inicio.jpeg",
-      "sizes": "1000x1476",
-      "type": "image/jpeg",
-      "form_factor": "narrow",
-      "label": "Menú principal y selección de perfiles en VozVisual"
-    },
-    {
-      "src": "screenshots/tablero-caa.jpeg",
-      "sizes": "1000x1440",
-      "type": "image/jpeg",
-      "form_factor": "narrow",
-      "label": "Tablero de pictogramas para comunicación aumentativa (CAA)"
-    },
-    {
-      "src": "screenshots/escritorio.jpeg",
-      "sizes": "1600x849",
-      "type": "image/jpeg",
-      "form_factor": "wide",
-      "label": "Vista de ejercicios de conciencia fonológica en tablet o PC"
-    }
-  ]
+  {
+    "src": "screenshots/pantalla-inicio.jpeg",
+    "sizes": "1000x1476",
+    "type": "image/jpeg",
+    "form_factor": "narrow",
+    "label": "Menú principal y selección de perfiles en VozVisual"
+  },
+  {
+    "src": "screenshots/tablero-caa.jpeg",
+    "sizes": "1000x1440",
+    "type": "image/jpeg",
+    "form_factor": "narrow",
+    "label": "Tablero de pictogramas para comunicación aumentativa (CAA)"
+  },
+  {
+    "src": "screenshots/escritorio.jpeg",
+    "sizes": "1600x849",
+    "type": "image/jpeg",
+    "form_factor": "wide",
+    "label": "Vista de ejercicios de conciencia fonológica en tablet o PC"
+  }
+]
