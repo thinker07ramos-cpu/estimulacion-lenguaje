@@ -25,4 +25,33 @@
       "purpose": "any"
     }
   ]
-}
+},
+"categories": [
+    "education",
+    "health",
+    "medical",
+    "kids"
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/pantalla-inicio.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Menú principal y selección de perfiles en VozVisual"
+    },
+    {
+      "src": "screenshots/tablero-caa.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Tablero de pictogramas para comunicación aumentativa (CAA)"
+    },
+    {
+      "src": "screenshots/escritorio.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Vista de ejercicios de conciencia fonológica en tablet o PC"
+    }
+  ]
