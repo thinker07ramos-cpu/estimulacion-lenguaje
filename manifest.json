@@ -34,23 +34,23 @@
   ],
   "screenshots": [
     {
-      "src": "screenshots/pantalla-inicio.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
+      "src": "screenshots/pantalla-inicio.jpe",
+      "sizes": "807x1600",
+      "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "Menú principal y selección de perfiles en VozVisual"
     },
     {
-      "src": "screenshots/tablero-caa.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
+      "src": "screenshots/tablero-caa.jpe",
+      "sizes": "822x1600",
+      "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "Tablero de pictogramas para comunicación aumentativa (CAA)"
     },
     {
-      "src": "screenshots/escritorio.png",
-      "sizes": "1920x1080",
-      "type": "image/png",
+      "src": "screenshots/escritorio.jpe",
+      "sizes": "815x1600",
+      "type": "image/jpeg",
       "form_factor": "wide",
       "label": "Vista de ejercicios de conciencia fonológica en tablet o PC"
     }
