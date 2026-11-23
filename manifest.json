@@ -34,21 +34,21 @@
   ],
   "screenshots": [
     {
-      "src": "screenshots/pantalla-inicio.jpe",
+      "src": "screenshots/pantalla-inicio.jpeg",
       "sizes": "807x1600",
       "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "Menú principal y selección de perfiles en VozVisual"
     },
     {
-      "src": "screenshots/tablero-caa.jpe",
+      "src": "screenshots/tablero-caa.jpeg",
       "sizes": "822x1600",
       "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "Tablero de pictogramas para comunicación aumentativa (CAA)"
     },
     {
-      "src": "screenshots/escritorio.jpe",
+      "src": "screenshots/escritorio.jpeg",
       "sizes": "815x1600",
       "type": "image/jpeg",
       "form_factor": "wide",
