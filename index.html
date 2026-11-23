@@ -886,6 +886,7 @@ function hydrateState() {
         email: d.localAccountInfo.email || ""
       };
     }
+    if (Array.isArray(d.supportRequests)) supportRequests = d.supportRequests;
     if (Array.isArray(d.savedRoutinesTemplates)) savedRoutinesTemplates = d.savedRoutinesTemplates;
     if (Array.isArray(d.patients) && d.patients.length > 0) patients = d.patients;
     if (d.activePatientId) activePatientId = d.activePatientId;
