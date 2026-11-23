@@ -600,30 +600,41 @@
     </div>
   </div>
 
-  <!-- MÓDULO 7: REGISTRO DE CREDENCIALES -->
-  <div class="view-section" id="view-credenciales">
-    <div style="max-width: 680px; margin: 0 auto; width: 100%;">
-      <div class="stats-card">
-        <h3>🔐 Registro de Credenciales de Usuario</h3>
-        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">
-          Configura tus datos de acceso institucional para sincronizar perfiles y configuraciones de sesión.
-        </p>
-        <div class="form-group">
-          <label>Nombre de Usuario:</label>
-          <input type="text" id="authUsername" placeholder="Ej: ana_baez_cenior">
-        </div>
-        <div class="form-group">
-          <label>Correo Electrónico:</label>
-          <input type="email" id="authEmail" placeholder="Ej: ceniorrd@gmail.com">
-        </div>
-        <div class="form-group">
-          <label>Contraseña:</label>
-          <input type="password" id="authPassword" placeholder="••••••••">
-        </div>
-        <button class="btn-submit" type="button" id="saveCredentialsBtn" style="background-color: var(--primary);">Guardar Credenciales</button>
+  <!-- MÓDULO 7: IDENTIFICACIÓN LOCAL Y RESPALDO -->
+<div class="view-section" id="view-credenciales">
+  <div style="max-width: 680px; margin: 0 auto; width: 100%;">
+    <div class="stats-card">
+      <h3>🔐 Identificación Local y Respaldo</h3>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">
+        Los datos de <strong>VozVisual</strong> se guardan únicamente en este dispositivo mediante almacenamiento local (<em>localStorage</em>), sin envío a servidores externos ni sincronización automática en la nube.
+      </p>
+      <div class="form-group">
+        <label>Nombre o Identificador del Responsable / Centro:</label>
+        <input type="text" id="authUsername" placeholder="Ej: CENIOR / Responsable">
+      </div>
+      <div class="form-group">
+        <label>Correo de Contacto de Referencia (opcional):</label>
+        <input type="email" id="authEmail" placeholder="Ej: contacto@ejemplo.com">
+      </div>
+      <button class="btn-submit" type="button" id="saveCredentialsBtn" style="background-color: var(--primary);">Guardar Identificación Local</button>
+      <p id="credStatusMsg" style="font-size: 13px; color: var(--secondary); margin-top: 10px; font-weight: bold;"></p>
+    </div>
+
+    <div class="stats-card">
+      <h3>💾 Respaldo Manual de Perfiles y Progreso (.JSON)</h3>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">
+        Como la información vive en este navegador o dispositivo, exporta un archivo de respaldo antes de cambiar de equipo o limpiar datos.
+      </p>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="action-btn btn-speak" type="button" id="exportBackupBtn" style="font-size: 14px; padding: 10px 16px;">⬇️ Exportar Respaldo JSON</button>
+        <label class="action-btn" style="font-size: 14px; padding: 10px 16px; background-color: var(--primary); cursor: pointer; margin: 0;">
+          ⬆️ Importar Respaldo JSON
+          <input type="file" id="importBackupInput" accept="application/json" style="display: none;">
+        </label>
       </div>
     </div>
   </div>
+</div>
 
   <!-- MÓDULO 8: SOPORTE Y REGISTRO DE USUARIO -->
   <div class="view-section" id="view-soporte">
