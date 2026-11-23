@@ -1357,21 +1357,44 @@ function importBackupJSON(event) {
   reader.readAsText(file);
 }
     function submitSupportForm() {
-      const name = document.getElementById('supportUserName').value.trim();
-      const email = document.getElementById('supportUserEmail').value.trim();
-      const msg = document.getElementById('supportMessage').value.trim();
+  const nameInput = document.getElementById('supportUserName');
+  const emailInput = document.getElementById('supportUserEmail');
+  const roleSelect = document.getElementById('supportUserRole');
+  const typeSelect = document.getElementById('supportRequestType');
+  const msgInput = document.getElementById('supportMessage');
 
-      if(!name || !email || !msg) {
-        alert("Por favor completa los campos obligatorios (Nombre, Correo y Mensaje).");
-        return;
-      }
+  const name = nameInput ? nameInput.value.trim() : '';
+  const email = emailInput ? emailInput.value.trim() : '';
+  const role = roleSelect ? roleSelect.value : currentRoleName;
+  const reqType = typeSelect ? typeSelect.value : 'Soporte clínico general';
+  const msg = msgInput ? msgInput.value.trim() : '';
 
-      alert(`¡Gracias ${name}! Tu solicitud de soporte clínico ha sido registrada con éxito. Nos pondremos en contacto contigo a través de ${email}.`);
-      document.getElementById('supportUserName').value = '';
-      document.getElementById('supportUserEmail').value = '';
-      document.getElementById('supportMessage').value = '';
-    }
+  if (!name || !email || !msg) {
+    alert("Por favor completa los campos obligatorios (Nombre, Correo y Mensaje).");
+    return;
+  }
 
+  const pat = getCurrentPatient();
+  const ticket = {
+    id: `VV-${Date.now().toString().slice(-6)}`,
+    date: new Date().toLocaleString(),
+    name,
+    email,
+    role,
+    reqType,
+    patientName: pat ? pat.name : "",
+    message: msg
+  };
+
+  supportRequests.unshift(ticket);
+  persistState();
+
+  alert(`¡Registro guardado (${ticket.id})! Gracias, ${name}. Tu consulta sobre "${reqType}" quedó registrada localmente.`);
+
+  if (nameInput) nameInput.value = '';
+  if (emailInput) emailInput.value = '';
+  if (msgInput) msgInput.value = '';
+}
     function performGoogleSearchForAgenda() {
       const query = document.getElementById('agendaWebSearchQuery').value.trim();
       const resultsContainer = document.getElementById('agendaSearchResults');
