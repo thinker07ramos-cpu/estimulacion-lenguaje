@@ -901,6 +901,14 @@ function hydrateState() {
     document.addEventListener("DOMContentLoaded", () => {
       hydrateState();
       applyTheme(currentTheme);
+      const authUserEl = document.getElementById("authUsername");
+const authEmailEl = document.getElementById("authEmail");
+const credStatusEl = document.getElementById("credStatusMsg");
+if (authUserEl) authUserEl.value = localAccountInfo.username || "";
+if (authEmailEl) authEmailEl.value = localAccountInfo.email || "";
+if (credStatusEl && localAccountInfo.username) {
+  credStatusEl.innerText = `Identificación local activa: ${localAccountInfo.username}${localAccountInfo.email ? ` (${localAccountInfo.email})` : ""}.`;
+}
       const langSelect = document.getElementById("appLanguage");
       if (langSelect) langSelect.value = appLang;
       const pat = getCurrentPatient();
