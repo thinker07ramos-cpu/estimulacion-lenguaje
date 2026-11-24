@@ -1520,7 +1520,7 @@ function getMatchingEmojis(query, fallbackEmojis) {
   const results = Array.from(matched);
   return results.length > 0 ? results.slice(0, 8) : fallbackEmojis;
 }
-    function performGoogleSearchForAgenda() {
+  async function performGoogleSearchForAgenda() {
   const query = document.getElementById('agendaWebSearchQuery').value.trim();
   const wrapper = document.getElementById('agendaSearchWrapper');
   const emojiContainer = document.getElementById('agendaEmojiResults');
@@ -1535,7 +1535,8 @@ function getMatchingEmojis(query, fallbackEmojis) {
   }
   wrapper.style.display = 'block';
 
-  ['🎒', '✏️', '🏫', '🍎', '⚽', '🎨'].forEach(emoji => {
+  const emojis = getMatchingEmojis(query, ['🎒', '✏️', '🏫', '🍎', '⚽', '🎨']);
+  emojis.forEach(emoji => {
     const item = document.createElement('div');
     item.className = 'search-result-item';
     item.innerText = emoji;
@@ -1548,20 +1549,35 @@ function getMatchingEmojis(query, fallbackEmojis) {
     emojiContainer.appendChild(item);
   });
 
-  [1, 2, 3, 4].forEach(n => {
-    const imgUrl = `https://picsum.photos/seed/${encodeURIComponent(query)}${n}/100/100`;
-    const item = document.createElement('div');
-    item.className = 'search-result-item';
-    item.innerHTML = `<img src="${imgUrl}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;">`;
-    item.onclick = () => {
-      document.getElementById('agendaSelectedImgSrc').value = imgUrl;
-      webContainer.innerHTML = '<span style="font-size:13px; color:var(--secondary); padding:5px; grid-column: 1 / -1;">¡Imagen web seleccionada!</span>';
-    };
-    webContainer.appendChild(item);
-  });
+  webContainer.innerHTML = '<span style="font-size:13px; color:var(--text-muted); padding:5px; grid-column: 1 / -1;">Buscando pictogramas...</span>';
+
+  try {
+    const res = await fetch(`https://api.arasaac.org/v1/pictograms/es/search/${encodeURIComponent(query)}`);
+    const data = await res.json();
+    webContainer.innerHTML = '';
+
+    if (!Array.isArray(data) || data.length === 0) {
+      webContainer.innerHTML = '<span style="font-size:13px; color:var(--text-muted); padding:5px; grid-column: 1 / -1;">Sin pictogramas encontrados para esa palabra.</span>';
+      return;
+    }
+
+    data.slice(0, 8).forEach(pic => {
+      const imgUrl = `https://static.arasaac.org/pictograms/${pic._id}/${pic._id}_300.png`;
+      const item = document.createElement('div');
+      item.className = 'search-result-item';
+      item.innerHTML = `<img src="${imgUrl}" alt="${query}" style="width:45px; height:45px; object-fit:contain; border-radius:6px;">`;
+      item.onclick = () => {
+        document.getElementById('agendaSelectedImgSrc').value = imgUrl;
+        webContainer.innerHTML = '<span style="font-size:13px; color:var(--secondary); padding:5px; grid-column: 1 / -1;">¡Pictograma seleccionado!</span>';
+      };
+      webContainer.appendChild(item);
+    });
+  } catch (err) {
+    webContainer.innerHTML = '<span style="font-size:13px; color:var(--danger); padding:5px; grid-column: 1 / -1;">No se pudo consultar la búsqueda web.</span>';
+  }
 }
 
-function performGoogleSearchForCustom() {
+async function performGoogleSearchForCustom() {
   const query = document.getElementById('customWebSearchQuery').value.trim();
   const wrapper = document.getElementById('customSearchWrapper');
   const emojiContainer = document.getElementById('customEmojiResults');
@@ -1576,29 +1592,45 @@ function performGoogleSearchForCustom() {
   }
   wrapper.style.display = 'block';
 
-  ['⭐', '⚽', '🎨', '🐶', '🚗', '📚'].forEach(emoji => {
+  const emojis = getMatchingEmojis(query, ['⭐', '⚽', '🎨', '🐶', '🚗', '📚']);
+  emojis.forEach(emoji => {
     const item = document.createElement('div');
     item.className = 'search-result-item';
     item.innerText = emoji;
     item.onclick = () => {
       document.getElementById('customSelectedImgSrc').value = emoji;
-      emojiContainer.innerHTML = '<span style="font-size:13px; color:var(--secondary); padding:5px;">¡Emoji seleccionado!</span>';
+      emojiContainer.innerHTML = `<span style="font-size:13px; color:var(--secondary); padding:5px;">¡Emoji seleccionado: ${emoji}!</span>`;
     };
     emojiContainer.appendChild(item);
   });
 
-  [1, 2, 3, 4].forEach(n => {
-    const imgUrl = `https://picsum.photos/seed/custom${encodeURIComponent(query)}${n}/100/100`;
-    const item = document.createElement('div');
-    item.className = 'search-result-item';
-    item.innerHTML = `<img src="${imgUrl}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;">`;
-    item.onclick = () => {
-      document.getElementById('customSelectedImgSrc').value = imgUrl;
-      webContainer.innerHTML = '<span style="font-size:13px; color:var(--secondary); padding:5px; grid-column: 1 / -1;">¡Imagen web seleccionada!</span>';
-    };
-    webContainer.appendChild(item);
-  });
-}
+  webContainer.innerHTML = '<span style="font-size:13px; color:var(--text-muted); padding:5px; grid-column: 1 / -1;">Buscando pictogramas...</span>';
+
+  try {
+    const res = await fetch(`https://api.arasaac.org/v1/pictograms/es/search/${encodeURIComponent(query)}`);
+    const data = await res.json();
+    webContainer.innerHTML = '';
+
+    if (!Array.isArray(data) || data.length === 0) {
+      webContainer.innerHTML = '<span style="font-size:13px; color:var(--text-muted); padding:5px; grid-column: 1 / -1;">Sin pictogramas encontrados para esa palabra.</span>';
+      return;
+    }
+
+    data.slice(0, 8).forEach(pic => {
+      const imgUrl = `https://static.arasaac.org/pictograms/${pic._id}/${pic._id}_300.png`;
+      const item = document.createElement('div');
+      item.className = 'search-result-item';
+      item.innerHTML = `<img src="${imgUrl}" alt="${query}" style="width:45px; height:45px; object-fit:contain; border-radius:6px;">`;
+      item.onclick = () => {
+        document.getElementById('customSelectedImgSrc').value = imgUrl;
+        webContainer.innerHTML = '<span style="font-size:13px; color:var(--secondary); padding:5px; grid-column: 1 / -1;">¡Pictograma seleccionado!</span>';
+      };
+      webContainer.appendChild(item);
+    });
+  } catch (err) {
+    webContainer.innerHTML = '<span style="font-size:13px; color:var(--danger); padding:5px; grid-column: 1 / -1;">No se pudo consultar la búsqueda web.</span>';
+  }
+}  
     function toggleAgendaInputType() {
       const type = document.getElementById('agendaTypeSelect').value;
       if(type === 'emoji') {
