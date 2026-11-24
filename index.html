@@ -473,7 +473,12 @@
             <input type="text" id="agendaWebSearchQuery" placeholder="🔍 Buscar en web (ej: lápiz, parque)...">
             <button class="action-btn btn-speak" type="button" onclick="performGoogleSearchForAgenda()" style="padding: 10px 14px; font-size: 14px;">Buscar</button>
           </div>
-          <div class="web-search-results" id="agendaSearchResults"></div>
+          <div id="agendaSearchWrapper" style="display: none;">
+  <div class="search-section-label">⚡ Emojis rápidos:</div>
+  <div class="quick-emojis-grid" id="agendaEmojiResults"></div>
+  <div class="search-section-label">🌐 Resultados Web:</div>
+  <div class="web-search-results" id="agendaWebResults"></div>
+</div>
           <input type="hidden" id="agendaSelectedImgSrc" value="">
         </div>
         <button class="btn-submit" type="button" id="addAgendaStepBtn">Añadir a la Agenda</button>
