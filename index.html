@@ -1599,7 +1599,7 @@ async function performGoogleSearchForCustom() {
     item.innerText = emoji;
     item.onclick = () => {
       document.getElementById('customSelectedImgSrc').value = emoji;
-      emojiContainer.innerHTML = `<span style="font-size:13px; color:var(--secondary); padding:5px;">¡Emoji seleccionado: ${emoji}!</span>`;
+      webContainer.innerHTML = `<span style="font-size:13px; color:var(--secondary); padding:5px; grid-column: 1 / -1;">¡Emoji seleccionado: ${emoji}!</span>`;
     };
     emojiContainer.appendChild(item);
   });
@@ -1608,6 +1608,7 @@ async function performGoogleSearchForCustom() {
 
   try {
     const res = await fetch(`https://api.arasaac.org/v1/pictograms/es/search/${encodeURIComponent(query)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     webContainer.innerHTML = '';
 
