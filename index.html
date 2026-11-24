@@ -1753,6 +1753,10 @@ async function performGoogleSearchForCustom() {
             });
             titleInput.value = '';
             fileInput.value = '';
+            document.getElementById('agendaWebSearchQuery').value = '';
+            document.getElementById('agendaSelectedImgSrc').value = '';
+            document.getElementById('agendaSearchWrapper').style.display = 'none';
+            document.getElementById('agendaEmojiResults').innerHTML = '';
             document.getElementById('agendaWebResults').innerHTML = '';
             persistState();
             renderAgendaTimeline();
