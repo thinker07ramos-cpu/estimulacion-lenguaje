@@ -601,7 +601,12 @@
             <input type="text" id="customWebSearchQuery" placeholder="🔍 Buscar en web (ej: pelota, carro)...">
             <button class="action-btn btn-speak" type="button" onclick="performGoogleSearchForCustom()" style="padding: 10px 14px; font-size: 14px;">Buscar</button>
           </div>
-          <div class="web-search-results" id="customSearchResults"></div>
+          <div id="customSearchWrapper" style="display: none;">
+  <div class="search-section-label">⚡ Emojis rápidos:</div>
+  <div class="quick-emojis-grid" id="customEmojiResults"></div>
+  <div class="search-section-label">🌐 Resultados Web:</div>
+  <div class="web-search-results" id="customWebResults"></div>
+</div>
           <input type="hidden" id="customSelectedImgSrc" value="">
         </div>
         <button class="btn-submit" type="button" id="saveCustomPictoBtn">Guardar Foto</button>
