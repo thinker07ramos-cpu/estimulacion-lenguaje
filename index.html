@@ -1768,8 +1768,11 @@ async function performGoogleSearchForCustom() {
             completed: false
           });
           titleInput.value = '';
+          document.getElementById('agendaWebSearchQuery').value = '';
           document.getElementById('agendaSelectedImgSrc').value = '';
-          document.getElementById('agendaSearchResults').innerHTML = '';
+          document.getElementById('agendaSearchWrapper').style.display = 'none';
+          document.getElementById('agendaEmojiResults').innerHTML = '';
+          document.getElementById('agendaWebResults').innerHTML = '';
           persistState();
           renderAgendaTimeline();
           alert("¡Paso agregado desde la búsqueda web!");
