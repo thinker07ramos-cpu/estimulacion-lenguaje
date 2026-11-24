@@ -1460,6 +1460,66 @@ function saveCustomPicto() {
   }
 }
 
+    const QUICK_EMOJI_MAP = {
+  manzana: ['🍎', '🍏', '🥧', '🧃'],
+  comida: ['🍎', '🍞', '🥛', '🍌', '🍲', '🍽️'],
+  comer: ['🍎', '🍞', '🍲', '🥄', '🥛'],
+  agua: ['💧', '🥛', '🚰', '🚿'],
+  bano: ['🚽', '🧻', '🧼', '🚿'],
+  escuela: ['🏫', '🎒', '✏️', '📚', '🚌'],
+  colegio: ['🏫', '🎒', '✏️', '📚'],
+  lapiz: ['✏️', '🖍️', '📝', '📓'],
+  parque: ['🛝', '🌳', '⚽', '☀️', '🚲'],
+  juego: ['⚽', '🎲', '🧩', '🎨', '🧸'],
+  jugar: ['⚽', '🎲', '🧩', '🎨', '🧸'],
+  perro: ['🐶', '🐕', '🦴', '🐾'],
+  gato: ['🐱', '🐈', '🐾'],
+  animal: ['🐶', '🐱', '🦁', '🐮', '🐻', '🦒'],
+  carro: ['🚗', '🚙', '🚌', '🚦'],
+  casa: ['🏠', '🛏️', '🪑', '🚪'],
+  feliz: ['😊', '😄', '🥳', '⭐'],
+  triste: ['😢', '😔', '💧']
+};
+
+function normalizeSearchText(txt) {
+  return (txt || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+
+function getMatchingEmojis(query, fallbackEmojis) {
+  const clean = normalizeSearchText(query);
+  if (!clean) return fallbackEmojis;
+
+  const matched = new Set();
+
+  Object.keys(QUICK_EMOJI_MAP).forEach(key => {
+    const cleanKey = normalizeSearchText(key);
+    if (cleanKey.includes(clean) || clean.includes(cleanKey)) {
+      QUICK_EMOJI_MAP[key].forEach(e => matched.add(e));
+    }
+  });
+
+  if (typeof vocabDatabase !== 'undefined') {
+    vocabDatabase.forEach(item => {
+      const cleanWord = normalizeSearchText(item.word);
+      const cleanCat = normalizeSearchText(item.category);
+      if (cleanWord.includes(clean) || cleanCat.includes(clean) || clean.includes(cleanWord)) {
+        if (item.emoji) matched.add(item.emoji);
+      }
+    });
+  }
+
+  if (typeof basePictograms !== 'undefined') {
+    basePictograms.forEach(item => {
+      const cleanWord = normalizeSearchText(item.word);
+      if (cleanWord.includes(clean) || clean.includes(cleanWord)) {
+        if (item.emoji) matched.add(item.emoji);
+      }
+    });
+  }
+
+  const results = Array.from(matched);
+  return results.length > 0 ? results.slice(0, 8) : fallbackEmojis;
+}
     function performGoogleSearchForAgenda() {
   const query = document.getElementById('agendaWebSearchQuery').value.trim();
   const wrapper = document.getElementById('agendaSearchWrapper');
