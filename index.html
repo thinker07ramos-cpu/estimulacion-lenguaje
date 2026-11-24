@@ -1460,6 +1460,85 @@ function saveCustomPicto() {
   }
 }
 
+    function performGoogleSearchForAgenda() {
+  const query = document.getElementById('agendaWebSearchQuery').value.trim();
+  const wrapper = document.getElementById('agendaSearchWrapper');
+  const emojiContainer = document.getElementById('agendaEmojiResults');
+  const webContainer = document.getElementById('agendaWebResults');
+  if (!wrapper || !emojiContainer || !webContainer) return;
+
+  emojiContainer.innerHTML = '';
+  webContainer.innerHTML = '';
+  if (!query) {
+    wrapper.style.display = 'none';
+    return;
+  }
+  wrapper.style.display = 'block';
+
+  ['🎒', '✏️', '🏫', '🍎', '⚽', '🎨'].forEach(emoji => {
+    const item = document.createElement('div');
+    item.className = 'search-result-item';
+    item.innerText = emoji;
+    item.onclick = () => {
+      document.getElementById('agendaTypeSelect').value = 'emoji';
+      toggleAgendaInputType();
+      document.getElementById('agendaNewEmoji').value = emoji;
+      wrapper.style.display = 'none';
+    };
+    emojiContainer.appendChild(item);
+  });
+
+  [1, 2, 3, 4].forEach(n => {
+    const imgUrl = `https://picsum.photos/seed/${encodeURIComponent(query)}${n}/100/100`;
+    const item = document.createElement('div');
+    item.className = 'search-result-item';
+    item.innerHTML = `<img src="${imgUrl}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;">`;
+    item.onclick = () => {
+      document.getElementById('agendaSelectedImgSrc').value = imgUrl;
+      webContainer.innerHTML = '<span style="font-size:13px; color:var(--secondary); padding:5px; grid-column: 1 / -1;">¡Imagen web seleccionada!</span>';
+    };
+    webContainer.appendChild(item);
+  });
+}
+
+function performGoogleSearchForCustom() {
+  const query = document.getElementById('customWebSearchQuery').value.trim();
+  const wrapper = document.getElementById('customSearchWrapper');
+  const emojiContainer = document.getElementById('customEmojiResults');
+  const webContainer = document.getElementById('customWebResults');
+  if (!wrapper || !emojiContainer || !webContainer) return;
+
+  emojiContainer.innerHTML = '';
+  webContainer.innerHTML = '';
+  if (!query) {
+    wrapper.style.display = 'none';
+    return;
+  }
+  wrapper.style.display = 'block';
+
+  ['⭐', '⚽', '🎨', '🐶', '🚗', '📚'].forEach(emoji => {
+    const item = document.createElement('div');
+    item.className = 'search-result-item';
+    item.innerText = emoji;
+    item.onclick = () => {
+      document.getElementById('customSelectedImgSrc').value = emoji;
+      emojiContainer.innerHTML = '<span style="font-size:13px; color:var(--secondary); padding:5px;">¡Emoji seleccionado!</span>';
+    };
+    emojiContainer.appendChild(item);
+  });
+
+  [1, 2, 3, 4].forEach(n => {
+    const imgUrl = `https://picsum.photos/seed/custom${encodeURIComponent(query)}${n}/100/100`;
+    const item = document.createElement('div');
+    item.className = 'search-result-item';
+    item.innerHTML = `<img src="${imgUrl}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;">`;
+    item.onclick = () => {
+      document.getElementById('customSelectedImgSrc').value = imgUrl;
+      webContainer.innerHTML = '<span style="font-size:13px; color:var(--secondary); padding:5px; grid-column: 1 / -1;">¡Imagen web seleccionada!</span>';
+    };
+    webContainer.appendChild(item);
+  });
+}
     function toggleAgendaInputType() {
       const type = document.getElementById('agendaTypeSelect').value;
       if(type === 'emoji') {
