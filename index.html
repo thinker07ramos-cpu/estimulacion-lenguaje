@@ -1657,7 +1657,7 @@ async function performGoogleSearchForCustom() {
         const card = document.createElement('div');
         card.className = `agenda-step-card ${step.completed ? 'completed' : ''}`;
 
-        let visualHTML = step.isImage ? `<img src="${step.imgSrc}">` : (step.emoji || '📌');
+        let visualHTML = step.isImage ? `<img src="${step.imgSrc}" alt="${step.title}" style="object-fit: contain;">` : (step.emoji || '📌');
 
         card.innerHTML = `
           <div class="agenda-step-left">
