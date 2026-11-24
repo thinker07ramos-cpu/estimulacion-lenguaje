@@ -1417,71 +1417,48 @@ function importBackupJSON(event) {
   if (emailInput) emailInput.value = '';
   if (msgInput) msgInput.value = '';
 }
-    function performGoogleSearchForAgenda() {
-      const query = document.getElementById('agendaWebSearchQuery').value.trim();
-      const resultsContainer = document.getElementById('agendaSearchResults');
-      resultsContainer.innerHTML = '';
-      if(!query) return;
+    function resetCustomSearchUI() {
+  const wrapper = document.getElementById('customSearchWrapper');
+  const emojiContainer = document.getElementById('customEmojiResults');
+  const webContainer = document.getElementById('customWebResults');
+  if (emojiContainer) emojiContainer.innerHTML = '';
+  if (webContainer) webContainer.innerHTML = '';
+  if (wrapper) wrapper.style.display = 'none';
+}
 
-      let mockResults = [
-        { type: 'emoji', val: '🎒' }, { type: 'emoji', val: '✏️' }, { type: 'emoji', val: '🏫' },
-        { type: 'image', val: `https://picsum.photos/seed/${encodeURIComponent(query)}1/100/100` },
-        { type: 'image', val: `https://picsum.photos/seed/${encodeURIComponent(query)}2/100/100` }
-      ];
-
-      mockResults.forEach(res => {
-        const item = document.createElement('div');
-        item.className = 'search-result-item';
-        if(res.type === 'emoji') {
-          item.innerText = res.val;
-          item.onclick = () => {
-            document.getElementById('agendaTypeSelect').value = 'emoji';
-            toggleAgendaInputType();
-            document.getElementById('agendaNewEmoji').value = res.val;
-            resultsContainer.innerHTML = '<span style="font-size:13px; color:var(--secondary); padding:5px;">¡Emoji seleccionado!</span>';
-          };
-        } else {
-          item.innerHTML = `<img src="${res.val}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;">`;
-          item.onclick = () => {
-            document.getElementById('agendaSelectedImgSrc').value = res.val;
-            resultsContainer.innerHTML = '<span style="font-size:13px; color:var(--secondary); padding:5px;">¡Imagen web seleccionada!</span>';
-          };
-        }
-        resultsContainer.appendChild(item);
-      });
+function saveCustomPicto() {
+  const wInput = document.getElementById('customWord');
+  const fInput = document.getElementById('customImageFile');
+  const selectedWebImg = document.getElementById('customSelectedImgSrc').value;
+  if(!wInput.value.trim()) { alert("Ingresa un nombre."); return; }
+  if(fInput.files.length > 0) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      getCurrentPatient().customPictos.push({ id: Date.now(), word: wInput.value.trim(), isCustom: true, imgSrc: e.target.result, type: "cat-custom", group: "custom" });
+      wInput.value = '';
+      fInput.value = '';
+      resetCustomSearchUI();
+      persistState();
+      alert("¡Foto guardada en el comunicador!");
+      renderGrid('custom');
+    };
+    reader.readAsDataURL(fInput.files[0]);
+  } else if(selectedWebImg) {
+    if(selectedWebImg.length <= 4) {
+      getCurrentPatient().customPictos.push({ id: Date.now(), word: wInput.value.trim(), emoji: selectedWebImg, type: "cat-custom", group: "custom" });
+    } else {
+      getCurrentPatient().customPictos.push({ id: Date.now(), word: wInput.value.trim(), isCustom: true, imgSrc: selectedWebImg, type: "cat-custom", group: "custom" });
     }
-
-    function performGoogleSearchForCustom() {
-      const query = document.getElementById('customWebSearchQuery').value.trim();
-      const resultsContainer = document.getElementById('customSearchResults');
-      resultsContainer.innerHTML = '';
-      if(!query) return;
-
-      let mockResults = [
-        { type: 'emoji', val: '⭐' }, { type: 'emoji', val: '⚽' }, { type: 'emoji', val: '🎨' },
-        { type: 'image', val: `https://picsum.photos/seed/custom${encodeURIComponent(query)}1/100/100` },
-        { type: 'image', val: `https://picsum.photos/seed/custom${encodeURIComponent(query)}2/100/100` }
-      ];
-
-      mockResults.forEach(res => {
-        const item = document.createElement('div');
-        item.className = 'search-result-item';
-        if(res.type === 'emoji') {
-          item.innerText = res.val;
-          item.onclick = () => {
-            document.getElementById('customSelectedImgSrc').value = res.val;
-            resultsContainer.innerHTML = '<span style="font-size:13px; color:var(--secondary); padding:5px;">¡Seleccionado!</span>';
-          };
-        } else {
-          item.innerHTML = `<img src="${res.val}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;">`;
-          item.onclick = () => {
-            document.getElementById('customSelectedImgSrc').value = res.val;
-            resultsContainer.innerHTML = '<span style="font-size:13px; color:var(--secondary); padding:5px;">¡Imagen seleccionada!</span>';
-          };
-        }
-        resultsContainer.appendChild(item);
-      });
-    }
+    wInput.value = '';
+    document.getElementById('customSelectedImgSrc').value = '';
+    resetCustomSearchUI();
+    persistState();
+    alert("¡Foto guardada en el comunicador!");
+    renderGrid('custom');
+  } else {
+    alert("Selecciona una imagen local o búscala en la web.");
+  }
+}
 
     function toggleAgendaInputType() {
       const type = document.getElementById('agendaTypeSelect').value;
