@@ -2063,41 +2063,6 @@ document.getElementById('agendaWebResults').innerHTML = '';
       renderGrid(cat);
     }
 
-    function saveCustomPicto() {
-      const wInput = document.getElementById('customWord');
-      const fInput = document.getElementById('customImageFile');
-      const selectedWebImg = document.getElementById('customSelectedImgSrc').value;
-
-      if(!wInput.value.trim()) { alert("Ingresa un nombre."); return; }
-
-      if(fInput.files.length > 0) {
-        const reader = new FileReader();
-        reader.onload = e => {
-          getCurrentPatient().customPictos.push({ id: Date.now(), word: wInput.value.trim(), isCustom: true, imgSrc: e.target.result, type: "cat-custom", group: "custom" });
-          wInput.value = ''; fInput.value = '';
-          document.getElementById('customSearchWrapper').style.display = 'none'; document.getElementById('customEmojiResults').innerHTML = ''; document.getElementById('customWebResults').innerHTML = '';
-          persistState();
-          alert("¡Foto guardada en el comunicador!");
-          renderGrid('custom');
-        };
-        reader.readAsDataURL(fInput.files[0]);
-      } else if(selectedWebImg) {
-        if(selectedWebImg.length <= 4) {
-          getCurrentPatient().customPictos.push({ id: Date.now(), word: wInput.value.trim(), emoji: selectedWebImg, type: "cat-custom", group: "custom" });
-        } else {
-          getCurrentPatient().customPictos.push({ id: Date.now(), word: wInput.value.trim(), isCustom: true, imgSrc: selectedWebImg, type: "cat-custom", group: "custom" });
-        }
-        wInput.value = '';
-        document.getElementById('customSelectedImgSrc').value = '';
-        document.getElementById('customWebResults').innerHTML = '';
-        persistState();
-        alert("¡Foto guardada en el comunicador!");
-        renderGrid('custom');
-      } else {
-        alert("Selecciona una imagen local o búscala en la web.");
-      }
-    }
-
     function addNewExercise() {
       const mod = document.getElementById('newExModule').value;
       const age = document.getElementById('newExAge').value;
