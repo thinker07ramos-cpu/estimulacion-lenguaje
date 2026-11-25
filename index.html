@@ -775,6 +775,65 @@
     </div>
   </div>
 
+  <div id="vocabArasaacModal" style="display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.65); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+  <div style="background:#ffffff; color:#1e293b; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; border-radius:18px; padding:20px; box-shadow:0 20px 50px rgba(0,0,0,0.25);">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px;">
+      <h3 style="margin:0; font-size:18px;">🖼️ Agregar imagen o pictograma a Vocabulario</h3>
+      <button type="button" onclick="closeVocabArasaacModal()" style="border:none; background:#f1f5f9; color:#334155; border-radius:8px; padding:6px 10px; cursor:pointer; font-weight:bold;">✕</button>
+    </div>
+
+    <div style="display:flex; gap:8px; margin-bottom:12px;">
+      <input id="vocabArasaacSearchInput" type="text" placeholder="Buscar en ARASAAC (ej. mesa, perro, manzana)..." onkeydown="if(event.key==='Enter'){ event.preventDefault(); searchVocabArasaac(); }" style="flex:1; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; font-size:14px;">
+      <button type="button" onclick="searchVocabArasaac()" style="padding:10px 14px; border:none; border-radius:10px; background:#2563eb; color:#fff; font-weight:600; cursor:pointer;">Buscar</button>
+    </div>
+
+    <div id="vocabArasaacStatus" style="font-size:12px; color:#64748b; margin-bottom:10px;">Escribe una palabra y pulsa Buscar para ver pictogramas de ARASAAC, o sube una imagen local.</div>
+
+    <div id="vocabArasaacResults" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(84px, 1fr)); gap:8px; max-height:220px; overflow-y:auto; padding:8px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; margin-bottom:14px;"></div>
+
+    <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; background:#f1f5f9; border-radius:12px; margin-bottom:14px;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div id="vocabSelectedPreviewBox" style="width:52px; height:52px; border-radius:10px; background:#ffffff; border:1px solid #cbd5e1; display:flex; align-items:center; justify-content:center; overflow:hidden; font-size:24px;">🖼️</div>
+        <div>
+          <div style="font-size:12px; font-weight:700; color:#334155;">Vista previa seleccionada</div>
+          <div id="vocabSelectedSourceLabel" style="font-size:11px; color:#64748b;">Ninguna selección aún</div>
+        </div>
+      </div>
+
+      <div>
+        <label for="vocabLocalFileInput" style="display:inline-block; padding:8px 12px; border-radius:10px; background:#e2e8f0; color:#0f172a; font-size:12px; font-weight:600; cursor:pointer;">
+          📁 Desde dispositivo
+        </label>
+        <input id="vocabLocalFileInput" type="file" accept="image/*" onchange="handleVocabLocalFile(event)" style="display:none;">
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 150px; gap:10px; margin-bottom:16px;">
+      <div>
+        <label for="vocabNewWordInput" style="display:block; font-size:12px; font-weight:600; margin-bottom:4px;">Palabra / etiqueta</label>
+        <input id="vocabNewWordInput" type="text" placeholder="Ej. Mesa" style="width:100%; box-sizing:border-box; padding:9px 11px; border:1px solid #cbd5e1; border-radius:10px; font-size:14px;">
+      </div>
+      <div>
+        <label for="vocabNewCategorySelect" style="display:block; font-size:12px; font-weight:600; margin-bottom:4px;">Categoría</label>
+        <select id="vocabNewCategorySelect" style="width:100%; box-sizing:border-box; padding:9px 10px; border:1px solid #cbd5e1; border-radius:10px; font-size:14px; background:#fff;">
+          <option value="casa">Casa</option>
+          <option value="comida">Comida</option>
+          <option value="escuela">Escuela</option>
+          <option value="animales">Animales</option>
+          <option value="emociones">Emociones</option>
+          <option value="ropa">Ropa</option>
+          <option value="naturaleza">Naturaleza</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:10px;">
+      <button type="button" onclick="closeVocabArasaacModal()" style="padding:10px 14px; border:1px solid #cbd5e1; border-radius:10px; background:#fff; color:#334155; font-weight:600; cursor:pointer;">Cancelar</button>
+      <button type="button" onclick="saveVocabCustomItem()" style="padding:10px 16px; border:none; border-radius:10px; background:#16a34a; color:#fff; font-weight:700; cursor:pointer;">Guardar en Vocabulario</button>
+    </div>
+  </div>
+</div>
+  
   <script>
     const STORAGE_KEY = 'vozvisual_complete_state_v1';
 
