@@ -1660,7 +1660,44 @@ async function performGoogleSearchForCustom() {
         document.getElementById('groupAgendaFile').style.display = 'block';
       }
     }
+    function updateAgendaProgress(steps) {
+  const wrapper = document.getElementById('agenda-progress-bar-wrapper');
+  const textEl = document.getElementById('agenda-progress-text');
+  const fillEl = document.getElementById('agenda-progress-fill');
+  const resetBtn = document.getElementById('btn-reset-agenda-steps');
 
+  if (!wrapper || !textEl || !fillEl || !resetBtn) return;
+
+  if (!Array.isArray(steps) || steps.length === 0) {
+    wrapper.style.display = 'none';
+    return;
+  }
+
+  wrapper.style.display = 'block';
+  const total = steps.length;
+  const completedCount = steps.filter(step => Boolean(step.completed)).length;
+  const pct = Math.round((completedCount / total) * 100);
+
+  textEl.textContent = `Progreso: ${completedCount} de ${total} pasos completados (${pct}%)`;
+  fillEl.style.width = `${pct}%`;
+  resetBtn.disabled = completedCount === 0;
+  resetBtn.style.opacity = completedCount === 0 ? '0.5' : '1';
+  resetBtn.style.cursor = completedCount === 0 ? 'not-allowed' : 'pointer';
+}
+
+function resetAgendaSteps() {
+  const pat = getCurrentPatient();
+  if (!pat || !Array.isArray(pat.agendaSteps) || pat.agendaSteps.length === 0) return;
+
+  pat.agendaSteps = pat.agendaSteps.map(step => ({
+    ...step,
+    completed: false
+  }));
+
+  persistState();
+  renderAgendaTimeline();
+  speak('Se han reiniciado todos los pasos de la agenda.');
+}
     function renderAgendaTimeline() {
       const pat = getCurrentPatient();
       const container = document.getElementById('agendaTimelineContainer');
