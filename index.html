@@ -1583,6 +1583,193 @@ function saveCustomPicto() {
   }
 }
 
+    let vocabPendingImageSrc = '';
+let vocabPendingSourceText = '';
+
+function openVocabUploadModal(defaultCategory = 'casa') {
+  vocabPendingImageSrc = '';
+  vocabPendingSourceText = '';
+
+  const modal = document.getElementById('vocabArasaacModal');
+  const searchInput = document.getElementById('vocabArasaacSearchInput');
+  const wordInput = document.getElementById('vocabNewWordInput');
+  const catSelect = document.getElementById('vocabNewCategorySelect');
+  const resultsEl = document.getElementById('vocabArasaacResults');
+  const statusEl = document.getElementById('vocabArasaacStatus');
+  const fileInput = document.getElementById('vocabLocalFileInput');
+
+  if (fileInput) fileInput.value = '';
+  if (searchInput) searchInput.value = '';
+  if (wordInput) wordInput.value = '';
+  if (catSelect) {
+    const cleanCat = (defaultCategory && defaultCategory !== 'all') ? defaultCategory : 'casa';
+    const hasOption = Array.from(catSelect.options).some(opt => opt.value === cleanCat);
+    catSelect.value = hasOption ? cleanCat : 'casa';
+  }
+  if (resultsEl) resultsEl.innerHTML = '';
+  if (statusEl) {
+    statusEl.textContent = 'Escribe una palabra y pulsa Buscar para ver pictogramas de ARASAAC, o sube una imagen local.';
+  }
+
+  updateVocabSelectionPreview();
+  if (modal) modal.style.display = 'flex';
+  if (searchInput) setTimeout(() => searchInput.focus(), 50);
+}
+
+function closeVocabArasaacModal() {
+  const modal = document.getElementById('vocabArasaacModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function updateVocabSelectionPreview() {
+  const previewBox = document.getElementById('vocabSelectedPreviewBox');
+  const labelEl = document.getElementById('vocabSelectedSourceLabel');
+  if (!previewBox || !labelEl) return;
+
+  if (vocabPendingImageSrc) {
+    previewBox.innerHTML = `<img src="${vocabPendingImageSrc}" alt="Vista previa" style="width:100%; height:100%; object-fit:contain;">`;
+    labelEl.textContent = vocabPendingSourceText || 'Imagen seleccionada';
+  } else {
+    previewBox.innerHTML = '🖼️';
+    labelEl.textContent = 'Ninguna selección aún';
+  }
+}
+
+function selectVocabArasaacPictogram(imgUrl, wordLabel) {
+  vocabPendingImageSrc = imgUrl;
+  vocabPendingSourceText = 'Pictograma ARASAAC';
+
+  const wordInput = document.getElementById('vocabNewWordInput');
+  if (wordInput && !wordInput.value.trim() && wordLabel) {
+    const formatted = wordLabel.charAt(0).toUpperCase() + wordLabel.slice(1);
+    wordInput.value = formatted;
+  }
+  updateVocabSelectionPreview();
+}
+
+function handleVocabLocalFile(event) {
+  const file = event && event.target && event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    vocabPendingImageSrc = e.target.result;
+    vocabPendingSourceText = `Archivo local: ${file.name}`;
+
+    const wordInput = document.getElementById('vocabNewWordInput');
+    if (wordInput && !wordInput.value.trim()) {
+      const baseName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ').trim();
+      if (baseName) {
+        wordInput.value = baseName.charAt(0).toUpperCase() + baseName.slice(1);
+      }
+    }
+    updateVocabSelectionPreview();
+  };
+  reader.readAsDataURL(file);
+}
+
+async function searchVocabArasaac() {
+  const input = document.getElementById('vocabArasaacSearchInput');
+  const resultsEl = document.getElementById('vocabArasaacResults');
+  const statusEl = document.getElementById('vocabArasaacStatus');
+  if (!input || !resultsEl) return;
+
+  const query = input.value.trim();
+  if (!query) {
+    if (statusEl) statusEl.textContent = 'Escribe una palabra para buscar en ARASAAC.';
+    return;
+  }
+
+  if (statusEl) statusEl.textContent = `Buscando "${query}" en ARASAAC...`;
+  resultsEl.innerHTML = '';
+
+  try {
+    const endpoint = `https://api.arasaac.org/v1/pictograms/es/search/${encodeURIComponent(query)}`;
+    const response = await fetch(endpoint);
+    if (!response.ok) throw new Error('Error en la respuesta de ARASAAC');
+
+    const data = await response.json();
+    const list = Array.isArray(data) ? data.slice(0, 24) : [];
+
+    if (list.length === 0) {
+      if (statusEl) statusEl.textContent = `No se encontraron pictogramas para "${query}". Prueba otra palabra o sube un archivo local.`;
+      return;
+    }
+
+    if (statusEl) statusEl.textContent = `Selecciona un pictograma (${list.length} mostrados):`;
+
+    list.forEach(item => {
+      const id = item._id || item.id;
+      if (!id) return;
+      const thumbUrl = `https://static.arasaac.org/pictograms/${id}/${id}_300.png`;
+      const fullUrl = `https://static.arasaac.org/pictograms/${id}/${id}_500.png`;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.title = `Usar pictograma #${id}`;
+      btn.style.cssText = 'border:1px solid #cbd5e1; background:#fff; border-radius:10px; padding:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; aspect-ratio:1/1;';
+      btn.innerHTML = `<img src="${thumbUrl}" alt="${query}" style="width:100%; height:100%; object-fit:contain;" loading="lazy">`;
+      btn.addEventListener('click', () => {
+        resultsEl.querySelectorAll('button').forEach(b => {
+          b.style.borderColor = '#cbd5e1';
+          b.style.boxShadow = 'none';
+        });
+        btn.style.borderColor = '#2563eb';
+        btn.style.boxShadow = '0 0 0 2px rgba(37,99,235,0.25)';
+        selectVocabArasaacPictogram(fullUrl, query);
+      });
+
+      resultsEl.appendChild(btn);
+    });
+  } catch (err) {
+    if (statusEl) {
+      statusEl.textContent = 'No se pudo conectar con ARASAAC en este momento. Puedes usar "📁 Desde dispositivo".';
+    }
+  }
+}
+
+function saveVocabCustomItem() {
+  const wordInput = document.getElementById('vocabNewWordInput');
+  const catSelect = document.getElementById('vocabNewCategorySelect');
+  const word = wordInput ? wordInput.value.trim() : '';
+  const category = catSelect ? catSelect.value : 'casa';
+
+  if (!word) {
+    alert('Por favor, escribe una palabra para el pictograma.');
+    if (wordInput) wordInput.focus();
+    return;
+  }
+
+  if (!vocabPendingImageSrc) {
+    alert('Selecciona un pictograma de ARASAAC o sube una imagen desde tu dispositivo.');
+    return;
+  }
+
+  const newEntry = {
+    id: Date.now(),
+    word,
+    isCustom: true,
+    imgSrc: vocabPendingImageSrc,
+    fallbackEmoji: '🖼️',
+    category
+  };
+
+  if (typeof vocabDatabase !== 'undefined' && Array.isArray(vocabDatabase)) {
+    vocabDatabase.push(newEntry);
+  }
+
+  if (typeof persistState === 'function') {
+    persistState();
+  }
+
+  if (typeof renderVocabGrid === 'function') {
+    const activeFilter = typeof currentVocabFilter !== 'undefined' ? currentVocabFilter : 'all';
+    renderVocabGrid(activeFilter);
+  }
+
+  closeVocabArasaacModal();
+}
+    
     const QUICK_EMOJI_MAP = {
   estrella: ['⭐', '🌟', '✨', '🌠', '💫'],
   sol: ['☀️', '🌞', '😎', '🌅', '🌻'],
