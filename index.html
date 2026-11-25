@@ -2420,11 +2420,7 @@ document.getElementById('agendaWebResults').innerHTML = '';
         <div class="picto-word" style="font-size:14px; color:var(--secondary);">Subir Imagen</div>
         <input type="file" id="vocabFileInput" accept="image/*" style="display:none;">
       `;
-      uploadCard.addEventListener('click', () => {
-        const fileInput = uploadCard.querySelector('#vocabFileInput');
-        fileInput.click();
-        fileInput.onchange = (e) => handleVocabFileUpload(e);
-      });
+      uploadCard.onclick = () => openVocabUploadModal(typeof currentVocabFilter !== 'undefined' ? currentVocabFilter : 'casa');
       grid.appendChild(uploadCard);
     }
 
