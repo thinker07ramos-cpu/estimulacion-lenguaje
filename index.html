@@ -1257,15 +1257,25 @@ if (importBackupInput) importBackupInput.addEventListener("change", importBackup
       doc.line(15, 75, 195, 75);
 
       doc.setFontSize(14);
-      doc.text("Resumen de Estadísticas y Uso:", 15, 88);
-      doc.setFontSize(11);
-      doc.text(`• Total de pictogramas activados en sesiones: ${pat.stats.totalClicks}`, 20, 98);
+doc.text("Resumen de Estadísticas y Uso:", 15, 88);
+doc.setFontSize(11);
 
-      let topCat = "-", maxVal = 0;
-      for (let c in pat.stats.categories) {
-        if(pat.stats.categories[c] > maxVal) { maxVal = pat.stats.categories[c]; topCat = c.toUpperCase(); }
-      }
-      doc.text(`• Categoría comunicativa más solicitada: ${topCat}`, 20, 108);
+const totalClicks = (pat.stats && typeof pat.stats.totalClicks === "number") ? pat.stats.totalClicks : 0;
+doc.text(`• Total de pictogramas activados en sesiones: ${totalClicks}`, 20, 98);
+
+let topCat = "-", maxVal = 0;
+const cats = (pat.stats && pat.stats.categories) ? pat.stats.categories : {};
+for (let c in cats) {
+  if (cats[c] > maxVal) {
+    maxVal = cats[c];
+    topCat = c.toUpperCase();
+  }
+}
+
+const topCatText = (maxVal > 0 && totalClicks > 0)
+  ? `${topCat} (${maxVal} activaciones · ${Math.round((maxVal / totalClicks) * 100)}%)`
+  : "-";
+doc.text(`• Categoría comunicativa más solicitada: ${topCatText}`, 20, 108);
 
       doc.text("Agenda Visual Actual:", 15, 125);
 let yPos = 135;
