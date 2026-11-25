@@ -1525,7 +1525,14 @@ function saveCustomPicto() {
 }
 
     const QUICK_EMOJI_MAP = {
+  estrella: ['⭐', '🌟', '✨', '🌠', '💫'],
+  sol: ['☀️', '🌞', '😎', '🌅', '🌻'],
+  luna: ['🌙', '🌚', '🌛', '🌜', '😴'],
+  nube: ['☁️', '⛅', '🌦️', '🌧️', '⛈️'],
+  lluvia: ['🌧️', '☔', '☂️', '🌦️', '💧'],
   manzana: ['🍎', '🍏', '🥧', '🧃'],
+  platano: ['🍌', '🐒', '🥣', '🍓'],
+  pan: ['🍞', '🥖', '🥪', '🥐'],
   comida: ['🍽️', '🍲', '🍎', '🍞', '🍌', '🥛'],
   comer: ['🍽️', '🥄', '🍎', '🍞', '🍲', '🥛'],
   agua: ['💧', '🥛', '🚰', '🚿'],
@@ -1533,10 +1540,15 @@ function saveCustomPicto() {
   escuela: ['🏫', '🎒', '📚', '✏️', '🚌'],
   colegio: ['🏫', '🎒', '📚', '✏️', '🚌'],
   lapiz: ['✏️', '🖍️', '📝', '📓'],
+  borrador: ['🧹', '🧽', '✏️', '📝'],
+  libro: ['📖', '📚', '📕', '📘'],
   parque: ['🛝', '🌳', '⚽', '☀️', '🚲'],
   juego: ['🧩', '🎲', '⚽', '🎨', '🧸'],
   jugar: ['🧩', '🎲', '⚽', '🎨', '🧸'],
+  pelota: ['⚽', '🏀', '🎾', '🏐'],
   terapia: ['🗣️', '🧠', '🧩', '🎨', '🤝'],
+  hablar: ['🗣️', '💬', '👂', '😊'],
+  escuchar: ['👂', '🎧', '🔊', '🗣️'],
   dormir: ['🛏️', '😴', '🌙', '💤'],
   descanso: ['🛋️', '😌', '🌙', '🛝'],
   saludo: ['👋', '🤝', '😊', '🗣️'],
@@ -1550,10 +1562,64 @@ function saveCustomPicto() {
   planta: ['🌱', '🪴', '🌿', '🌳', '🌸'],
   arbol: ['🌳', '🌲', '🍃', '🌿'],
   flor: ['🌸', '🌻', '🌷', '🌺'],
-  sol: ['☀️', '🌞', '😎', '🌅'],
   feliz: ['😊', '😄', '🥳', '⭐'],
-  triste: ['😢', '😔', '💧']
+  triste: ['😢', '😔', '💧'],
+  enojo: ['😠', '😡', '😤'],
+  miedo: ['😨', '😰', '🙈'],
+  tranquilo: ['😌', '🧘', '🌿', '💙']
 };
+
+function normalizeSearchText(txt) {
+  return (txt || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+
+function getMatchingEmojis(query, fallbackEmojis) {
+  const clean = normalizeSearchText(query);
+  if (!clean) return fallbackEmojis;
+
+  const exactMatches = [];
+  const prefixMatches = [];
+  const partialMatches = [];
+  const seen = new Set();
+
+  const pushUnique = (emoji, bucket) => {
+    if (!emoji || seen.has(emoji)) return;
+    seen.add(emoji);
+    bucket.push(emoji);
+  };
+
+  Object.keys(QUICK_EMOJI_MAP).forEach(key => {
+    const cleanKey = normalizeSearchText(key);
+    const list = QUICK_EMOJI_MAP[key];
+    if (cleanKey === clean) {
+      list.forEach(e => pushUnique(e, exactMatches));
+    } else if (cleanKey.startsWith(clean) || (clean.length >= 4 && clean.startsWith(cleanKey))) {
+      list.forEach(e => pushUnique(e, prefixMatches));
+    } else if (clean.length >= 3 && (cleanKey.includes(clean) || (cleanKey.length >= 4 && cleanKey.includes(clean)))) {
+      list.forEach(e => pushUnique(e, partialMatches));
+    }
+  });
+
+  const sources = [
+    ...(typeof vocabDatabase !== 'undefined' ? vocabDatabase : []),
+    ...(typeof basePictograms !== 'undefined' ? basePictograms : [])
+  ];
+
+  sources.forEach(item => {
+    if (!item || !item.emoji) return;
+    const cleanWord = normalizeSearchText(item.word);
+    if (cleanWord === clean) {
+      pushUnique(item.emoji, exactMatches);
+    } else if (cleanWord.startsWith(clean)) {
+      pushUnique(item.emoji, prefixMatches);
+    } else if (clean.length >= 3 && cleanWord.includes(clean)) {
+      pushUnique(item.emoji, partialMatches);
+    }
+  });
+
+  const combined = [...exactMatches, ...prefixMatches, ...partialMatches].slice(0, 8);
+  return combined.length > 0 ? combined : fallbackEmojis;
+}
 
 function normalizeSearchText(txt) {
   return (txt || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
