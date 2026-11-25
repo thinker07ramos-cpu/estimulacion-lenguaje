@@ -1744,6 +1744,31 @@ function resetAgendaSteps() {
   renderAgendaTimeline();
   speak('Se han reiniciado todos los pasos de la agenda.');
 }
+    let agendaFocusMode = false;
+
+function updateAgendaFocusButton() {
+  const btn = document.getElementById("toggleAgendaFocusBtn");
+  if (!btn) return;
+  btn.textContent = agendaFocusMode ? "🎯 Modo Enfoque: ON" : "🎯 Modo Enfoque: OFF";
+  btn.setAttribute("aria-pressed", String(agendaFocusMode));
+}
+
+function toggleAgendaFocusMode() {
+  agendaFocusMode = !agendaFocusMode;
+  updateAgendaFocusButton();
+  renderAgendaTimeline();
+
+  const pat = getCurrentPatient();
+  const steps = (pat && Array.isArray(pat.agendaSteps)) ? pat.agendaSteps : [];
+  const currentStep = steps.find(s => !s.completed);
+  if (agendaFocusMode && currentStep) {
+    speak(`Modo enfoque activado. Paso actual: ${currentStep.title}`);
+  } else if (agendaFocusMode) {
+    speak("Modo enfoque activado. Todos los pasos están completados.");
+  } else {
+    speak("Modo enfoque desactivado.");
+  }
+}
     function renderAgendaTimeline() {
   const pat = getCurrentPatient();
   const container = document.getElementById('agendaTimelineContainer');
