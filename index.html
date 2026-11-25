@@ -1699,43 +1699,47 @@ function resetAgendaSteps() {
   speak('Se han reiniciado todos los pasos de la agenda.');
 }
     function renderAgendaTimeline() {
-      const pat = getCurrentPatient();
-      const container = document.getElementById('agendaTimelineContainer');
-      container.innerHTML = '';
+  const pat = getCurrentPatient();
+  const container = document.getElementById('agendaTimelineContainer');
+  container.innerHTML = '';
 
-      if(!pat.agendaSteps || pat.agendaSteps.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">No hay actividades en la agenda de este paciente.</p>';
-        return;
-      }
+  if (!pat.agendaSteps || pat.agendaSteps.length === 0) {
+    updateAgendaProgress([]);
+    container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">No hay actividades en la agenda de este paciente.</p>';
+    return;
+  }
 
-      pat.agendaSteps.forEach((step, index) => {
-        const card = document.createElement('div');
-        card.className = `agenda-step-card ${step.completed ? 'completed' : ''}`;
+  pat.agendaSteps.forEach((step, index) => {
+    const card = document.createElement('div');
+    card.className = `agenda-step-card ${step.completed ? 'completed' : ''}`;
+    let visualHTML = step.isImage
+      ? `<img src="${step.imgSrc}" alt="${step.title}" style="object-fit: contain;">`
+      : (step.emoji || '📌');
 
-        let visualHTML = step.isImage ? `<img src="${step.imgSrc}" alt="${step.title}" style="object-fit: contain;">` : (step.emoji || '📌');
+    card.innerHTML = `
+      <div class="agenda-step-left">
+        <div class="agenda-visual-box">${visualHTML}</div>
+        <div>
+          <div style="font-size: 12px; color: var(--text-muted); font-weight: bold;">PASO ${index + 1}</div>
+          <div class="agenda-title" style="${step.completed ? 'text-decoration: line-through; color: var(--secondary);' : ''}">${step.title}</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <button class="action-btn" type="button" style="font-size: 11px; padding: 4px 8px; background: var(--primary); min-height: 24px;" title="Mover arriba" onclick="moveAgendaStep(${index}, -1)" ${index === 0 ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>⬆️</button>
+          <button class="action-btn" type="button" style="font-size: 11px; padding: 4px 8px; background: var(--primary); min-height: 24px;" title="Mover abajo" onclick="moveAgendaStep(${index}, 1)" ${index === pat.agendaSteps.length - 1 ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>⬇️</button>
+        </div>
+        <button class="action-btn ${step.completed ? 'btn-clear' : 'btn-speak'}" type="button" style="font-size: 14px; padding: 10px 14px; min-height: 44px;" onclick="toggleAgendaStep(${step.id})">
+          ${step.completed ? '↩️' : '✅'}
+        </button>
+        <button class="delete-badge" type="button" onclick="deleteAgendaStep(${step.id})">✕</button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
 
-        card.innerHTML = `
-          <div class="agenda-step-left">
-            <div class="agenda-visual-box">${visualHTML}</div>
-            <div>
-              <div style="font-size: 12px; color: var(--text-muted); font-weight: bold;">PASO ${index + 1}</div>
-              <div class="agenda-title" style="${step.completed ? 'text-decoration: line-through; color: var(--secondary);' : ''}">${step.title}</div>
-            </div>
-          </div>
-          <div style="display: flex; gap: 8px; align-items: center;">
-            <div style="display: flex; flex-direction: column; gap: 4px;">
-              <button class="action-btn" type="button" style="font-size: 11px; padding: 4px 8px; background: var(--primary); min-height: 24px;" title="Mover arriba" onclick="moveAgendaStep(${index}, -1)" ${index === 0 ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>⬆️</button>
-              <button class="action-btn" type="button" style="font-size: 11px; padding: 4px 8px; background: var(--primary); min-height: 24px;" title="Mover abajo" onclick="moveAgendaStep(${index}, 1)" ${index === pat.agendaSteps.length - 1 ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>⬇️</button>
-            </div>
-            <button class="action-btn ${step.completed ? 'btn-clear' : 'btn-speak'}" type="button" style="font-size: 14px; padding: 10px 14px; min-height: 44px;" onclick="toggleAgendaStep(${step.id})">
-              ${step.completed ? '↩️' : '✅'}
-            </button>
-            <button class="delete-badge" type="button" onclick="deleteAgendaStep(${step.id})">✕</button>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
+  updateAgendaProgress(pat.agendaSteps);
+}
 
     function moveAgendaStep(index, direction) {
       const pat = getCurrentPatient();
