@@ -1268,16 +1268,29 @@ if (importBackupInput) importBackupInput.addEventListener("change", importBackup
       doc.text(`• Categoría comunicativa más solicitada: ${topCat}`, 20, 108);
 
       doc.text("Agenda Visual Actual:", 15, 125);
-      let yPos = 135;
-      if(pat.agendaSteps && pat.agendaSteps.length > 0) {
-        pat.agendaSteps.forEach((step, idx) => {
-          let statusText = step.completed ? "[Completado]" : "[Pendiente]";
-          doc.text(`${idx + 1}. ${step.title} - ${statusText}`, 20, yPos);
-          yPos += 8;
-        });
-      } else {
-        doc.text("No hay actividades registradas en la agenda.", 20, yPos);
-      }
+let yPos = 135;
+if (pat.agendaSteps && pat.agendaSteps.length > 0) {
+  const totalSteps = pat.agendaSteps.length;
+  const completedSteps = pat.agendaSteps.filter(step => Boolean(step.completed)).length;
+  const agendaPct = Math.round((completedSteps / totalSteps) * 100);
+
+  doc.setFontSize(10);
+  doc.text(`Avance de rutina: ${completedSteps} de ${totalSteps} pasos completados (${agendaPct}%)`, 20, yPos);
+  yPos += 10;
+  doc.setFontSize(11);
+
+  pat.agendaSteps.forEach((step, idx) => {
+    if (yPos > 265) {
+      doc.addPage();
+      yPos = 20;
+    }
+    const statusText = step.completed ? "Completado ✓" : "Pendiente ○";
+    doc.text(`${idx + 1}. ${step.title} - ${statusText}`, 20, yPos);
+    yPos += 8;
+  });
+} else {
+  doc.text("No hay actividades registradas en la agenda.", 20, yPos);
+}
 
       doc.setFontSize(9);
       doc.setTextColor(150, 150, 150);
