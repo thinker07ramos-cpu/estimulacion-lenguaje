@@ -1858,17 +1858,20 @@ function toggleAgendaFocusMode() {
 }
 
     function toggleAgendaStep(stepId) {
-      const pat = getCurrentPatient();
-      const step = pat.agendaSteps.find(s => s.id === stepId);
-      if(step) {
-        step.completed = !step.completed;
-        if(step.completed) {
-          speak(`Completado: ${step.title}`);
-        }
-        persistState();
-        renderAgendaTimeline();
+  const pat = getCurrentPatient();
+  const step = pat.agendaSteps.find(s => s.id === stepId);
+  if (step) {
+    step.completed = !step.completed;
+    if (step.completed) {
+      const nextStep = pat.agendaSteps.find(s => !s.completed);
+      if (nextStep) {
+        speak(`Completado: ${step.title}. Siguiente paso: ${nextStep.title}`); } else { speak(`Completado: ${step.title}. ¡Rutina terminada!`);
       }
     }
+    persistState();
+    renderAgendaTimeline();
+  }
+}
 
     function deleteAgendaStep(stepId) {
       const pat = getCurrentPatient();
