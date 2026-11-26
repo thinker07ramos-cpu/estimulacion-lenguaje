@@ -2827,6 +2827,60 @@ document.addEventListener("DOMContentLoaded", () => {
       persistState();
       initSemanticaGame();
     }
+
+    function renderSemanticaRound(listaEjercicios, itemActual) {
+  if (!itemActual) return;
+
+  const promptEl = document.getElementById("semanticaPrompt");
+  const emojiEl = document.getElementById("semanticaTargetEmoji");
+  const feedbackEl = document.getElementById("semanticaFeedback");
+  const grid = document.getElementById("semanticaOptions");
+
+  const consigna = itemActual.prompt || "";
+  const correcta = itemActual.targetCorrect || itemActual.correct || "";
+  const visual = itemActual.emoji || (consigna.trim().split(/\s+/).pop()) || "🧠";
+
+  if (promptEl) promptEl.innerText = consigna;
+  if (emojiEl) emojiEl.innerText = visual;
+  if (feedbackEl) feedbackEl.innerText = "";
+  if (!grid) return;
+
+  const itemConRespuesta = Object.assign({}, itemActual, {
+    correct: correcta,
+    targetCorrect: correcta
+  });
+  const opts = obtenerOpcionesConRespaldoVV(listaEjercicios, itemConRespuesta, 3);
+
+  grid.innerHTML = "";
+  opts.forEach((opcionTexto) => {
+    const b = document.createElement("button");
+    b.className = "fono-option";
+    b.type = "button";
+    b.innerText = opcionTexto;
+    b.onclick = () => {
+      const esAcierto = esRespuestaCorrectaVV(itemConRespuesta, opcionTexto);
+      if (!feedbackEl) return;
+      if (esAcierto) {
+        feedbackEl.innerText = `¡Muy bien! (${opcionTexto})`;
+        feedbackEl.style.color = "var(--secondary)";
+      } else {
+        feedbackEl.innerText = "Ese no es. Piénsalo otra vez";
+        feedbackEl.style.color = "var(--danger)";
+        if (typeof speak === "function") speak("Inténtalo de nuevo");
+      }
+      if (typeof persistState === "function") persistState();
+    };
+    grid.appendChild(b);
+  });
+}
+
+function initSemanticaGame() {
+  const pairs = semanticaDatabase[currentSemanticaAgeGroup] || semanticaDatabase["3-6"] || [];
+  if (!pairs.length) return;
+  curSem = pairs[Math.floor(Math.random() * pairs.length)];
+  renderSemanticaRound(pairs, curSem);
+}
+    
     function initSemanticaGame() {
       const pairs = semanticaDatabase[currentSemanticaAgeGroup] || semanticaDatabase["3-6"];
       curSem = pairs[Math.floor(Math.random() * pairs.length)];
