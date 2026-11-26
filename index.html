@@ -619,23 +619,46 @@
       </div>
 
       <div class="stats-card">
-        <h3>➕ Agregar Nuevo Ejercicio / Actividad</h3>
-        <div class="form-group"><label>Módulo:</label>
-          <select id="newExModule">
-            <option value="fono">Fonología</option>
-            <option value="semantica">Semántica</option>
-          </select>
-        </div>
-        <div class="form-group"><label>Edad:</label>
-          <select id="newExAge">
-            <option value="3-6">3 a 6 años</option>
-            <option value="7-9">7 a 9 años</option>
-            <option value="10-12">10 a 12 años</option>
-          </select>
-        </div>
-        <div class="form-group"><label>Pregunta/Palabra (con Emoji):</label><input type="text" id="newExPrompt" placeholder="Ej: León 🦁"></div>
-        <div class="form-group"><label>Respuesta Correcta:</label><input type="text" id="newExCorrect" placeholder="Ej: Rugido"></div>
-        <button class="btn-submit" type="button" id="addExerciseBtn">Registrar Ejercicio</button>
+  <h3>➕ Agregar Nuevo Ejercicio / Actividad</h3>
+
+  <div class="form-group">
+    <label for="newExModule">Módulo:</label>
+    <select id="newExModule">
+      <option value="fono">Fonología</option>
+      <option value="semantica">Semántica</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="newExAge">Edad:</label>
+    <select id="newExAge">
+      <option value="3-6">3 a 6 años</option>
+      <option value="7-9">7 a 9 años</option>
+      <option value="10-12">10 a 12 años</option>
+    </select>
+  </div>
+
+  <p id="newExGuide" style="font-size: 13px; color: var(--text-muted); margin: 0 0 14px 0; line-height: 1.4;"></p>
+
+  <div class="form-group">
+    <label for="newExPrompt">Pregunta/Palabra (con Emoji):</label>
+    <input type="text" id="newExPrompt" placeholder="Ej: Empieza con L: ¿cuál es? 🦁">
+  </div>
+
+  <div class="form-group">
+    <label for="newExCorrect">Respuesta Correcta:</label>
+    <input type="text" id="newExCorrect" placeholder="Ej: León">
+  </div>
+
+  <div class="form-group">
+    <label for="newExVariants">Respuestas aceptadas adicionales (opcional, separadas por coma):</label>
+    <input type="text" id="newExVariants" placeholder="Ej: león, sonido l">
+  </div>
+
+  <button class="btn-submit" type="button" id="addExerciseBtn">Registrar Ejercicio</button>
+
+  <p id="newExStatusMsg" role="status" aria-live="polite" style="font-size: 13px; font-weight: 600; margin: 10px 0 0 0;"></p>
+</div>
       </div>
 
       <div class="stats-card">
