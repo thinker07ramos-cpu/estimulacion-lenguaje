@@ -1062,6 +1062,9 @@ if (authEmailEl) authEmailEl.value = localAccountInfo.email || "";
 if (credStatusEl && localAccountInfo.username) {
   credStatusEl.innerText = `Identificación local activa: ${localAccountInfo.username}${localAccountInfo.email ? ` (${localAccountInfo.email})` : ""}.`;
 }
+      if (typeof renderCustomExercisesList === "function") {
+  renderCustomExercisesList();
+}
       const langSelect = document.getElementById("appLanguage");
       if (langSelect) langSelect.value = appLang;
       const pat = getCurrentPatient();
