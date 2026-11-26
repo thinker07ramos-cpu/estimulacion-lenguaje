@@ -2501,22 +2501,159 @@ document.getElementById('agendaWebResults').innerHTML = '';
     }
 
     function addNewExercise() {
-      const mod = document.getElementById('newExModule').value;
-      const age = document.getElementById('newExAge').value;
-      const prompt = document.getElementById('newExPrompt').value.trim();
-      const correct = document.getElementById('newExCorrect').value.trim();
-      if(!prompt || !correct) { alert("Completa todos los campos."); return; }
+  const modEl = document.getElementById("newExModule");
+  const ageEl = document.getElementById("newExAge");
+  const promptEl = document.getElementById("newExPrompt");
+  const correctEl = document.getElementById("newExCorrect");
+  const variantsEl = document.getElementById("newExVariants");
+  if (!modEl || !ageEl || !promptEl || !correctEl) return;
 
-      if(mod === 'fono') {
-        fonoDatabase[age].push({ word: prompt.split(" ")[0], emoji: prompt.split(" ")[1] || "⭐" });
-      } else {
-        semanticaDatabase[age].push({ prompt: prompt, targetCorrect: correct, distractors: ["Opción X"], spoken: prompt });
-      }
-      document.getElementById('newExPrompt').value = '';
-      document.getElementById('newExCorrect').value = '';
-      persistState();
-      alert("¡Ejercicio agregado!");
+  const modulo = modEl.value;
+  const edad = ageEl.value;
+  const prompt = promptEl.value.trim();
+  const correct = correctEl.value.trim();
+  const variants = variantsEl
+    ? variantsEl.value.split(",").map(v => v.trim()).filter(Boolean)
+    : [];
+
+  if (prompt.length < 2) {
+    setNewExerciseStatus("Escribe una pregunta o palabra válida (mínimo 2 caracteres).", true);
+    promptEl.focus();
+    return;
+  }
+
+  if (correct.length < 1) {
+    setNewExerciseStatus("Indica la respuesta correcta antes de registrar el ejercicio.", true);
+    correctEl.focus();
+    return;
+  }
+
+  const normPrompt = prompt.toLowerCase().replace(/\s+/g, " ");
+
+  if (modulo === "fono") {
+    if (!fonoDatabase[edad]) fonoDatabase[edad] = [];
+    const exists = fonoDatabase[edad].some(
+      item => (item.word || item.prompt || "").toLowerCase().replace(/\s+/g, " ") === normPrompt
+    );
+    if (exists) {
+      setNewExerciseStatus("Ya existe un ejercicio similar en Fonología para esa edad.", true);
+      return;
     }
+    fonoDatabase[edad].push({
+      id: "ex_" + Date.now(),
+      word: prompt,
+      prompt,
+      correct,
+      variants,
+      custom: true
+    });
+  } else {
+    if (!semanticaDatabase[edad]) semanticaDatabase[edad] = [];
+    const exists = semanticaDatabase[edad].some(
+      item => (item.prompt || "").toLowerCase().replace(/\s+/g, " ") === normPrompt
+    );
+    if (exists) {
+      setNewExerciseStatus("Ya existe un ejercicio similar en Semántica para esa edad.", true);
+      return;
+    }
+    semanticaDatabase[edad].push({
+      id: "ex_" + Date.now(),
+      prompt,
+      targetCorrect: correct,
+      distractors: [],
+      variants,
+      spoken: prompt,
+      custom: true
+    });
+  }
+
+  if (typeof persistState === "function") persistState();
+
+  promptEl.value = "";
+  correctEl.value = "";
+  if (variantsEl) variantesEl.value = "";
+  promptEl.focus();
+
+  const modLabel = modulo === "fono" ? "Fonología" : "Semántica";
+  const ageLabel = ageEl.options[ageEl.selectedIndex]?.text || edad;
+  setNewExerciseStatus(`Ejercicio guardado en ${modLabel} (${ageLabel}).`);
+}
+
+const NEW_EX_CONFIG = {
+  fono: {
+    "3-6": {
+      guia: "Conciencia fonológica inicial (3–6 años): sonido inicial claro o discriminación auditiva simple.",
+      prompt: "Ej: Empieza con L: ¿cuál es? 🦁",
+      correct: "Ej: León",
+      variants: "Ej: león, sonido l"
+    },
+    "7-9": {
+      guia: "Segmentación silábica y rimas (7–9 años): conteo de sílabas, sonido inicial/final o rimas.",
+      prompt: "Ej: ¿Cuántas sílabas tiene MARIPOSA? 🦋",
+      correct: "Ej: 4",
+      variants: "Ej: cuatro, ma-ri-po-sa"
+    },
+    "10-12": {
+      guia: "Manipulación fonémica y acentuación (10–12 años): omisión/sustitución de sonidos o sílaba tónica.",
+      prompt: "Ej: Si quitas el primer sonido a TREN 🚂, ¿qué queda?",
+      correct: "Ej: Ren",
+      variants: "Ej: ren"
+    }
+  },
+  semantica: {
+    "3-6": {
+      guia: "Categoría básica y uso cotidiano (3–6 años): objetos, alimentos o acciones familiares.",
+      prompt: "Ej: ¿Qué comemos que es amarillo y pelamos? 🍌",
+      correct: "Ej: Banana",
+      variants: "Ej: plátano, guineo"
+    },
+    "7-9": {
+      guia: "Inclusión categorial y atributos (7–9 años): familia semántica, función o características.",
+      prompt: "Ej: ¿A qué grupo pertenece el LEÓN 🦁?",
+      correct: "Ej: Animales salvajes",
+      variants: "Ej: mamíferos, animales"
+    },
+    "10-12": {
+      guia: "Relaciones léxicas y abstracción (10–12 años): sinónimos, antónimos, definiciones o analogías.",
+      prompt: "Ej: ¿Cuál es una palabra opuesta a FRÁGIL?",
+      correct: "Ej: Resistente",
+      variants: "Ej: fuerte, duro"
+    }
+  }
+};
+
+function syncNewExercisePresets() {
+  const modEl = document.getElementById("newExModule");
+  const ageEl = document.getElementById("newExAge");
+  const guideEl = document.getElementById("newExGuide");
+  const promptEl = document.getElementById("newExPrompt");
+  const correctEl = document.getElementById("newExCorrect");
+  const variantsEl = document.getElementById("newExVariants");
+  if (!modEl || !ageEl || !promptEl || !correctEl) return;
+
+  const preset = NEW_EX_CONFIG[modEl.value]?.[ageEl.value];
+  if (!preset) return;
+
+  if (guideEl) guideEl.textContent = preset.guia;
+  promptEl.placeholder = preset.prompt;
+  correctEl.placeholder = preset.correct;
+  if (variantsEl) variantsEl.placeholder = preset.variants;
+}
+
+function setNewExerciseStatus(msg, isError = false) {
+  const statusEl = document.getElementById("newExStatusMsg");
+  if (!statusEl) return;
+  statusEl.textContent = msg;
+  statusEl.style.color = isError ? "var(--danger)" : "var(--secondary)";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const modEl = document.getElementById("newExModule");
+  const ageEl = document.getElementById("newExAge");
+  if (modEl) modEl.addEventListener("change", syncNewExercisePresets);
+  if (ageEl) ageEl.addEventListener("change", syncNewExercisePresets);
+  syncNewExercisePresets();
+});
 
     let curFono = null;
     function setFonoAge(age, btn) {
