@@ -3068,6 +3068,47 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 }
     
+    let initialSoundIndex = 0;
+
+function getInitialSoundPool() {
+  const age =
+    (typeof currentAgeGroup !== "undefined" && currentAgeGroup) ||
+    (typeof getCurrentPatient === "function" &&
+      getCurrentPatient() &&
+      getCurrentPatient().ageGroup) ||
+    "3-6";
+
+  const baseItems =
+    typeof initialSoundBank !== "undefined" && Array.isArray(initialSoundBank)
+      ? initialSoundBank
+      : [];
+
+  const filtered = baseItems.filter(
+    (item) => !item.ageGroup || item.ageGroup === age
+  );
+
+  return filtered.length > 0 ? filtered : baseItems;
+}
+
+function advanceInitialSoundExercise(delayMs = 1100) {
+  const pool = getInitialSoundPool();
+  if (!pool.length) return;
+
+  if (window.vvInitialSoundTimer) {
+    clearTimeout(window.vvInitialSoundTimer);
+  }
+
+  window.vvInitialSoundTimer = setTimeout(() => {
+    initialSoundIndex = (initialSoundIndex + 1) % pool.length;
+
+    if (typeof renderInitialSoundExercise === "function") {
+      renderInitialSoundExercise();
+    } else if (typeof renderExercises === "function") {
+      renderExercises();
+    }
+  }, delayMs);
+}
+    
     function initFonoGame() {
   const items = fonoDatabase[currentFonoAgeGroup] || fonoDatabase["3-6"] || [];
   if (!items.length) return;
