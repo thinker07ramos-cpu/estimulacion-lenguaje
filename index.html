@@ -3237,6 +3237,33 @@ function initSemanticaGame() {
   }
 }
 
+    function recordPictogramClick(categoryName) {
+  const pat = typeof getCurrentPatient === "function" ? getCurrentPatient() : null;
+  if (!pat) return;
+
+  if (!pat.stats || typeof pat.stats !== "object") {
+    pat.stats = { totalClicks: 0, categories: {} };
+  }
+  if (typeof pat.stats.totalClicks !== "number") {
+    pat.stats.totalClicks = 0;
+  }
+  if (!pat.stats.categories || typeof pat.stats.categories !== "object") {
+    pat.stats.categories = {};
+  }
+
+  const cat = (categoryName && String(categoryName).trim()) || "General";
+
+  pat.stats.totalClicks += 1;
+  pat.stats.categories[cat] = (pat.stats.categories[cat] || 0) + 1;
+
+  if (typeof persistState === "function") {
+    persistState();
+  }
+  if (typeof updateStatsUI === "function") {
+    updateStatsUI();
+  }
+}
+    
     function renderClinicalPanelCharts() {
   const pat = typeof getCurrentPatient === "function" ? getCurrentPatient() : null;
   const log = Array.isArray(window.vvClinicalLog) ? window.vvClinicalLog : [];
