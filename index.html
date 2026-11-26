@@ -2760,45 +2760,8 @@ document.addEventListener("DOMContentLoaded", () => {
     function initFonoGame() {
   const items = fonoDatabase[currentFonoAgeGroup] || fonoDatabase["3-6"] || [];
   if (!items.length) return;
-
   curFono = items[Math.floor(Math.random() * items.length)];
-  const correcta = curFono.correct || curFono.word || "";
-  const visual = curFono.emoji || "🗣️";
-
-  const targetEl = document.getElementById("fonoTargetEmoji");
-  const titleEl = document.getElementById("fonoTitle");
-  const feedbackEl = document.getElementById("fonoFeedback");
-  const grid = document.getElementById("fonoOptions");
-
-  if (targetEl) targetEl.innerText = visual;
-  if (titleEl) titleEl.innerText = `1. Sonido Inicial (${currentFonoAgeGroup} años)`;
-  if (feedbackEl) feedbackEl.innerText = "";
-  if (!grid) return;
-
-  // Asegura que la respuesta correcta principal esté en el ítem para obtenerOpcionesConRespaldoVV
-  const itemConRespuesta = Object.assign({}, curFono, { correct: correcta });
-  const opts = obtenerOpcionesConRespaldoVV(items, itemConRespuesta, 3);
-
-  grid.innerHTML = "";
-  opts.forEach((o) => {
-    const b = document.createElement("button");
-    b.className = "fono-option";
-    b.type = "button";
-    b.innerText = o;
-    b.onclick = () => {
-      const esAcierto = esRespuestaCorrectaVV(itemConRespuesta, o);
-      if (!feedbackEl) return;
-      if (esAcierto) {
-        feedbackEl.innerText = `¡Muy bien! (${o})`;
-        feedbackEl.style.color = "var(--secondary)";
-      } else {
-        feedbackEl.innerText = `Inténtalo de nuevo (${o})`;
-        feedbackEl.style.color = "var(--danger)";
-      }
-      if (typeof persistState === "function") persistState();
-    };
-    grid.appendChild(b);
-  });
+  renderFonoRound(items, curFono);
 }
     
     function playFonoTarget() { if(curFono) speak(curFono.word); }
