@@ -3127,6 +3127,9 @@ function initSemanticaGame() {
         if(pat.stats.categories[c] > max) { max = pat.stats.categories[c]; top = c.toUpperCase(); }
       }
       document.getElementById('statTopCategory').innerText = top;
+      if (typeof renderClinicalPanelCharts === "function") {
+  renderClinicalPanelCharts();
+}
     }
 
     function resetStats() {
