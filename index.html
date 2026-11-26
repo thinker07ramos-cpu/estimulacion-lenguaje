@@ -2577,6 +2577,10 @@ document.getElementById('agendaWebResults').innerHTML = '';
 
   if (typeof persistState === "function") persistState();
 
+      if (typeof renderCustomExercisesList === "function") {
+  renderCustomExercisesList();
+}
+      
   promptEl.value = "";
   correctEl.value = "";
   if (variantsEl) variantesEl.value = "";
