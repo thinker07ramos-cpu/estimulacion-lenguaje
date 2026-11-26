@@ -2663,7 +2663,109 @@ function setNewExerciseStatus(msg, isError = false) {
   syncNewExercisePresets();
 });
 
-function normalizarRespuestaVV(texto) {
+function getCustomExercisesList() {
+  const resultado = [];
+  const fuentes = [
+    { modulo: "fono", labelModulo: "Fonología", db: typeof fonoDatabase !== "undefined" ? fonoDatabase : {} },
+    { modulo: "semantica", labelModulo: "Semántica", db: typeof semanticaDatabase !== "undefined" ? semanticaDatabase : {} }
+  ];
+
+  fuentes.forEach(({ modulo, labelModulo, db }) => {
+    Object.keys(db || {}).forEach((edad) => {
+      const lista = Array.isArray(db[edad]) ? db[edad] : [];
+      lista.forEach((item, index) => {
+        if (item && item.custom) {
+          resultado.push({
+            id: item.id || `${modulo}-${edad}-${index}`,
+            modulo,
+            labelModulo,
+            edad,
+            index,
+            item
+          });
+        }
+      });
+    });
+  });
+
+  return resultado;
+}
+
+function renderCustomExercisesList() {
+  const listEl = document.getElementById("customExercisesList");
+  const countEl = document.getElementById("customExercisesCount");
+  if (!listEl) return;
+
+  const creados = getCustomExercisesList();
+  if (countEl) {
+    countEl.textContent = `${creados.length} ${creados.length === 1 ? "ejercicio" : "ejercicios"}`;
+  }
+
+  listEl.innerHTML = "";
+  if (!creados.length) {
+    listEl.innerHTML = `<p style="margin: 0; font-size: 0.9rem; opacity: 0.75;">Todavía no has creado ejercicios personalizados.</p>`;
+    return;
+  }
+
+  creados.forEach((entry) => {
+    const { modulo, labelModulo, edad, index, item } = entry;
+    const card = document.createElement("div");
+    card.style.cssText =
+      "border: 1px solid var(--border-soft, #d0d7de); border-radius: 10px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;";
+
+    const respuesta = item.correct || item.targetCorrect || item.word || "";
+    const variantes = Array.isArray(item.variants) && item.variants.length
+      ? item.variants.join(", ")
+      : "Ninguna";
+
+    const info = document.createElement("div");
+    info.style.cssText = "font-size: 0.9rem; line-height: 1.4;";
+    info.innerHTML = `
+      <div><strong>${item.emoji || "📝"} ${item.word || respuesta || "Ejercicio"}</strong> · <span>${labelModulo} (${edad} años)</span></div>
+      ${item.prompt ? `<div style="opacity: 0.85;">Consigna: ${item.prompt}</div>` : ""}
+      <div><strong>Respuesta:</strong> ${respuesta || "—"} · <strong>Variantes:</strong> ${variantes}</div>
+    `;
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.textContent = "Eliminar";
+    deleteBtn.style.cssText =
+      "background: var(--danger, #c62828); color: #fff; border: none; border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 0.82rem; flex-shrink: 0;";
+    deleteBtn.addEventListener("click", () => deleteCustomExercise(modulo, edad, index));
+
+    card.appendChild(info);
+    card.appendChild(deleteBtn);
+    listEl.appendChild(card);
+  });
+}
+
+function deleteCustomExercise(modulo, edad, index) {
+  const db = modulo === "semantica" ? semanticaDatabase : fonoDatabase;
+  if (!db || !Array.isArray(db[edad])) return;
+
+  const objetivo = db[edad][index];
+  if (!objetivo || !objetivo.custom) return;
+
+  db[edad].splice(index, 1);
+
+  if (typeof persistState === "function") {
+    persistState();
+  }
+
+  renderCustomExercisesList();
+
+  if (modulo === "fono" && typeof initFonoGame === "function") {
+    initFonoGame();
+  } else if (modulo === "semantica" && typeof initSemanticaGame === "function") {
+    initSemanticaGame();
+  }
+
+  if (typeof setNewExerciseStatus === "function") {
+    setNewExerciseStatus("Ejercicio personalizado eliminado.");
+  }
+}
+    
+    function normalizarRespuestaVV(texto) {
   return (texto || "")
     .toString()
     .normalize("NFD")
