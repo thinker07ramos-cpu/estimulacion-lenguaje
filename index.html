@@ -3128,6 +3128,39 @@ function advanceInitialSoundExercise(delayMs = 1100) {
       }
     }
 
+    function onSelectInitialSoundOption(selectedOption, currentItem, isCustom = false) {
+  const isCorrect =
+    Boolean(currentItem) &&
+    String(selectedOption || "").trim().toLowerCase() ===
+      String(currentItem.word || currentItem.target || currentItem.answer || "")
+        .trim()
+        .toLowerCase();
+
+  window.vvClinicalLog = Array.isArray(window.vvClinicalLog)
+    ? window.vvClinicalLog
+    : [];
+  window.vvClinicalLog.push({
+    exercise: "sonido-inicial",
+    esAcierto: isCorrect,
+    custom: Boolean(isCustom),
+    timestamp: Date.now()
+  });
+
+  if (typeof persistState === "function") {
+    persistState();
+  }
+  if (typeof updateStatsUI === "function") {
+    updateStatsUI();
+  }
+  if (typeof renderClinicalPanelCharts === "function") {
+    renderClinicalPanelCharts();
+  }
+
+  if (typeof advanceInitialSoundExercise === "function") {
+    advanceInitialSoundExercise(isCorrect ? 1100 : 1400);
+  }
+}
+    
     let curUnir = null;
     function initUnirGame() {
       curUnir = vocabDatabase[Math.floor(Math.random() * vocabDatabase.length)];
