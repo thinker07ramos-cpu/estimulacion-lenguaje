@@ -3219,10 +3219,23 @@ function initSemanticaGame() {
     }
 
     function resetStats() {
-      getCurrentPatient().stats = { totalClicks: 0, categories: {} };
-      persistState();
-      updateStatsUI();
-    }
+  const pat = typeof getCurrentPatient === "function" ? getCurrentPatient() : null;
+  if (pat) {
+    pat.stats = { totalClicks: 0, categories: {} };
+  }
+
+  window.vvClinicalLog = [];
+
+  if (typeof persistState === "function") {
+    persistState();
+  }
+  if (typeof updateStatsUI === "function") {
+    updateStatsUI();
+  }
+  if (typeof renderClinicalPanelCharts === "function") {
+    renderClinicalPanelCharts();
+  }
+}
 
     function renderClinicalPanelCharts() {
   const pat = typeof getCurrentPatient === "function" ? getCurrentPatient() : null;
