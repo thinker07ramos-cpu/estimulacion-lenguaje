@@ -3117,16 +3117,32 @@ function advanceInitialSoundExercise(delayMs = 1100) {
 }
     
     function playFonoTarget() { if(curFono) speak(curFono.word); }
+    
     function checkFono(w) {
-      const fb = document.getElementById('fonoFeedback');
-      if (w === curFono.word) {
-        fb.style.color = "#2ECC71"; fb.innerText = "¡Correcto! 🎉";
-        speak("¡Muy bien!");
-        setTimeout(initFonoGame, 1500);
-      } else {
-        fb.style.color = "#E74C3C"; fb.innerText = "Inténtalo de nuevo 💪";
-      }
+  const fb = document.getElementById('fonoFeedback');
+  const isCustomItem = Boolean(curFono && curFono.custom);
+
+  if (curFono && w === curFono.word) {
+    if (fb) {
+      fb.style.color = "#2ECC71";
+      fb.innerText = "¡Correcto! 👍";
     }
+    if (typeof speak === "function") {
+      speak("¡Muy bien!");
+    }
+    if (typeof onSelectInitialSoundOption === "function") {
+      onSelectInitialSoundOption(w, curFono, isCustomItem);
+    }
+  } else {
+    if (fb) {
+      fb.style.color = "#E74C3C";
+      fb.innerText = "Inténtalo de nuevo 💪";
+    }
+    if (typeof onSelectInitialSoundOption === "function") {
+      onSelectInitialSoundOption(w, curFono, isCustomItem);
+    }
+  }
+}
 
     function onSelectInitialSoundOption(selectedOption, currentItem, isCustom = false) {
   const isCorrect =
