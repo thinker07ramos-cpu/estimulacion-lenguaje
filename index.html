@@ -1509,6 +1509,66 @@ if (pat.agendaSteps && pat.agendaSteps.length > 0) {
   doc.text("No hay actividades registradas en la agenda.", 20, yPos);
 }
 
+      const log = Array.isArray(window.vvClinicalLog) ? window.vvClinicalLog : [];
+const totalEj = log.length;
+const aciertosEj = log.filter((r) => r && r.esAcierto).length;
+const pctEj = totalEj > 0 ? Math.round((aciertosEj / totalEj) * 100) : 0;
+
+const pasos = pat && Array.isArray(pat.agendaSteps) ? pat.agendaSteps : [];
+const completados = pasos.filter((s) => s && s.completed).length;
+const pctAgenda = pasos.length > 0 ? Math.round((completados / pasos.length) * 100) : 0;
+
+const totalCustom = log.filter((r) => r && r.custom).length;
+const aciertosCustom = log.filter((r) => r && r.custom && r.esAcierto).length;
+const pctCustom = totalCustom > 0 ? Math.round((aciertosCustom / totalCustom) * 100) : 0;
+
+if (yPos > 235) {
+  doc.addPage();
+  yPos = 25;
+} else {
+  yPos += 6;
+}
+
+doc.setFontSize(12);
+doc.setTextColor(33, 47, 61);
+doc.text("Resumen Gráfico de Progreso", 15, yPos);
+yPos += 11;
+
+drawPdfProgressBar(
+  doc,
+  20,
+  yPos,
+  150,
+  6,
+  pctEj,
+  `Precisión en ejercicios: ${pctEj}% (${aciertosEj}/${totalEj})`,
+  [80, 184, 156]
+);
+yPos += 15;
+
+drawPdfProgressBar(
+  doc,
+  20,
+  yPos,
+  150,
+  6,
+  pctAgenda,
+  `Avance en Agenda Visual: ${pctAgenda}% (${completados}/${pasos.length})`,
+  [52, 132, 219]
+);
+yPos += 15;
+
+drawPdfProgressBar(
+  doc,
+  20,
+  yPos,
+  150,
+  6,
+  pctCustom,
+  `Ejercicios personalizados correctos: ${pctCustom}% (${aciertosCustom}/${totalCustom})`,
+  [230, 126, 34]
+);
+      
       doc.setFontSize(9);
       doc.setTextColor(150, 150, 150);
       doc.text("Generado automáticamente por la plataforma VozVisual (CAA & Estimulación del Lenguaje).", 15, 285);
