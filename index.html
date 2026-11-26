@@ -1384,6 +1384,9 @@ if (importBackupInput) importBackupInput.addEventListener("change", importBackup
           initAgruparGame();
         }
         if (modId === 'terapeuta') updateStatsUI();
+        if (typeof renderClinicalPanelCharts === "function") {
+  renderClinicalPanelCharts();
+}
       }
     }
 
