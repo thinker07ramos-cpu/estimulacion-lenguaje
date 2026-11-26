@@ -3109,10 +3109,14 @@ function advanceInitialSoundExercise(delayMs = 1100) {
   }, delayMs);
 }
     
+    let initialSoundIndex = 0;
+    
     function initFonoGame() {
   const items = fonoDatabase[currentFonoAgeGroup] || fonoDatabase["3-6"] || [];
   if (!items.length) return;
-  curFono = items[Math.floor(Math.random() * items.length)];
+  initialSoundIndex = initialSoundIndex % items.length;
+curFono = items[initialSoundIndex];
+initialSoundIndex++;
   renderFonoRound(items, curFono);
 }
     
