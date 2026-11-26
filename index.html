@@ -1520,9 +1520,14 @@ function importBackupJSON(event) {
       if (data.currentSemanticaAgeGroup) currentSemanticaAgeGroup = data.currentSemanticaAgeGroup;
       if (Array.isArray(data.vocabDatabase)) vocabDatabase = data.vocabDatabase;
       if (data.fonoDatabase) fonoDatabase = data.fonoDatabase;
+      if (typeof renderCustomExercisesList === "function") {
+  renderCustomExercisesList();
+}
       if (data.semanticaDatabase) semanticaDatabase = data.semanticaDatabase;
       if (Array.isArray(data.sentence)) sentence = data.sentence;
-
+if (typeof renderCustomExercisesList === "function") {
+  renderCustomExercisesList();
+}
       persistState();
       alert("¡Respaldo JSON restaurado correctamente! La aplicación se actualizará.");
       window.location.reload();
