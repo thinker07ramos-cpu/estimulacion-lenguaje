@@ -2707,14 +2707,19 @@ document.getElementById('agendaWebResults').innerHTML = '';
       speak(text);
     }
 
-    function renderGrid(filter = 'todos') {
-      currentCommunicatorFilter = filter;
-      const pat = getCurrentPatient();
-      const grid = document.getElementById('pictoGrid');
-      grid.innerHTML = '';
-      let all = [...basePictograms, ...pat.customPictos];
-      let filtered = filter === 'todos' ? all : all.filter(p => p.group === filter);
+    function renderGrid(filter = currentCommunicatorFilter) {
+  currentCommunicatorFilter = filter || 'all';
+  const pat = getCurrentPatient();
+  const grid = document.getElementById('pictoGrid');
+  grid.innerHTML = '';
 
+  renderCategoryFilters("commCategoryTabs", currentCommunicatorFilter, (catId) => {
+    currentCommunicatorFilter = catId;
+    renderGrid(currentCommunicatorFilter);
+  });
+
+  let all = [...basePictograms, ...pat.customPictos];
+  let filtered = filterItemsByCategory(all, currentCommunicatorFilter);
       filtered.forEach(item => {
         const c = document.createElement('div');
         c.className = `picto-card ${item.type}`;
