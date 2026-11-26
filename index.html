@@ -3111,6 +3111,39 @@ function initSemanticaGame() {
       persistState();
       updateStatsUI();
     }
+
+    function renderClinicalPanelCharts() {
+  const pat = typeof getCurrentPatient === "function" ? getCurrentPatient() : null;
+  const log = Array.isArray(window.vvClinicalLog) ? window.vvClinicalLog : [];
+
+  const totalEj = log.length;
+  const aciertosEj = log.filter((r) => r && r.esAcierto).length;
+  const pctEj = totalEj > 0 ? Math.round((aciertosEj / totalEj) * 100) : 0;
+
+  const pasos = pat && Array.isArray(pat.agendaSteps) ? pat.agendaSteps : [];
+  const completados = pasos.filter((s) => s && s.completed).length;
+  const pctAgenda = pasos.length > 0 ? Math.round((completados / pasos.length) * 100) : 0;
+
+  const totalCustom = log.filter((r) => r && r.custom).length;
+  const aciertosCustom = log.filter((r) => r && r.custom && r.esAcierto).length;
+  const pctCustom = totalCustom > 0 ? Math.round((aciertosCustom / totalCustom) * 100) : 0;
+
+  const pLabel = document.getElementById("chartPrecisionLabel");
+  const pBar = document.getElementById("chartPrecisionBar");
+  if (pLabel) pLabel.textContent = `${pctEj}% (${aciertosEj}/${totalEj})`;
+  if (pBar) pBar.style.width = `${pctEj}%`;
+
+  const aLabel = document.getElementById("chartAgendaLabel");
+  const aBar = document.getElementById("chartAgendaBar");
+  if (aLabel) aLabel.textContent = `${pctAgenda}% (${completados}/${pasos.length})`;
+  if (aBar) aBar.style.width = `${pctAgenda}%`;
+
+  const cLabel = document.getElementById("chartCustomLabel");
+  const cBar = document.getElementById("chartCustomBar");
+  if (cLabel) cLabel.textContent = `${pctCustom}% (${aciertosCustom}/${totalCustom})`;
+  if (cBar) cBar.style.width = `${pctCustom}%`;
+}
+    
     function changeLanguage() {
       appLang = document.getElementById('appLanguage').value;
       persistState();
