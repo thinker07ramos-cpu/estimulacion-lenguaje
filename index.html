@@ -2881,25 +2881,6 @@ function initSemanticaGame() {
   renderSemanticaRound(pairs, curSem);
 }
     
-    function initSemanticaGame() {
-      const pairs = semanticaDatabase[currentSemanticaAgeGroup] || semanticaDatabase["3-6"];
-      curSem = pairs[Math.floor(Math.random() * pairs.length)];
-      document.getElementById('semanticaPrompt').innerText = curSem.prompt;
-      document.getElementById('semanticaTargetEmoji').innerText = curSem.prompt.split(" ").pop();
-      document.getElementById('semanticaFeedback').innerText = '';
-
-      let opts = [curSem.targetCorrect, ...curSem.distractors];
-      opts.sort(() => Math.random() - 0.5);
-
-      const grid = document.getElementById('semanticaOptions');
-      grid.innerHTML = '';
-      opts.forEach(o => {
-        const b = document.createElement('button');
-        b.className = 'fono-option'; b.type = 'button'; b.innerText = o;
-        b.addEventListener("click", () => checkSem(o));
-        grid.appendChild(b);
-      });
-    }
     function playSemanticaPrompt() { if(curSem) speak(curSem.spoken); }
     function checkSem(o) {
       const fb = document.getElementById('semanticaFeedback');
