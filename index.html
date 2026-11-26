@@ -1023,6 +1023,31 @@
   { id: "tiempo", label: "Tiempo y rutinas", icon: "⏰" }
 ];
     
+    function renderCategoryFilters(containerId, activeCategory, onSelectCategory) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  APP_CATEGORIES.forEach((cat) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `tab-btn category-chip ${activeCategory === cat.id ? "active" : ""}`;
+    btn.dataset.category = cat.id;
+    btn.textContent = `${cat.icon} ${cat.label}`;
+    btn.addEventListener("click", () => onSelectCategory(cat.id));
+    container.appendChild(btn);
+  });
+}
+
+function filterItemsByCategory(items, selectedCategory) {
+  if (!Array.isArray(items)) return [];
+  if (!selectedCategory || selectedCategory === "all" || selectedCategory === "todos") {
+    return items;
+  }
+  return items.filter((item) => item && item.category === selectedCategory);
+}
+    
     let agruparDatabase = [
       { attribute: "color", value: "Rojo", target: { name: "Manzana Roja", emoji: "🍎" }, distractors: [{ name: "Plátano Amarillo", emoji: "🍌" }, { name: "Hoja Verde", emoji: "🍃" }] },
       { attribute: "color", value: "Amarillo", target: { name: "Estrella Amarilla", emoji: "⭐" }, distractors: [{ name: "Manzana Roja", emoji: "🍎" }, { name: "Cereza", emoji: "🍒" }] },
