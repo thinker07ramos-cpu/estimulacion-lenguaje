@@ -2594,34 +2594,34 @@ const NEW_EX_CONFIG = {
       variants: "Ej: cuatro, ma-ri-po-sa"
     },
     "10-12": {
-      guia: "Manipulación fonémica y acentuación (10–12 años): omisión/sustitución de sonidos o sílaba tónica.",
-      prompt: "Ej: Si quitas el primer sonido a TREN 🚂, ¿qué queda?",
-      correct: "Ej: Ren",
-      variants: "Ej: ren"
-    }
-  },
-  semantica: {
-    "3-6": {
-      guia: "Categoría básica y uso cotidiano (3–6 años): objetos, alimentos o acciones familiares.",
-      prompt: "Ej: ¿Qué comemos que es amarillo y pelamos? 🍌",
-      correct: "Ej: Banana",
-      variants: "Ej: plátano, guineo"
+        guia: "Manipulación fonémica y acentuación (10–12 años): omisión/sustitución de sonidos o sílaba tónica.",
+        prompt: "Ej: Si quitas el primer sonido a TREN 🚂, ¿qué queda?",
+        correct: "Ej: Ren",
+        variants: "Ej: ren"
+      }
     },
-    "7-9": {
-      guia: "Inclusión categorial y atributos (7–9 años): familia semántica, función o características.",
-      prompt: "Ej: ¿A qué grupo pertenece el LEÓN 🦁?",
-      correct: "Ej: Animales salvajes",
-      variants: "Ej: mamíferos, animales"
-    },
-    "10-12": {
-      guia: "Relaciones léxicas y abstracción (10–12 años): sinónimos, antónimos, definiciones o analogías.",
-      prompt: "Ej: ¿Cuál es una palabra opuesta a FRÁGIL?",
-      correct: "Ej: Resistente",
-      variants: "Ej: fuerte, duro"
+    semantica: {
+      "3-6": {
+        guia: "Categoría básica y uso cotidiano (3–6 años): objetos, alimentos o acciones familiares.",
+        prompt: "Ej: ¿Qué comemos que es amarillo y pelamos? 🍌",
+        correct: "Ej: Banana",
+        variants: "Ej: plátano, guineo"
+      },
+      "7-9": {
+        guia: "Inclusión categorial y atributos (7–9 años): familia semántica, función o características.",
+        prompt: "Ej: ¿A qué grupo pertenece el LEÓN 🦁?",
+        correct: "Ej: Animales salvajes",
+        variants: "Ej: mamíferos, animales"
+      },
+      "10-12": {
+        guia: "Relaciones léxicas y abstracción (10–12 años): sinónimos, antónimos, definiciones o analogías.",
+        prompt: "Ej: ¿Cuál es una palabra opuesta a FRÁGIL?",
+        correct: "Ej: Resistente",
+        variants: "Ej: fuerte, duro"
+      }
     }
-  }
-};
-
+  };
+    
 function syncNewExercisePresets() {
   const modEl = document.getElementById("newExModule");
   const ageEl = document.getElementById("newExAge");
