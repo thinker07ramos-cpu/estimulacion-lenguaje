@@ -2746,11 +2746,17 @@ document.getElementById('agendaWebResults').innerHTML = '';
       });
     }
 
-    function renderVocabGrid(category = 'todos') {
-      currentVocabFilter = category;
-      const grid = document.getElementById('vocabGrid');
-      grid.innerHTML = '';
-      let filtered = category === 'todos' ? vocabDatabase : vocabDatabase.filter(v => v.category === category);
+    function renderVocabGrid(category = 'all') {
+  currentVocabFilter = category;
+  const grid = document.getElementById('vocabGrid');
+  grid.innerHTML = '';
+
+  renderCategoryFilters("vocabCategoryTabs", currentVocabFilter, (catId) => {
+    currentVocabFilter = catId;
+    renderVocabGrid(currentVocabFilter);
+  });
+
+  const filtered = filterItemsByCategory(vocabDatabase, currentVocabFilter);
 
       filtered.forEach(item => {
         const c = document.createElement('div');
