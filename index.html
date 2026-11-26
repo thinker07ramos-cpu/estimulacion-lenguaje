@@ -3091,31 +3091,42 @@ function getInitialSoundPool() {
 }
 
 function advanceInitialSoundExercise(delayMs = 1100) {
-  const pool = getInitialSoundPool();
-  if (!pool.length) return;
-
   if (window.vvInitialSoundTimer) {
     clearTimeout(window.vvInitialSoundTimer);
   }
 
   window.vvInitialSoundTimer = setTimeout(() => {
-    initialSoundIndex = (initialSoundIndex + 1) % pool.length;
-
-    if (typeof renderInitialSoundExercise === "function") {
-      renderInitialSoundExercise();
-    } else if (typeof renderExercises === "function") {
-      renderExercises();
+    const fb = document.getElementById("fonoFeedback");
+    if (fb) {
+      fb.innerText = "";
+    }
+    if (typeof initFonoGame === "function") {
+      initFonoGame();
     }
   }, delayMs);
 }
     
     function initFonoGame() {
-  const items = fonoDatabase[currentFonoAgeGroup] || fonoDatabase["3-6"] || [];
-  if (!items.length) return;
-  initialSoundIndex = initialSoundIndex % items.length;
-curFono = items[initialSoundIndex];
-initialSoundIndex++;
-  renderFonoRound(items, curFono);
+  const items =
+    typeof fonoDatabase !== "undefined" && fonoDatabase
+      ? fonoDatabase[currentFonoAgeGroup] || fonoDatabase["3-6"] || []
+      : [];
+
+  if (!Array.isArray(items) || items.length === 0) return;
+
+  initialSoundIndex = ((initialSoundIndex % items.length) + items.length) % items.length;
+  curFono = items[initialSoundIndex];
+  initialSoundIndex++;
+
+  const fb = document.getElementById("fonoFeedback");
+  if (fb) {
+    fb.innerText = "";
+    fb.style.color = "";
+  }
+
+  if (typeof renderFonoRound === "function") {
+    renderFonoRound(items, curFono);
+  }
 }
     
     function playFonoTarget() { if(curFono) speak(curFono.word); }
