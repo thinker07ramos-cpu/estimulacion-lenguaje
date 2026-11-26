@@ -2718,6 +2718,45 @@ document.addEventListener("DOMContentLoaded", () => {
       initFonoGame();
     }
 
+    function renderFonoRound(listaEjercicios, itemActual) {
+  const targetEl = document.getElementById("fonoTargetEmoji");
+  const titleEl = document.getElementById("fonoTitle");
+  const feedbackEl = document.getElementById("fonoFeedback");
+  const grid = document.getElementById("fonoOptions");
+  if (!itemActual || !grid) return;
+
+  const correcta = itemActual.correct || itemActual.word || "";
+  const visual = itemActual.emoji || "🗣️";
+
+  if (targetEl) targetEl.innerText = visual;
+  if (titleEl) titleEl.innerText = `1. Sonido Inicial (${currentFonoAgeGroup} años)`;
+  if (feedbackEl) feedbackEl.innerText = "";
+
+  const itemConRespuesta = Object.assign({}, itemActual, { correct: correcta });
+  const opts = obtenerOpcionesConRespaldoVV(listaEjercicios, itemConRespuesta, 3);
+
+  grid.innerHTML = "";
+  opts.forEach((opcionTexto) => {
+    const b = document.createElement("button");
+    b.className = "fono-option";
+    b.type = "button";
+    b.innerText = opcionTexto;
+    b.onclick = () => {
+      const esAcierto = esRespuestaCorrectaVV(itemConRespuesta, opcionTexto);
+      if (!feedbackEl) return;
+      if (esAcierto) {
+        feedbackEl.innerText = `¡Muy bien! (${opcionTexto})`;
+        feedbackEl.style.color = "var(--secondary)";
+      } else {
+        feedbackEl.innerText = `Inténtalo de nuevo (${opcionTexto})`;
+        feedbackEl.style.color = "var(--danger)";
+      }
+      if (typeof persistState === "function") persistState();
+    };
+    grid.appendChild(b);
+  });
+}
+    
     function initFonoGame() {
   const items = fonoDatabase[currentFonoAgeGroup] || fonoDatabase["3-6"] || [];
   if (!items.length) return;
