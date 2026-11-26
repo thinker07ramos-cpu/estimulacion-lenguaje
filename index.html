@@ -1413,6 +1413,29 @@ if (importBackupInput) importBackupInput.addEventListener("change", importBackup
   doc.rect(x, y, width, height, "S");
 }
     
+    function drawPdfProgressBar(doc, x, y, width, height, pct, labelText, fillRgb) {
+  const safePct = Math.max(0, Math.min(100, Number(pct) || 0));
+
+  doc.setFontSize(10);
+  doc.setTextColor(44, 62, 80);
+  doc.text(labelText, x, y - 3);
+
+  // Fondo de la barra
+  doc.setFillColor(238, 243, 247);
+  doc.rect(x, y, width, height, "F");
+
+  // Relleno proporcional
+  if (safePct > 0) {
+    doc.setFillColor(fillRgb[0], fillRgb[1], fillRgb[2]);
+    doc.rect(x, y, (width * safePct) / 100, height, "F");
+  }
+
+  // Borde exterior
+  doc.setDrawColor(220, 228, 236);
+  doc.setLineWidth(0.4);
+  doc.rect(x, y, width, height, "S");
+}
+    
     function exportPatientPDF() {
       if (!window.jspdf || !window.jspdf.jsPDF) {
         alert("La librería PDF aún está cargando. Intenta de nuevo en unos segundos.");
