@@ -2807,10 +2807,11 @@ document.getElementById('agendaWebResults').innerHTML = '';
     }
 
     function filterVocab(category, btn) {
-      document.querySelectorAll('#view-vocabulario .tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderVocabGrid(category);
-    }
+  currentVocabFilter = category;
+  document.querySelectorAll('#view-vocabulario .tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderVocabGrid(currentVocabFilter);
+}
 
     function handleVocabFileUpload(event) {
       const file = event.target.files[0];
