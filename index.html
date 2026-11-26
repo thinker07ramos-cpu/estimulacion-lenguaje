@@ -1413,168 +1413,211 @@ if (importBackupInput) importBackupInput.addEventListener("change", importBackup
   doc.rect(x, y, width, height, "S");
 }
     
-    function drawPdfProgressBar(doc, x, y, width, height, pct, labelText, fillRgb) {
-  const safePct = Math.max(0, Math.min(100, Number(pct) || 0));
+    function drawPdfProgressBar(doc, x, y, width, height, percent, label, fillColor) {
+  const safePct = Math.max(0, Math.min(100, Number(percent) || 0));
+  const color = Array.isArray(fillColor) && fillColor.length === 3 ? fillColor : [80, 184, 156];
 
   doc.setFontSize(10);
-  doc.setTextColor(44, 62, 80);
-  doc.text(labelText, x, y - 3);
+  doc.setTextColor(33, 47, 61);
+  doc.text(String(label || ""), x, y - 2);
 
   // Fondo de la barra
-  doc.setFillColor(238, 243, 247);
-  doc.rect(x, y, width, height, "F");
+  doc.setFillColor(232, 236, 240);
+  doc.roundedRect(x, y, width, height, 3, 3, "F");
 
-  // Relleno proporcional
+  // Relleno de progreso
   if (safePct > 0) {
-    doc.setFillColor(fillRgb[0], fillRgb[1], fillRgb[2]);
-    doc.rect(x, y, (width * safePct) / 100, height, "F");
-  }
-
-  // Borde exterior
-  doc.setDrawColor(220, 228, 236);
-  doc.setLineWidth(0.4);
-  doc.rect(x, y, width, height, "S");
-}
-    
-    function exportPatientPDF() {
-      if (!window.jspdf || !window.jspdf.jsPDF) {
-        alert("La librería PDF aún está cargando. Intenta de nuevo en unos segundos.");
-        return;
-      }
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      const pat = getCurrentPatient();
-
-      doc.setFillColor(74, 144, 226);
-      doc.rect(0, 0, 210, 30, "F");
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(20);
-      doc.text("VozVisual - Reporte Clínico y de Evolución", 15, 20);
-
-      doc.setTextColor(44, 62, 80);
-      doc.setFontSize(14);
-      doc.text(`Paciente: ${pat.name}`, 15, 45);
-      doc.setFontSize(11);
-      doc.text(`Grupo de Edad: ${pat.ageGroup} años`, 15, 53);
-      doc.text(`Fecha de Emisión: ${new Date().toLocaleDateString()}`, 15, 61);
-      doc.text(`Profesional / Rol: ${currentRoleName}`, 15, 69);
-
-      doc.setLineWidth(0.5);
-      doc.setLineColor(220, 228, 236);
-      doc.line(15, 75, 195, 75);
-
-      doc.setFontSize(14);
-doc.text("Resumen de Estadísticas y Uso:", 15, 88);
-doc.setFontSize(11);
-
-const totalClicks = (pat.stats && typeof pat.stats.totalClicks === "number") ? pat.stats.totalClicks : 0;
-doc.text(`• Total de pictogramas activados en sesiones: ${totalClicks}`, 20, 98);
-
-let topCat = "-", maxVal = 0;
-const cats = (pat.stats && pat.stats.categories) ? pat.stats.categories : {};
-for (let c in cats) {
-  if (cats[c] > maxVal) {
-    maxVal = cats[c];
-    topCat = c.toUpperCase();
+    const fillWidth = Math.max(2, (width * safePct) / 100);
+    doc.setFillColor(color[0], color[1], color[2]);
+    doc.roundedRect(x, y, fillWidth, height, 3, 3, "F");
   }
 }
 
-const topCatText = (maxVal > 0 && totalClicks > 0)
-  ? `${topCat} (${maxVal} activaciones · ${Math.round((maxVal / totalClicks) * 100)}%)`
-  : "-";
-doc.text(`• Categoría comunicativa más solicitada: ${topCatText}`, 20, 108);
+function exportPatientPDF() {
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert("La librería PDF aún está cargando. Intenta de nuevo en unos segundos.");
+    return;
+  }
 
-      doc.text("Agenda Visual Actual:", 15, 125);
-let yPos = 135;
-if (pat.agendaSteps && pat.agendaSteps.length > 0) {
-  const totalSteps = pat.agendaSteps.length;
-  const completedSteps = pat.agendaSteps.filter(step => Boolean(step.completed)).length;
-  const agendaPct = Math.round((completedSteps / totalSteps) * 100);
+  const pat = typeof getCurrentPatient === "function" ? getCurrentPatient() : null;
+  if (!pat) {
+    alert("No hay un paciente activo seleccionado para generar el reporte.");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
+
+  const patientName = pat.name || "Paciente sin nombre";
+  const ageGroupLabel = pat.ageGroup || pat.age || "No especificado";
+  const stats = pat.stats && typeof pat.stats === "object" ? pat.stats : {};
+  const totalClicks = Number(stats.totalClicks) || 0;
+  const categories = stats.categories && typeof stats.categories === "object" ? stats.categories : {};
+
+  let topCategory = "Ninguna aún";
+  let maxCatCount = 0;
+  Object.entries(categories).forEach(([cat, count]) => {
+    const num = Number(count) || 0;
+    if (num > maxCatCount) {
+      maxCatCount = num;
+      topCategory = cat;
+    }
+  });
+
+  // Encabezado
+  doc.setFillColor(29, 78, 137);
+  doc.rect(0, 0, 210, 28, "F");
+  doc.setFontSize(16);
+  doc.setTextColor(255, 255, 255);
+  doc.text("VozVisual — Reporte Clínico de Progreso", 15, 13);
+  doc.setFontSize(10);
+  doc.text("CAA, Estimulación del Lenguaje y Apoyo Neuropsicológico", 15, 21);
+
+  let yPos = 38;
+
+  // Datos del paciente
+  doc.setFontSize(12);
+  doc.setTextColor(33, 47, 61);
+  doc.text("Datos del Paciente", 15, yPos);
+  yPos += 7;
 
   doc.setFontSize(10);
-  doc.text(`Avance de rutina: ${completedSteps} de ${totalSteps} pasos completados (${agendaPct}%)`, 20, yPos);
-  yPos += 10;
-  doc.setFontSize(11);
-
-  pat.agendaSteps.forEach((step, idx) => {
-    if (yPos > 265) {
-      doc.addPage();
-      yPos = 20;
-    }
-    const statusText = step.completed ? "Completado ✓" : "Pendiente ○";
-    doc.text(`${idx + 1}. ${step.title} - ${statusText}`, 20, yPos);
-    yPos += 8;
-  });
-} else {
-  doc.text("No hay actividades registradas en la agenda.", 20, yPos);
-}
-
-      const log = Array.isArray(window.vvClinicalLog) ? window.vvClinicalLog : [];
-const totalEj = log.length;
-const aciertosEj = log.filter((r) => r && r.esAcierto).length;
-const pctEj = totalEj > 0 ? Math.round((aciertosEj / totalEj) * 100) : 0;
-
-const pasos = pat && Array.isArray(pat.agendaSteps) ? pat.agendaSteps : [];
-const completados = pasos.filter((s) => s && s.completed).length;
-const pctAgenda = pasos.length > 0 ? Math.round((completados / pasos.length) * 100) : 0;
-
-const totalCustom = log.filter((r) => r && r.custom).length;
-const aciertosCustom = log.filter((r) => r && r.custom && r.esAcierto).length;
-const pctCustom = totalCustom > 0 ? Math.round((aciertosCustom / totalCustom) * 100) : 0;
-
-if (yPos > 235) {
-  doc.addPage();
-  yPos = 25;
-} else {
+  doc.setTextColor(60, 72, 88);
+  doc.text(`Nombre: ${patientName}`, 15, yPos);
   yPos += 6;
+  doc.text(`Grupo etario / Edad: ${ageGroupLabel}`, 15, yPos);
+  yPos += 6;
+  doc.text(`Fecha de emisión: ${new Date().toLocaleDateString("es-DO")}`, 15, yPos);
+  yPos += 11;
+
+  // Resumen de estadísticas y uso
+  doc.setFontSize(12);
+  doc.setTextColor(33, 47, 61);
+  doc.text("Resumen de Estadísticas y Uso", 15, yPos);
+  yPos += 7;
+
+  doc.setFontSize(10);
+  doc.setTextColor(60, 72, 88);
+  doc.text(`Total de pictogramas activados: ${totalClicks}`, 15, yPos);
+  yPos += 6;
+  doc.text(
+    `Categoría más solicitada: ${topCategory}${maxCatCount > 0 ? ` (${maxCatCount})` : ""}`,
+    15,
+    yPos
+  );
+  yPos += 11;
+
+  // Agenda Visual Actual
+  const pasos = Array.isArray(pat.agendaSteps) ? pat.agendaSteps : [];
+  doc.setFontSize(12);
+  doc.setTextColor(33, 47, 61);
+  doc.text("Agenda Visual Actual", 15, yPos);
+  yPos += 7;
+
+  doc.setFontSize(10);
+  doc.setTextColor(60, 72, 88);
+
+  if (pasos.length > 0) {
+    pasos.forEach((step, idx) => {
+      if (yPos > 265) {
+        doc.addPage();
+        yPos = 25;
+      }
+      const stepTitle = typeof step === "string" ? step : step && (step.text || step.title || step.label) ? (step.text || step.title || step.label) : `Paso ${idx + 1}`;
+      const done = Boolean(step && typeof step === "object" && step.completed);
+      const statusMark = done ? "[Completado]" : "[Pendiente]";
+      doc.text(`${idx + 1}. ${stepTitle} — ${statusMark}`, 18, yPos);
+      yPos += 6;
+    });
+  } else {
+    doc.text("Sin pasos configurados en la agenda visual actual.", 18, yPos);
+    yPos += 6;
+  }
+
+  yPos += 6;
+
+  // Cálculo de porcentajes para barras de progreso
+  const log = Array.isArray(window.vvClinicalLog) ? window.vvClinicalLog : [];
+  const totalEj = log.length;
+  const aciertosEj = log.filter((r) => r && r.esAcierto).length;
+  const pctEj = totalEj > 0 ? Math.round((aciertosEj / totalEj) * 100) : 0;
+
+  const completados = pasos.filter((s) => s && typeof s === "object" && s.completed).length;
+  const pctAgenda = pasos.length > 0 ? Math.round((completados / pasos.length) * 100) : 0;
+
+  const totalCustom = log.filter((r) => r && r.custom).length;
+  const aciertosCustom = log.filter((r) => r && r.custom && r.esAcierto).length;
+  const pctCustom = totalCustom > 0 ? Math.round((aciertosCustom / totalCustom) * 100) : 0;
+
+  if (yPos > 225) {
+    doc.addPage();
+    yPos = 25;
+  }
+
+  doc.setFontSize(12);
+  doc.setTextColor(33, 47, 61);
+  doc.text("Resumen Gráfico de Progreso", 15, yPos);
+  yPos += 12;
+
+  drawPdfProgressBar(
+    doc,
+    20,
+    yPos,
+    150,
+    6,
+    pctEj,
+    `Precisión en ejercicios: ${pctEj}% (${aciertosEj}/${totalEj})`,
+    [80, 184, 156]
+  );
+  yPos += 15;
+
+  drawPdfProgressBar(
+    doc,
+    20,
+    yPos,
+    150,
+    6,
+    pctAgenda,
+    `Avance en Agenda Visual: ${pctAgenda}% (${completados}/${pasos.length})`,
+    [52, 132, 219]
+  );
+  yPos += 15;
+
+  drawPdfProgressBar(
+    doc,
+    20,
+    yPos,
+    150,
+    6,
+    pctCustom,
+    `Ejercicios personalizados correctos: ${pctCustom}% (${aciertosCustom}/${totalCustom})`,
+    [230, 126, 34]
+  );
+
+  // Pie de página seguro
+  if (yPos > 272) {
+    doc.addPage();
+    yPos = 25;
+  } else {
+    yPos += 12;
+  }
+
+  doc.setFontSize(9);
+  doc.setTextColor(150, 150, 150);
+  doc.text(
+    "Generado automáticamente por la plataforma VozVisual (CAA & Estimulación del Lenguaje).",
+    15,
+    yPos
+  );
+
+  const safeFileName = patientName
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9_-]+/g, "_")
+    .replace(/^_+|_+$/g, "") || "Paciente";
+
+  doc.save(`Reporte_Clinico_${safeFileName}.pdf`);
 }
-
-doc.setFontSize(12);
-doc.setTextColor(33, 47, 61);
-doc.text("Resumen Gráfico de Progreso", 15, yPos);
-yPos += 11;
-
-drawPdfProgressBar(
-  doc,
-  20,
-  yPos,
-  150,
-  6,
-  pctEj,
-  `Precisión en ejercicios: ${pctEj}% (${aciertosEj}/${totalEj})`,
-  [80, 184, 156]
-);
-yPos += 15;
-
-drawPdfProgressBar(
-  doc,
-  20,
-  yPos,
-  150,
-  6,
-  pctAgenda,
-  `Avance en Agenda Visual: ${pctAgenda}% (${completados}/${pasos.length})`,
-  [52, 132, 219]
-);
-yPos += 15;
-
-drawPdfProgressBar(
-  doc,
-  20,
-  yPos,
-  150,
-  6,
-  pctCustom,
-  `Ejercicios personalizados correctos: ${pctCustom}% (${aciertosCustom}/${totalCustom})`,
-  [230, 126, 34]
-);
-      
-      doc.setFontSize(9);
-      doc.setTextColor(150, 150, 150);
-      doc.text("Generado automáticamente por la plataforma VozVisual (CAA & Estimulación del Lenguaje).", 15, 285);
-
-      doc.save(`Reporte_Clinico_${pat.name.replace(/\s+/g, '_')}.pdf`);
-    }
 
     function saveCredentialsForm() {
   const username = document.getElementById('authUsername').value.trim();
