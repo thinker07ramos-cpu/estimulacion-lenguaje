@@ -1040,12 +1040,31 @@
   });
 }
 
+const GROUP_TO_CATEGORY_MAP = {
+  basico: "acciones",
+  necesidades: "alimentos",
+  emociones: "emociones",
+  tiempo: "tiempo",
+  cognicion: "objetos_escuela",
+  conectores: "personas",
+  custom: "objetos_escuela"
+};
+
+function resolveItemCategory(item) {
+  if (!item || typeof item !== "object") return "";
+  if (item.category) return item.category;
+  if (item.group && GROUP_TO_CATEGORY_MAP[item.group]) {
+    return GROUP_TO_CATEGORY_MAP[item.group];
+  }
+  return item.group || "";
+}
+
 function filterItemsByCategory(items, selectedCategory) {
   if (!Array.isArray(items)) return [];
   if (!selectedCategory || selectedCategory === "all" || selectedCategory === "todos") {
     return items;
   }
-  return items.filter((item) => item && item.category === selectedCategory);
+  return items.filter((item) => resolveItemCategory(item) === selectedCategory);
 }
     
     let agruparDatabase = [
