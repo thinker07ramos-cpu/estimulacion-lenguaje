@@ -3128,6 +3128,11 @@ function advanceInitialSoundExercise(delayMs = 1100) {
     renderFonoRound(items, curFono);
   }
 }
+
+  if (typeof renderFonoRound === "function") {
+    renderFonoRound(items, curFono);
+  }
+}
     
     function playFonoTarget() { if(curFono) speak(curFono.word); }
     
