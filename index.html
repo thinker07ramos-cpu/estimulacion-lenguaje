@@ -3029,42 +3029,58 @@ document.addEventListener("DOMContentLoaded", () => {
       initFonoGame();
     }
 
-    function renderFonoRound(listaEjercicios, itemActual) {
-  const targetEl = document.getElementById("fonoTargetEmoji");
-  const titleEl = document.getElementById("fonoTitle");
-  const feedbackEl = document.getElementById("fonoFeedback");
-  const grid = document.getElementById("fonoOptions");
-  if (!itemActual || !grid) return;
+    function renderFonoRound(items, curFono) {
+  if (!curFono || !Array.isArray(items) || items.length === 0) return;
 
-  const correcta = itemActual.correct || itemActual.word || "";
-  const visual = itemActual.emoji || "🗣️";
+  // 1. Limpiar feedback previo y habilitar interacción
+  const fb = document.getElementById("fonoFeedback");
+  if (fb) {
+    fb.innerText = "";
+    fb.style.color = "";
+  }
 
-  if (targetEl) targetEl.innerText = visual;
-  if (titleEl) titleEl.innerText = `1. Sonido Inicial (${currentFonoAgeGroup} años)`;
-  if (feedbackEl) feedbackEl.innerText = "";
+  // 2. Actualizar el emoji / estímulo objetivo
+  const targetEl =
+    document.getElementById("fonoTargetEmoji") ||
+    document.getElementById("fonoEmoji");
+  if (targetEl) {
+    targetEl.textContent = curFono.emoji || curFono.icon || "🔊";
+  }
 
-  const itemConRespuesta = Object.assign({}, itemActual, { correct: correcta });
-  const opts = obtenerOpcionesConRespaldoVV(listaEjercicios, itemConRespuesta, 3);
+  // Si también tienes un texto de apoyo o etiqueta oculta/visible, actualízalo aquí:
+  const promptEl = document.getElementById("fonoPrompt");
+  if (promptEl && curFono.prompt) {
+    promptEl.textContent = curFono.prompt;
+  }
 
-  grid.innerHTML = "";
-  opts.forEach((opcionTexto) => {
-    const b = document.createElement("button");
-    b.className = "fono-option";
-    b.type = "button";
-    b.innerText = opcionTexto;
-    b.onclick = () => {
-      const esAcierto = esRespuestaCorrectaVV(itemConRespuesta, opcionTexto);
-      if (!feedbackEl) return;
-      if (esAcierto) {
-        feedbackEl.innerText = `¡Muy bien! (${opcionTexto})`;
-        feedbackEl.style.color = "var(--secondary)";
-      } else {
-        feedbackEl.innerText = `Inténtalo de nuevo (${opcionTexto})`;
-        feedbackEl.style.color = "var(--danger)";
+  // 3. Reconstruir las opciones desde cero
+  const optionsEl = document.getElementById("fonoOptions");
+  if (!optionsEl) return;
+  optionsEl.innerHTML = "";
+
+  // Tomar la palabra correcta y opciones distractoras sin duplicar
+  const optionWords = [curFono.word];
+  for (const item of items) {
+    if (optionWords.length >= 3) break;
+    if (item && item.word && !optionWords.includes(item.word)) {
+      optionWords.push(item.word);
+    }
+  }
+
+  // Mezclar suavemente el orden de las opciones en pantalla
+  optionWords.sort(() => Math.random() - 0.5);
+
+  optionWords.forEach((wordOption) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "fono-option-btn";
+    btn.textContent = wordOption;
+    btn.addEventListener("click", () => {
+      if (typeof checkFono === "function") {
+        checkFono(wordOption);
       }
-      if (typeof persistState === "function") persistState();
-    };
-    grid.appendChild(b);
+    });
+    optionsEl.appendChild(btn);
   });
 }
     
