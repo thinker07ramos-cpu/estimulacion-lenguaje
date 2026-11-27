@@ -1971,32 +1971,43 @@ if (typeof renderCustomExercisesList === "function") {
 function saveCustomPicto() {
   const wInput = document.getElementById('customWord');
   const fInput = document.getElementById('customImageFile');
+  const cSelect = document.getElementById('customCategorySelect');
   const selectedWebImg = document.getElementById('customSelectedImgSrc').value;
-  if(!wInput.value.trim()) { alert("Ingresa un nombre."); return; }
-  if(fInput.files.length > 0) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      getCurrentPatient().customPictos.push({ id: Date.now(), word: wInput.value.trim(), isCustom: true, imgSrc: e.target.result, type: "cat-custom", group: "custom" });
-      wInput.value = '';
-      fInput.value = '';
-      resetCustomSearchUI();
-      persistState();
-      alert("¡Foto guardada en el comunicador!");
-      renderGrid('custom');
-    };
-    reader.readAsDataURL(fInput.files[0]);
-  } else if(selectedWebImg) {
-    if(selectedWebImg.length <= 4) {
-      getCurrentPatient().customPictos.push({ id: Date.now(), word: wInput.value.trim(), emoji: selectedWebImg, type: "cat-custom", group: "custom" });
-    } else {
-      getCurrentPatient().customPictos.push({ id: Date.now(), word: wInput.value.trim(), isCustom: true, imgSrc: selectedWebImg, type: "cat-custom", group: "custom" });
-    }
+  const selectedCategory = cSelect && cSelect.value ? cSelect.value : 'objetos_escuela';
+
+  if (!wInput.value.trim()) {
+    alert("Ingresa un nombre.");
+    return;
+  }
+
+  const pushNewPicto = (extraProps) => {
+    getCurrentPatient().customPictos.push({
+      id: Date.now(),
+      word: wInput.value.trim(),
+      category: selectedCategory,
+      type: "cat-custom",
+      group: "custom",
+      ...extraProps
+    });
     wInput.value = '';
+    if (fInput) fInput.value = '';
     document.getElementById('customSelectedImgSrc').value = '';
     resetCustomSearchUI();
     persistState();
     alert("¡Foto guardada en el comunicador!");
     renderGrid('custom');
+  };
+
+  if (fInput && fInput.files.length > 0) {
+    const reader = new FileReader();
+    reader.onload = e => pushNewPicto({ isCustom: true, imgSrc: e.target.result });
+    reader.readAsDataURL(fInput.files[0]);
+  } else if (selectedWebImg) {
+    if (selectedWebImg.length <= 4) {
+      pushNewPicto({ emoji: selectedWebImg });
+    } else {
+      pushNewPicto({ isCustom: true, imgSrc: selectedWebImg });
+    }
   } else {
     alert("Selecciona una imagen local o búscala en la web.");
   }
