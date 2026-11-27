@@ -1087,7 +1087,18 @@ function filterItemsByCategory(items, selectedCategory) {
   if (!selectedCategory || selectedCategory === "all" || selectedCategory === "todos") {
     return items;
   }
-  return items.filter((item) => resolveItemCategory(item) === selectedCategory);
+
+  const target = String(selectedCategory).trim().toLowerCase();
+
+  return items.filter((item) => {
+    // Si hay un filtro explícito de "custom" / "Mis Fotos ⭐", muestra los ítems personalizados
+    if (target === "custom") {
+      return Boolean(item && (item.isCustom || item.group === "custom"));
+    }
+
+    // Para cualquier categoría de APP_CATEGORIES (p. ej. "acciones"), usa la categoría resuelta
+    return resolveItemCategory(item) === target;
+  });
 }
     
     let agruparDatabase = [
