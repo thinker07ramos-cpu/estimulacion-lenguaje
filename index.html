@@ -2987,7 +2987,7 @@ c.className = `picto-card ${visualType}`;
 
   const filtered = filterItemsByCategory(vocabDatabase, currentVocabFilter);
 
-      filtered.forEach(item => {
+  filtered.forEach(item => {
     const c = document.createElement('div');
     const resolvedCat = typeof resolveItemCategory === 'function' ? resolveItemCategory(item) : (item.category || '');
     const vocabCatMap = {
@@ -3005,21 +3005,20 @@ c.className = `picto-card ${visualType}`;
     c.insertAdjacentHTML('afterbegin', contentHTML);
     c.addEventListener("click", () => handleCardClick(item));
     grid.appendChild(c);
-  });    
-    }
+  });
 
-      const uploadCard = document.createElement('div');
-      uploadCard.className = 'picto-card';
-      uploadCard.style.border = '3px dashed var(--secondary)';
-      uploadCard.style.background = 'var(--option-bg)';
-      uploadCard.innerHTML = `
-        <div style="font-size:45px; margin-bottom:5px;">➕</div>
-        <div class="picto-word" style="font-size:14px; color:var(--secondary);">Subir Imagen</div>
-        <input type="file" id="vocabFileInput" accept="image/*" style="display:none;">
-      `;
-      uploadCard.onclick = () => openVocabUploadModal(typeof currentVocabFilter !== 'undefined' ? currentVocabFilter : 'casa');
-      grid.appendChild(uploadCard);
-    }
+  const uploadCard = document.createElement('div');
+  uploadCard.className = 'picto-card';
+  uploadCard.style.border = '3px dashed var(--secondary)';
+  uploadCard.style.background = 'var(--option-bg)';
+  uploadCard.innerHTML = `
+    <div style="font-size:45px; margin-bottom:5px;">➕</div>
+    <div class="picto-word" style="font-size:14px; color:var(--secondary);">Subir Imagen</div>
+    <input type="file" id="vocabFileInput" accept="image/*" style="display:none;">
+  `;
+  uploadCard.onclick = () => openVocabUploadModal(typeof currentVocabFilter !== 'undefined' ? currentVocabFilter : 'casa');
+  grid.appendChild(uploadCard);
+}
 
     function filterVocab(category, btn) {
   currentVocabFilter = category;
