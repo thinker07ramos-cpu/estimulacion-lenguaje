@@ -1981,14 +1981,14 @@ function saveCustomPicto() {
   }
 
   const pushNewPicto = (extraProps) => {
-    getCurrentPatient().customPictos.push({
-      id: Date.now(),
-      word: wInput.value.trim(),
-      category: selectedCategory,
-      type: "cat-custom",
-      group: "custom",
-      ...extraProps
-    });
+  getCurrentPatient().customPictos.push({
+    id: Date.now(),
+    word: wInput.value.trim(),
+    category: selectedCategory,
+    group: selectedCategory,
+    type: "cat-custom",
+    ...extraProps
+  });
     wInput.value = '';
     if (fInput) fInput.value = '';
     document.getElementById('customSelectedImgSrc').value = '';
