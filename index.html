@@ -2945,11 +2945,14 @@ c.className = `picto-card ${visualType}`;
 
     function speakSentence() { if(sentence.length) speak(sentence.map(s => s.word).join(' ')); }
     function clearSentence() { sentence = []; updateSentenceStrip(); persistState(); }
-    function filterCategory(cat, btn) {
-      document.querySelectorAll('#view-comunicador .tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderGrid(cat);
-    }
+    function filterCategory(cat, btnEl) {
+  currentCommunicatorFilter = cat || 'all';
+  if (btnEl) {
+    document.querySelectorAll('#commCategoryTabs .tab-btn, #commCategoryTabs .category-chip').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+  }
+  renderGrid(currentCommunicatorFilter);
+}
 
     function addNewExercise() {
   const modEl = document.getElementById("newExModule");
