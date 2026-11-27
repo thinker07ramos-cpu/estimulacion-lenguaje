@@ -1461,34 +1461,36 @@ if (importBackupInput) importBackupInput.addEventListener("change", importBackup
     }
 
     function switchModule(modId, btn) {
-      document.querySelectorAll('.mod-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-      if(btn) btn.classList.add('active');
-      const targetSec = document.getElementById(`view-${modId}`);
-      if(targetSec) targetSec.classList.add('active');
+  document.querySelectorAll('.mod-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const targetSec = document.getElementById(`view-${modId}`);
+  if (targetSec) targetSec.classList.add('active');
 
-      const topBar = document.getElementById('topSentenceBar');
-      if (modId === 'comunicador') {
-        topBar.style.display = 'flex';
-      } else {
-        topBar.style.display = 'none';
-        if (modId === 'vocabulario') renderVocabGrid();
-        if (modId === 'agenda') {
-          renderAgendaTimeline();
-          updateSavedRoutinesDropdown();
-        }
-        if (modId === 'fonologia') {
-          initFonoGame();
-          initUnirGame();
-        }
-        if (modId === 'semantica') {
-          initSemanticaGame();
-          initAgruparGame();
-        }
-        if (modId === 'terapeuta') {
-  updateStatsUI();
-  if (typeof renderClinicalUploadedImagesPanel === "function") {
-    renderClinicalUploadedImagesPanel();
+  const topBar = document.getElementById('topSentenceBar');
+  if (modId === 'comunicador') {
+    topBar.style.display = 'flex';
+  } else {
+    topBar.style.display = 'none';
+    if (modId === 'vocabulario') renderVocabGrid();
+    if (modId === 'agenda') {
+      renderAgendaTimeline();
+      updateSavedRoutinesDropdown();
+    }
+    if (modId === 'fonologia') {
+      initFonoGame();
+      initUnirGame();
+    }
+    if (modId === 'semantica') {
+      initSemanticaGame();
+      initAgruparGame();
+    }
+    if (modId === 'terapeuta') {
+      updateStatsUI();
+      if (typeof renderClinicalUploadedImagesPanel === "function") {
+        renderClinicalUploadedImagesPanel();
+      }
+    }
   }
 }
         
