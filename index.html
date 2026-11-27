@@ -2988,27 +2988,24 @@ c.className = `picto-card ${visualType}`;
   const filtered = filterItemsByCategory(vocabDatabase, currentVocabFilter);
 
       filtered.forEach(item => {
-        const c = document.createElement('div');
-        c.className = 'picto-card cat-sustantivo';
-        let contentHTML = item.isCustom ? `<img src="${item.imgSrc}" class="picto-img"><div class="picto-word">${item.word}</div>` : `<div class="picto-emoji">${item.emoji}</div><div class="picto-word">${item.word}</div>`;
-
-        if(item.isCustom) {
-          const deleteBtn = document.createElement('button');
-          deleteBtn.className = 'delete-badge';
-          deleteBtn.type = 'button';
-          deleteBtn.title = 'Eliminar imagen';
-          deleteBtn.innerText = '✕';
-          deleteBtn.style.position = 'absolute';
-          deleteBtn.style.top = '10px';
-          deleteBtn.style.right = '10px';
-          deleteBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if(confirm(`¿Deseas eliminar "${item.word}" de vocabulario?`)) {
-              vocabDatabase = vocabDatabase.filter(v => v.id !== item.id);
-              persistState();
-              renderVocabGrid(currentVocabFilter);
-            }
-          });
+    const c = document.createElement('div');
+    const resolvedCat = typeof resolveItemCategory === 'function' ? resolveItemCategory(item) : (item.category || '');
+    const vocabCatMap = {
+      acciones: 'cat-verbo',
+      emociones: 'cat-emocion',
+      personas: 'cat-pronombre',
+      tiempo: 'cat-tiempo',
+      atributos: 'cat-cognicion'
+    };
+    const visualClass = vocabCatMap[resolvedCat] || 'cat-sustantivo';
+    c.className = `picto-card ${visualClass}`;
+    let contentHTML = item.isCustom
+      ? `<img src="${item.imgSrc}" class="picto-img"><div class="picto-word">${item.word}</div>`
+      : `<div class="picto-emoji">${item.emoji}</div><div class="picto-word">${item.word}</div>`;
+    c.insertAdjacentHTML('afterbegin', contentHTML);
+    c.addEventListener("click", () => handleCardClick(item));
+    grid.appendChild(c);
+  });
           c.appendChild(deleteBtn);
         }
 
