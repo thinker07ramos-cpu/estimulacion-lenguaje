@@ -2085,9 +2085,17 @@ function renderClinicalUploadedImagesPanel() {
     const row = document.createElement("div");
     row.style.cssText = "display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; background: var(--card-bg); border: 1px solid var(--border-soft);";
 
-    const thumb = item.imgSrc
-      ? `<img src="${item.imgSrc}" alt="${item.word}" style="width: 42px; height: 42px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-soft); flex-shrink: 0;">`
-      : `<div style="width: 42px; height: 42px; border-radius: 8px; background: var(--option-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">🖼️</div>`;
+    let thumb;
+    if (item.imgSrc) {
+      thumb = document.createElement("img");
+      thumb.src = item.imgSrc;
+      thumb.alt = item.word || "Imagen";
+      thumb.style.cssText = "width: 42px; height: 42px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-soft); flex-shrink: 0;";
+    } else {
+      thumb = document.createElement("div");
+      thumb.style.cssText = "width: 42px; height: 42px; border-radius: 8px; background: var(--option-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0;";
+      thumb.textContent = "🖼️";
+    }
 
     const info = document.createElement("div");
     info.style.cssText = "flex: 1; min-width: 0; text-align: left;";
