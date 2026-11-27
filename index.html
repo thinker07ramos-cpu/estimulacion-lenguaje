@@ -1491,8 +1491,7 @@ if (importBackupInput) importBackupInput.addEventListener("change", importBackup
     renderClinicalUploadedImagesPanel();
   }
 }
-    }
-    
+        
     function drawPdfProgressBar(doc, x, y, width, height, percent, label, fillColor) {
   const safePct = Math.max(0, Math.min(100, Number(percent) || 0));
   const color = Array.isArray(fillColor) && fillColor.length === 3 ? fillColor : [80, 184, 156];
