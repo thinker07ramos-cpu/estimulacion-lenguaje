@@ -3720,6 +3720,16 @@ function initSemanticaGame() {
   document.getElementById('statPatientName').innerText = pat.name || "-";
   document.getElementById('statTotalClicks').innerText = Number(stats.totalClicks) || 0;
 
+  const categoryLabels = {
+    custom: "Mis Fotos ⭐",
+    basico: "Básico",
+    necesidades: "Necesidades",
+    emociones: "Emociones",
+    tiempo: "Tiempo",
+    cognicion: "Cognición",
+    conectores: "Conectores"
+  };
+
   let top = "-";
   let max = 0;
 
@@ -3728,7 +3738,7 @@ function initSemanticaGame() {
     const count = Number(categories[c]) || 0;
     if (count > max) {
       max = count;
-      top = String(c).toUpperCase();
+      top = categoryLabels[c] || String(c).toUpperCase();
     }
   }
 
