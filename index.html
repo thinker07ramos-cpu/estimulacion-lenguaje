@@ -2020,6 +2020,9 @@ function saveCustomPicto() {
     document.getElementById('customSelectedImgSrc').value = '';
     resetCustomSearchUI();
     persistState();
+    if (typeof renderClinicalUploadedImagesPanel === "function") {
+  renderClinicalUploadedImagesPanel();
+}
     alert("¡Foto guardada en el comunicador!");
     renderGrid('custom');
   };
@@ -2039,6 +2042,125 @@ function saveCustomPicto() {
   }
 }
 
+    function getAllUploadedMediaItems() {
+  const items = [];
+  const pat = typeof getCurrentPatient === "function" ? getCurrentPatient() : null;
+
+  if (pat && Array.isArray(pat.customPictos)) {
+    pat.customPictos.forEach((p, idx) => {
+      if (p && (p.isCustom || p.imgSrc)) {
+        items.push({
+          origin: "comunicador",
+          originLabel: "Comunicador",
+          id: p.id,
+          index: idx,
+          word: p.word || "Sin nombre",
+          category: typeof resolveItemCategory === "function"
+            ? resolveItemCategory(p)
+            : (p.category || "objetos_escuela"),
+          imgSrc: p.imgSrc || ""
+        });
+      }
+    });
+  }
+
+  if (Array.isArray(vocabDatabase)) {
+    vocabDatabase.forEach((v, idx) => {
+      if (v && (v.isCustom || v.source === "custom" || v.imgSrc)) {
+        items.push({
+          origin: "vocabulario",
+          originLabel: "Vocabulario",
+          id: v.id,
+          index: idx,
+          word: v.word || "Sin nombre",
+          category: v.category || "objetos_escuela",
+          imgSrc: v.imgSrc || ""
+        });
+      }
+    });
+  }
+
+  return items;
+}
+
+function renderClinicalUploadedImagesPanel() {
+  const listEl = document.getElementById("clinicalUploadedImagesList");
+  const countEl = document.getElementById("clinicalUploadedImagesCount");
+  if (!listEl) return;
+
+  const items = getAllUploadedMediaItems();
+  if (countEl) {
+    countEl.textContent = `${items.length} ${items.length === 1 ? "elemento" : "elementos"}`;
+  }
+
+  listEl.innerHTML = "";
+  if (items.length === 0) {
+    listEl.innerHTML = `<div style="padding: 12px; border-radius: 12px; background: var(--option-bg); border: 1px solid var(--border-soft); font-size: 13px; color: var(--text-muted);">No hay imágenes subidas registradas aún.</div>`;
+    return;
+  }
+
+  items.forEach((item) => {
+    const row = document.createElement("div");
+    row.style.cssText = "display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; background: var(--card-bg); border: 1px solid var(--border-soft);";
+
+    const thumb = item.imgSrc
+      ? `<img src="${item.imgSrc}" alt="${item.word}" style="width: 42px; height: 42px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-soft); flex-shrink: 0;">`
+      : `<div style="width: 42px; height: 42px; border-radius: 8px; background: var(--option-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">🖼️</div>`;
+
+    const info = document.createElement("div");
+    info.style.cssText = "flex: 1; min-width: 0; text-align: left;";
+    info.innerHTML = `
+      <div style="font-size: 12px; font-weight: 700; color: var(--primary);">${item.originLabel} · ${item.category}</div>
+      <div style="font-size: 14px; font-weight: 700; color: var(--text-main); word-break: break-word;">${item.word}</div>
+    `;
+
+    const delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.className = "delete-badge";
+    delBtn.title = "Eliminar imagen";
+    delBtn.textContent = "✕";
+    delBtn.addEventListener("click", () => deleteClinicalUploadedImage(item));
+
+    row.appendChild(thumb);
+    row.appendChild(info);
+    row.appendChild(delBtn);
+    listEl.appendChild(row);
+  });
+}
+
+function deleteClinicalUploadedImage(item) {
+  if (!item) return;
+  if (!confirm(`¿Eliminar "${item.word}" de ${item.originLabel}? Esta acción no se puede deshacer.`)) {
+    return;
+  }
+
+  if (item.origin === "comunicador") {
+    const pat = typeof getCurrentPatient === "function" ? getCurrentPatient() : null;
+    if (pat && Array.isArray(pat.customPictos)) {
+      const idx = item.id !== undefined
+        ? pat.customPictos.findIndex((p) => p && p.id === item.id)
+        : item.index;
+      if (idx >= 0 && idx < pat.customPictos.length) {
+        pat.customPictos.splice(idx, 1);
+      }
+    }
+    if (typeof renderGrid === "function") renderGrid(currentCommunicatorFilter);
+  } else if (item.origin === "vocabulario") {
+    if (Array.isArray(vocabDatabase)) {
+      const idx = item.id !== undefined
+        ? vocabDatabase.findIndex((v) => v && v.id === item.id)
+        : item.index;
+      if (idx >= 0 && idx < vocabDatabase.length) {
+        vocabDatabase.splice(idx, 1);
+      }
+    }
+    if (typeof renderVocabGrid === "function") renderVocabGrid();
+  }
+
+  if (typeof persistState === "function") persistState();
+  renderClinicalUploadedImagesPanel();
+}
+    
     let vocabPendingImageSrc = '';
 let vocabPendingSourceText = '';
 
