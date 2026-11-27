@@ -3711,18 +3711,33 @@ function initSemanticaGame() {
     }
 
     function updateStatsUI() {
-      const pat = getCurrentPatient();
-      document.getElementById('statPatientName').innerText = pat.name;
-      document.getElementById('statTotalClicks').innerText = pat.stats.totalClicks;
-      let top = "-", max = 0;
-      for (let c in pat.stats.categories) {
-        if(pat.stats.categories[c] > max) { max = pat.stats.categories[c]; top = c.toUpperCase(); }
-      }
-      document.getElementById('statTopCategory').innerText = top;
-      if (typeof renderClinicalPanelCharts === "function") {
-  renderClinicalPanelCharts();
-}
+  const pat = getCurrentPatient();
+  if (!pat) return;
+
+  const stats = pat.stats && typeof pat.stats === "object" ? pat.stats : { totalClicks: 0, categories: {} };
+  const categories = stats.categories && typeof stats.categories === "object" ? stats.categories : {};
+
+  document.getElementById('statPatientName').innerText = pat.name || "-";
+  document.getElementById('statTotalClicks').innerText = Number(stats.totalClicks) || 0;
+
+  let top = "-";
+  let max = 0;
+
+  for (let c in categories) {
+    if (!c || c === "undefined" || c === "null") continue;
+    const count = Number(categories[c]) || 0;
+    if (count > max) {
+      max = count;
+      top = String(c).toUpperCase();
     }
+  }
+
+  document.getElementById('statTopCategory').innerText = top;
+
+  if (typeof renderClinicalPanelCharts === "function") {
+    renderClinicalPanelCharts();
+  }
+}
 
     function resetStats() {
   const pat = typeof getCurrentPatient === "function" ? getCurrentPatient() : null;
