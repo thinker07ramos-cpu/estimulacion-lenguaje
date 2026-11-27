@@ -1485,11 +1485,12 @@ if (importBackupInput) importBackupInput.addEventListener("change", importBackup
           initSemanticaGame();
           initAgruparGame();
         }
-        if (modId === 'terapeuta') updateStatsUI();
-        if (typeof renderClinicalPanelCharts === "function") {
-  renderClinicalPanelCharts();
+        if (modId === 'terapeuta') {
+  updateStatsUI();
+  if (typeof renderClinicalUploadedImagesPanel === "function") {
+    renderClinicalUploadedImagesPanel();
+  }
 }
-      }
     }
 
     function drawPdfProgressBar(doc, x, y, width, height, pct, labelText, fillRgb) {
