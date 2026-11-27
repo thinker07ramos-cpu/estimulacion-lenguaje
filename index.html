@@ -3005,23 +3005,7 @@ c.className = `picto-card ${visualType}`;
     c.insertAdjacentHTML('afterbegin', contentHTML);
     c.addEventListener("click", () => handleCardClick(item));
     grid.appendChild(c);
-  });
-
-        const speakBtn = document.createElement('button');
-        speakBtn.className = 'action-btn btn-speak';
-        speakBtn.type = 'button';
-        speakBtn.style.cssText = 'font-size:12px; padding:6px 12px; margin-top:8px; min-height: 36px;';
-        speakBtn.innerText = '🔊 Escuchar';
-        speakBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          speak(item.word);
-        });
-
-        c.insertAdjacentHTML('afterbegin', contentHTML);
-        c.appendChild(speakBtn);
-        c.addEventListener("click", () => speak(item.word));
-        grid.appendChild(c);
-      });
+  });    
     }
 
       const uploadCard = document.createElement('div');
