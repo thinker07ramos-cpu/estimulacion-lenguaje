@@ -2929,50 +2929,32 @@ document.getElementById('agendaWebResults').innerHTML = '';
   let all = [...basePictograms, ...pat.customPictos];
   let filtered = filterItemsByCategory(all, currentCommunicatorFilter);
       filtered.forEach(item => {
-        const c = document.createElement('div');
-        const resolvedCat = resolveItemCategory(item);
-const catClassMap = {
-  acciones: "cat-verbo",
-  emociones: "cat-emocion",
-  personas: "cat-pronombre",
-  alimentos: "cat-sustantivo",
-  animales: "cat-sustantivo",
-  cuerpo_higiene: "cat-sustantivo",
-  lugares: "cat-sustantivo",
-  objetos_escuela: "cat-sustantivo",
-  atributos: "cat-cognicion",
-  tiempo: "cat-tiempo"
-};
-const visualType = item.type && item.type !== "cat-custom"
-  ? item.type
-  : (catClassMap[resolvedCat] || "cat-custom");
-c.className = `picto-card ${visualType}`;
-        let contentHTML = item.isCustom ? `<img src="${item.imgSrc}" class="picto-img"><div class="picto-word">${item.word}</div>` : `<div class="picto-emoji">${item.emoji}</div><div class="picto-word">${item.word}</div>`;
+    const resolvedCat = resolveItemCategory(item);
+    const catClassMap = {
+      acciones: "cat-verbo",
+      emociones: "cat-emocion",
+      personas: "cat-pronombre",
+      alimentos: "cat-sustantivo",
+      animales: "cat-sustantivo",
+      cuerpo_higiene: "cat-sustantivo",
+      lugares: "cat-sustantivo",
+      objetos_escuela: "cat-sustantivo",
+      atributos: "cat-cognicion",
+      tiempo: "cat-tiempo"
+    };
+    const visualClass = catClassMap[resolvedCat] || "cat-sustantivo";
 
-        if(item.isCustom) {
-          const deleteBtn = document.createElement('button');
-          deleteBtn.className = 'delete-badge';
-          deleteBtn.type = 'button';
-          deleteBtn.title = 'Eliminar imagen';
-          deleteBtn.innerText = '✕';
-          deleteBtn.style.position = 'absolute';
-          deleteBtn.style.top = '10px';
-          deleteBtn.style.right = '10px';
-          deleteBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if(confirm(`¿Deseas eliminar "${item.word}" del comunicador?`)) {
-              pat.customPictos = pat.customPictos.filter(p => p.id !== item.id);
-              persistState();
-              renderGrid(currentCommunicatorFilter);
-            }
-          });
-          c.appendChild(deleteBtn);
-        }
+    const c = document.createElement('div');
+    c.className = `picto-card ${item.type || visualClass}`;
 
-        c.insertAdjacentHTML('afterbegin', contentHTML);
-        c.addEventListener("click", () => handleCardClick(item));
-        grid.appendChild(c);
-      });
+    const contentHTML = item.isCustom
+      ? `<img src="${item.imgSrc}" class="picto-img" alt="${item.word}"><div class="picto-word">${item.word}</div>`
+      : `<div class="picto-emoji">${item.emoji}</div><div class="picto-word">${item.word}</div>`;
+
+    c.insertAdjacentHTML('afterbegin', contentHTML);
+    c.addEventListener('click', () => handleCardClick(item));
+    grid.appendChild(c);
+  });
     }
 
     function renderVocabGrid(category = 'all') {
