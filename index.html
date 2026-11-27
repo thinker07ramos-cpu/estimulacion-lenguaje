@@ -2065,20 +2065,23 @@ function saveCustomPicto() {
   }
 
   if (Array.isArray(vocabDatabase)) {
-    vocabDatabase.forEach((v, idx) => {
-      if (v && (v.isCustom || v.source === "custom" || v.imgSrc)) {
-        items.push({
-          origin: "vocabulario",
-          originLabel: "Vocabulario",
-          id: v.id,
-          index: idx,
-          word: v.word || "Sin nombre",
-          category: v.category || "objetos_escuela",
-          imgSrc: v.imgSrc || ""
-        });
-      }
-    });
-  }
+      vocabDatabase.forEach((v, idx) => {
+        const hasCustomImage = Boolean(
+          v && (v.isCustom === true || (typeof v.imgSrc === "string" && v.imgSrc.trim() !== ""))
+        );
+        if (hasCustomImage) {
+          items.push({
+            origin: "vocabulario",
+            originLabel: "Vocabulario",
+            id: v.id,
+            index: idx,
+            word: v.word || "Sin nombre",
+            category: v.category || "objetos_escuela",
+            imgSrc: v.imgSrc || ""
+          });
+        }
+      });
+    }
 
   return items;
 }
