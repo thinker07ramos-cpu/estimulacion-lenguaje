@@ -2345,6 +2345,18 @@ function saveVocabCustomItem() {
     renderVocabGrid(activeFilter);
   }
 
+  // Ejemplo dentro de la función que guarda una imagen personalizada en Vocabulario
+vocabDatabase.push(newVocabItem);
+if (typeof persistState === "function") {
+  persistState();
+}
+if (typeof renderVocabGrid === "function") {
+  renderVocabGrid();
+}
+if (typeof renderClinicalUploadedImagesPanel === "function") {
+  renderClinicalUploadedImagesPanel();
+}
+  
   closeVocabArasaacModal();
 }
     
