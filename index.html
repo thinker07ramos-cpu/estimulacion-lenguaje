@@ -1070,11 +1070,16 @@ const GROUP_TO_CATEGORY_MAP = {
 
 function resolveItemCategory(item) {
   if (!item || typeof item !== "object") return "";
-  if (item.category) return item.category;
+
+  if (typeof item.category === "string" && item.category.trim() !== "") {
+    return item.category.trim().toLowerCase();
+  }
+
   if (item.group && GROUP_TO_CATEGORY_MAP[item.group]) {
     return GROUP_TO_CATEGORY_MAP[item.group];
   }
-  return item.group || "";
+
+  return typeof item.group === "string" ? item.group.trim().toLowerCase() : "";
 }
 
 function filterItemsByCategory(items, selectedCategory) {
