@@ -2786,7 +2786,23 @@ document.getElementById('agendaWebResults').innerHTML = '';
   let filtered = filterItemsByCategory(all, currentCommunicatorFilter);
       filtered.forEach(item => {
         const c = document.createElement('div');
-        c.className = `picto-card ${item.type}`;
+        const resolvedCat = resolveItemCategory(item);
+const catClassMap = {
+  acciones: "cat-verbo",
+  emociones: "cat-emocion",
+  personas: "cat-pronombre",
+  alimentos: "cat-sustantivo",
+  animales: "cat-sustantivo",
+  cuerpo_higiene: "cat-sustantivo",
+  lugares: "cat-sustantivo",
+  objetos_escuela: "cat-sustantivo",
+  atributos: "cat-cognicion",
+  tiempo: "cat-tiempo"
+};
+const visualType = item.type && item.type !== "cat-custom"
+  ? item.type
+  : (catClassMap[resolvedCat] || "cat-custom");
+c.className = `picto-card ${visualType}`;
         let contentHTML = item.isCustom ? `<img src="${item.imgSrc}" class="picto-img"><div class="picto-word">${item.word}</div>` : `<div class="picto-emoji">${item.emoji}</div><div class="picto-word">${item.word}</div>`;
 
         if(item.isCustom) {
