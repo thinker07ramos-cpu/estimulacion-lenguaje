@@ -2752,6 +2752,27 @@ function toggleAgendaFocusMode() {
 
   updateAgendaProgress(pat.agendaSteps);
 }
+
+    function moveAgendaStep(index, delta) {
+  const pat = typeof getCurrentPatient === 'function' ? getCurrentPatient() : null;
+  if (!pat || !Array.isArray(pat.agendaSteps)) return;
+
+  const targetIndex = index + delta;
+  if (index < 0 || index >= pat.agendaSteps.length) return;
+  if (targetIndex < 0 || targetIndex >= pat.agendaSteps.length) return;
+
+  // Intercambia el paso actual con el paso adyacente
+  const temp = pat.agendaSteps[index];
+  pat.agendaSteps[index] = pat.agendaSteps[targetIndex];
+  pat.agendaSteps[targetIndex] = temp;
+
+  if (typeof persistState === 'function') {
+    persistState();
+  }
+  if (typeof renderAgendaTimeline === 'function') {
+    renderAgendaTimeline();
+  }
+}
     
     function toggleAgendaStep(stepId) {
   const pat = getCurrentPatient();
